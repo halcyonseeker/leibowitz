@@ -5,12 +5,16 @@
 
 (in-package :leibowitz-core/tests)
 
-(defmacro define-library-test (name &body body)
-  `(progn
-     (define-test ,name)
-     (define-test ,(read-from-string (format NIL "sqlite-library-~A" name))
-       :parent ,name
-       ,@body)))
+(defmacro define-library-test (name (library) &body body)
+  (let ((path (gensym)))
+    `(progn
+       (define-test ,name)
+       (define-test ,(read-from-string (format NIL "sqlite-library-~A" name))
+         :parent ,name
+         (let* ((,path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_sqlite_test"))
+                (,library (make-instance 'sqlite-library :db-path ,path)))
+           (unwind-protect (progn ,@body)
+             (delete-file ,path)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Backend-specific tests
