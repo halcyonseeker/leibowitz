@@ -98,3 +98,11 @@ create table if not exists 'tag_predicates' (
 (defmethod sqlite-rows ((l sqlite-library) &rest args)
   "Run a query on this database that returns multiple rows."
   (apply #'sqlite:execute-to-list (nconc (list (slot-value l 'handle)) args)))
+
+(defmacro with-sqlite-tx ((sqlite-library) &body body)
+  "Run BODY as an atomic SQLite transaction."
+  `(progn
+     (sqlite-nq ,sqlite-library "begin transaction")
+     (handler-case (progn ,@body)
+       (T () (sqlite-nq ,sqlite-library "rollback"))
+       (:no-error () (sqlite-nq ,sqlite-library "commit")))))

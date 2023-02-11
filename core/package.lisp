@@ -38,6 +38,7 @@
            #:sqlite-nq
            #:sqlite-row
            #:sqlite-rows
+           #:with-sqlite-tx
            )
   ;; Datum types
   (:export #:datum-file
