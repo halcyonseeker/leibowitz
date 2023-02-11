@@ -1,0 +1,66 @@
+\documentclass[12pt, twoside]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage[margin=0.5in]{geometry}
+
+\usepackage[backend=biber,style=mla,citestyle=authoryear,sorting=none]{biblatex}
+\addbibresource{references.bib}
+
+\begin{document}
+
+\title{Leibowitz: A Tagging Ontology In Common Lisp}
+\author{Thalia Wright}
+\maketitle
+
+\hypersetup{
+  pdfauthor={Thalia Wright},
+  pdftitle={Leibowitz: A Tagging Ontology In Common Lisp},
+  pdfsubject={Technical overview of a proof-of-concept Common Lisp library},
+  pdfcreator={LaTeX via AUCTeX in GNU Emacs},
+  pdflang={English}}
+
+\abstract{The Leibowitz core is a modular Common Lisp system that
+  implements an ontology for organizing units of data into
+  mutually-inclusive hierarchies of tags.  Its reference client
+  program is a file tagging and full-text search utility so by default
+  it provides backends that source data from files on a file system
+  and queries an ontology stored in a SQLite database.  It's designed
+  in a modular fashion to allow programmers to use it to add rich
+  tagging to any kind of dataset.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Rational and Background}
+
+Leibowitz grew out of a frustration with the limitations of the
+organizational utility of Unix-style hierarchical file systems.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Overview of Tagging Systems}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Why Common Lisp?}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{API Overview}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Code Structure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Future Directions}
+
+\subsection{Building Folksonomies}
+
+\subsection{Building Expert Systems}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Concrete Applications}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Citations}
+
+\printbibliography
+
+\end{document}
