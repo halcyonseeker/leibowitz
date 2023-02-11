@@ -86,12 +86,15 @@
   (:documentation "The core unit of taggable data."))
 
 (defgeneric datum-find-birth (datum)
+  (:method ((d datum)) (declare (ignore d)) (get-universal-time))
   (:documentation "Find the date of creation."))
 
 (defgeneric datum-find-modified (datum)
+  (:method ((d datum)) (declare (ignore d)) (get-universal-time))
   (:documentation "Find the date of last modification."))
 
 (defgeneric datum-find-terms (datum)
+  (:method ((d datum)) (datum-id d))
   (:documentation "Find textual terms to search."))
 
 (defmethod initialize-instance :after
