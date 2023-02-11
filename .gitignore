@@ -1,0 +1,17 @@
+*.4tc
+*.4ct
+*.aux
+*.bcf
+*.dvi
+*.idv
+*.lg
+*.log
+*.out
+*.run.xml
+*.tmp
+*.xref
+*.bbl
+*.blg
+/docs/core_paper/*.pdf
+/docs/core_paper/*.css
+/docs/core_paper/*.html
