@@ -12,7 +12,8 @@
        (define-test ,(read-from-string (format NIL "sqlite-library-~A" name))
          :parent ,name
          (let* ((,path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_sqlite_test"))
-                (,library (make-instance 'sqlite-library :db-path ,path)))
+                (,library (make-instance 'sqlite-library :db-path ,path
+                                                         :member-datum 'datum-file)))
            (unwind-protect (progn ,@body)
              (delete-file ,path)))))))
 
@@ -21,7 +22,7 @@
 
 (define-test create-sqlite-library
   (let* ((path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_testing_sqlite_db"))
-         (lbry (make-instance 'sqlite-library :db-path path)))
+         (lbry (make-instance 'sqlite-library :db-path path :member-datum 'datum-file)))
     (unwind-protect
          (progn
            (false (sqlite-rows lbry "select * from tags"))

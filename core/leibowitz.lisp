@@ -7,7 +7,7 @@
 (defclass library ()
   ((member-datum
     :initarg :member-datum
-    :initform 'datum
+    :initform (error "No member-datum")
     :accessor library-member-datum
     :documentation "A type specifier denoting the kind of `datum' this library stores."))
   (:documentation "The root-level data structure of a collection of tagged data."))
