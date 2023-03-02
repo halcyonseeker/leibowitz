@@ -16,7 +16,7 @@
   ;; I think we can implement file-type specific behavior here by
   ;; searching for a class named datum-file-major/minor and redefining
   ;; this instance's class to it.
-  (call-next-method))
+  )
 
 (defmethod datum-find-birth ((f datum-file)))
 

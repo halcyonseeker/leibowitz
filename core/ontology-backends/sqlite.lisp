@@ -50,7 +50,8 @@ create table if not exists 'tag_predicates' (
 
 ;;; Reading and writing data
 
-(defmethod add-datum ((l sqlite-library) datum))
+(defmethod add-datum ((l sqlite-library) datum)
+  (error 'datum-method-not-implemented :datum datum :meth 'add-datum :lib l))
 
 (defmethod get-datum ((l sqlite-library) id))
 
