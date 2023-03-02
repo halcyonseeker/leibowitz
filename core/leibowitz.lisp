@@ -17,7 +17,7 @@
 (defgeneric add-datum (library datum)
   (:documentation "Add a new datum to the library."))
 
-(defgeneric get-datam (library id)
+(defgeneric get-datam (library datum id)
   (:documentation "Find a datum by its unique id."))
 
 (defgeneric del-datum (library datum)
