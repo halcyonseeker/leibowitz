@@ -135,3 +135,20 @@
   (:documentation "An optional and not-yet fully realized `library' companion that
 manages external sources of data and makes sure the library is kept up
 to date."))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define-condition datum-method-not-implemented (error)
+  ((datum :initarg :datum)
+   (method :initarg :meth)
+   (library :initarg :lib))
+  (:report (lambda (c s)
+             (with-slots (datum method library) c
+               (format s "FIMXE no implementation of ~S for library ~S and datum ~S"
+                       method (class-of library) (class-of datum)))))
+  (:documentation "Libraries should provide implementations of the
+datum methods that are generic with respect to types of data, however
+these are relatively tedious to write and are comparatively slow.  For
+the sake of figuring out the core API I'm writing library methods for
+`sqlite-library' and `file-datum'"))
+
