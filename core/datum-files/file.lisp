@@ -28,3 +28,14 @@
 (defmethod datum-find-terms ((f datum-file)))
 
 (defmethod datum-file-find-mime ((f datum-file)))
+
+(defmethod schema ((f datum-file) (l sqlite-library))
+  (declare (ignore l))
+  "
+create table if not exists 'data' (
+  'id' text not null unique,
+  'birth' datetime not null,
+  'modified' datetime not null,
+  'terms' text,
+  'mime' text not null
+)")

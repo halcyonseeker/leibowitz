@@ -102,6 +102,10 @@
   (:method ((d datum)) (datum-id d))
   (:documentation "Find textual terms to search."))
 
+(defgeneric schema (datum library)
+  (:documentation "Return an expression representing how a datum should be represented
+internally by a library."))
+
 (defmethod initialize-instance :after
     ((d datum) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))

@@ -10,17 +10,7 @@
     :documentation "The path to the SQLite database.")
    (handle
     :type sqlite:sqlite-handle
-    :documentation "The handle through which database queries are made.")
-   (extra-datum-cols
-    :type list
-    :initform NIL
-    :initarg :extra-datum-cols
-    :documentation "A list of SQLite column definitions appended to the data table.")
-   (extra-tables
-    :type list
-    :initarg :extra-tables
-    :initform NIL
-    :documentation "A list of extra SQLite table definitions"))
+    :documentation "The handle through which database queries are made."))
   (:documentation "A library backend to store the ontology in a SQLite database."))
 
 (defmethod initialize-instance :after
@@ -28,7 +18,14 @@
   (declare (ignore initargs))
   (setf (slot-value l 'handle) (sqlite:connect (slot-value l 'db-path)))
   (mapcar (lambda (tbl) (sqlite:execute-non-query (slot-value l 'handle) tbl))
-          (nconc (slot-value l 'extra-tables) (list "
+          ;; Schema methods specialize against both library and datum
+          ;; classes so we need to instantiate a dummy class of the
+          ;; type stored by this library in order to dispatch it and
+          ;; get the schema for the data table.
+          (let* ((dd (make-instance (library-member-datum l) :id "dummy"))
+                 (defs (schema dd l)))
+            (nconc (if (listp defs) defs (list defs))
+                   (list "
 create table if not exists 'tags' (
   'name' text not null unique,
   'label' text,
@@ -41,12 +38,7 @@ create table if not exists 'tag_datum_junctions' (
 create table if not exists 'tag_predicates' (
   'iftag' text not null,
   'thentag' text not null
-)" (format NIL "create table if not exists 'data' (~%~{  ~a~^,~%~}~%)"
-           (nconc (list "'id' text not null unique"
-                        "'birth' datetime not null"
-                        "'modified' datetime not null"
-                        "'terms' text")
-                  (slot-value l 'extra-datum-cols)))))))
+)")))))
 
 ;;; Reading and writing data
 
