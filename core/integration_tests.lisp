@@ -34,7 +34,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic API tests
 
-(define-library-test insert-and-retrieve-datum
-  (true T)
-  (skip "will fail"
-    (true NIL)))
+(define-library-test insert-and-retrieve-datum (library)
+  (let ((d (make-instance 'datum-file :id (uiop:tmpize-pathname #p"/tmp/something_unique"))))
+    (true (add-datum library d))
+    (is #'equal d (get-datum library 'datum-file (datum-id d)))))
