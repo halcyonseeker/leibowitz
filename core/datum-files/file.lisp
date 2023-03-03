@@ -21,13 +21,34 @@
   ;; this instance's class to it.
   )
 
-(defmethod datum-find-birth ((f datum-file)))
+;;; (defmethod datum-find-birth ((f datum-file))
+;; There isn't a standard way of encoding a file's birth time (ie,
+;; this isn't returned by a stat(2) syscall), so for now at least
+;; we'll fall back to the default method.
 
-(defmethod datum-find-modified ((f datum-file)))
+(defmethod datum-find-modified ((f datum-file))
+  ;; Everything that actually interacts with the file needs to
+  ;; suppress nonexistant-file errors in order to allow throwaway
+  ;; dummy instances to be instantiated to dispatch schema
+  (handler-case
+      (local-time:timestamp-to-universal
+       (local-time:unix-to-timestamp
+        (osicat-posix:stat-mtime
+         (osicat-posix:stat (datum-id f)))))
+    (t () (get-universal-time))))
 
-(defmethod datum-find-terms ((f datum-file)))
+;; Later on initialize-instance will use the mime slot to change its
+;; own class definition to some subclass of datum-file that
+;; specializes this method on a specific file type.
+(defmethod datum-find-terms ((f datum-file))
+  (namestring (datum-id f)))
 
-(defmethod datum-file-find-mime ((f datum-file)))
+(defmethod datum-file-find-mime ((f datum-file))
+  ;; This interacts with the file but failures aren't being signaled
+  ;; as conditions so 💀
+  (multiple-value-bind (stdout)
+      (uiop:run-program (format NIL "file -i ~A" (datum-id f)) :output :string)
+    (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
 
 (defmethod schema ((f datum-file) (l sqlite-library))
   (declare (ignore l))
