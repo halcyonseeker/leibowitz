@@ -60,3 +60,14 @@ create table if not exists 'data' (
   'terms' text,
   'mime' text not null
 )")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Specializations of sqlite-library methods for the file datum.
+
+(defmethod add-datum ((l sqlite-library) (d datum-file))
+  (with-slots (id birth modified terms mime) d
+    (sqlite-nq
+     l "insert into data (id, birth, modified, terms, mime) values (?, ?, ?, ?, ?)"
+     id birth modified terms mime))
+  d)
+
