@@ -49,7 +49,13 @@ create table if not exists 'tag_predicates' (
    (datum-terms d))
   T)
 
-(defmethod get-datum ((l sqlite-library) id))
+(defmethod get-datum ((l sqlite-library) id)
+  (check-type id (or string pathname))
+  (multiple-value-bind
+        (id kind birth modified terms)
+      (sqlite-row l "select * from data where id = ?" (namestring id))
+    (make-instance 'datum :id id :kind kind :birth birth
+                          :modified modified :terms terms)))
 
 (defmethod del-datum ((l sqlite-library) datum))
 
