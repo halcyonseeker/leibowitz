@@ -54,8 +54,10 @@ create table if not exists 'tag_predicates' (
   (multiple-value-bind
         (id kind birth modified terms)
       (sqlite-row l "select * from data where id = ?" (namestring id))
-    (make-instance 'datum :id id :kind kind :birth birth
-                          :modified modified :terms terms)))
+    (if id
+        (make-instance 'datum :id id :kind kind :birth birth
+                              :modified modified :terms terms)
+        NIL)))
 
 (defmethod del-datum ((l sqlite-library) datum))
 
