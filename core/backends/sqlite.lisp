@@ -59,7 +59,14 @@ create table if not exists 'tag_predicates' (
                               :modified modified :terms terms)
         NIL)))
 
-(defmethod del-datum ((l sqlite-library) datum))
+(defmethod del-datum ((l sqlite-library) datum-or-id)
+  (check-type datum-or-id (or datum string pathname))
+  (sqlite-nq l "delete from data where id = ?"
+             (typecase datum-or-id
+               (string datum-or-id)
+               (pathname (namestring datum-or-id))
+               (datum (datum-id datum-or-id))))
+  T)
 
 ;;; Reading and writing tags
 

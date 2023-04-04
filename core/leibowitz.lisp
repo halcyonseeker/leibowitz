@@ -16,7 +16,7 @@
 (defgeneric get-datam (library id)
   (:documentation "Find a datum by its unique id."))
 
-(defgeneric del-datum (library datum)
+(defgeneric del-datum (library datum-or-id)
   (:documentation "Remove a datum from the library."))
 
 ;;; Reading and writing tags
