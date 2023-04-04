@@ -75,21 +75,39 @@
     :documentation "The unique identifier of this piece of data.")
    (kind
     :type string
+    :initarg :kind
     :accessor datum-kind
     :documentation "This datum's type, for instance a file's mime type.")
    (birth
     :type bignum
+    :initarg :birth
     :accessor datum-birth
     :documentation "The Epoch date at which this datum was created.")
    (modified
     :type bignum
+    :initarg :modified
     :accessor datum-modified
     :documentation "The Epoch date at which this datum was last modified.")
    (terms
     :type string
+    :initarg :terms
     :accessor datum-terms
     :documentation "A dump of textual terms to be used for full-text search."))
   (:documentation "The core unit of taggable data."))
+
+(defmethod initialize-instance :after
+    ((d datum) &rest initargs &key &allow-other-keys)
+  (declare (ignore initargs))
+  (when (pathnamep (datum-id d))
+    (setf (datum-id d) (namestring (datum-id d))))
+  (unless (slot-boundp d 'kind)
+    (setf (datum-kind d) (%datum-find-mime d)))
+  (unless (slot-boundp d 'birth)
+    (setf (datum-birth d) (%datum-find-birth d)))
+  (unless (slot-boundp d 'modified)
+    (setf (datum-modified d) (%datum-find-modified d)))
+  (unless (slot-boundp d 'terms)
+    (setf (datum-terms d) (%datum-find-terms d))))
 
 (defgeneric %datum-find-birth (datum)
   (:method ((d datum)) (declare (ignore d)) (get-universal-time))
