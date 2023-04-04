@@ -36,4 +36,4 @@
 (define-library-test insert-and-retrieve-datum (library)
   (let ((d (make-instance 'datum :id (uiop:tmpize-pathname #p"/tmp/something_unique"))))
     (true (add-datum library d))
-    (is #'equal d (get-datum library (datum-id d)))))
+    (is #'datum-equal d (get-datum library (datum-id d)))))
