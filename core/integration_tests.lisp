@@ -37,3 +37,10 @@
   (let ((d (make-instance 'datum :id (uiop:tmpize-pathname #p"/tmp/something_unique"))))
     (true (add-datum library d))
     (is #'datum-equal d (get-datum library (datum-id d)))))
+
+(define-library-test insert-and-delete-datum (library)
+  (let ((d (make-instance 'datum :id (uiop:tmpize-pathname #p"/tmp/something_unique"))))
+    (true (add-datum library d))
+    (true (get-datum library (datum-id d)))
+    (true (del-datum library d))
+    (false (get-datum library (datum-id d)))))
