@@ -73,10 +73,10 @@
     :accessor datum-id
     :initform (error "Datum ID required.")
     :documentation "The unique identifier of this piece of data.")
-   (type
+   (kind
     :type string
-    :accessor datum-type
-    :documentation "This datums's type, for instance a file's mime type.")
+    :accessor datum-kind
+    :documentation "This datum's type, for instance a file's mime type.")
    (birth
     :type bignum
     :accessor datum-birth
