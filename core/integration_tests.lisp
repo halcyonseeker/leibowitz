@@ -12,8 +12,7 @@
        (define-test ,(read-from-string (format NIL "sqlite-library-~A" name))
          :parent ,name
          (let* ((,path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_sqlite_test"))
-                (,library (make-instance 'sqlite-library :db-path ,path
-                                                         :member-datum 'datum-file)))
+                (,library (make-instance 'sqlite-library :db-path ,path)))
            (unwind-protect (progn ,@body)
              (delete-file ,path)))))))
 
@@ -22,7 +21,7 @@
 
 (define-test create-sqlite-library
   (let* ((path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_testing_sqlite_db"))
-         (lbry (make-instance 'sqlite-library :db-path path :member-datum 'datum-file)))
+         (lbry (make-instance 'sqlite-library :db-path path)))
     (unwind-protect
          (progn
            (false (sqlite-rows lbry "select * from tags"))
@@ -35,6 +34,6 @@
 ;; Generic API tests
 
 (define-library-test insert-and-retrieve-datum (library)
-  (let ((d (make-instance 'datum-file :id (uiop:tmpize-pathname #p"/tmp/something_unique"))))
+  (let ((d (make-instance 'datum :id (uiop:tmpize-pathname #p"/tmp/something_unique"))))
     (true (add-datum library d))
-    (is #'equal d (get-datum library 'datum-file (datum-id d)))))
+    (is #'equal d (get-datum library (datum-id d)))))
