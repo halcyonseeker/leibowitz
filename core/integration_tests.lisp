@@ -5,15 +5,20 @@
 
 (in-package :leibowitz-core/tests)
 
-(defmacro define-library-test (name (library) &body body)
+(defmacro define-library-test (name (library &rest tmpfiles) &body body)
   (let ((path (gensym)))
     `(progn
        (define-test ,name)
        (define-test ,(read-from-string (format NIL "sqlite-library-~A" name))
          :parent ,name
          (let* ((,path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_sqlite_test"))
-                (,library (make-instance 'sqlite-library :db-path ,path)))
+                (,library (make-instance 'sqlite-library :db-path ,path))
+                ,@(loop for var in tmpfiles
+                        collect `(,var (uiop:tmpize-pathname
+                                        #P"/tmp/leibowitz_core_test_tmpfile"))))
            (unwind-protect (progn ,@body)
+             ,@(loop for var in tmpfiles
+                     collect `(delete-file ,var))
              (delete-file ,path)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -33,13 +38,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic API tests
 
-(define-library-test insert-and-retrieve-datum (library)
-  (let ((d (make-instance 'datum :id (uiop:tmpize-pathname #p"/tmp/something_unique"))))
+(define-library-test insert-and-retrieve-datum (library path)
+  (let ((d (make-instance 'datum :id path)))
     (true (add-datum library d))
     (is #'datum-equal d (get-datum library (datum-id d)))))
 
-(define-library-test insert-and-delete-datum (library)
-  (let ((d (make-instance 'datum :id (uiop:tmpize-pathname #p"/tmp/something_unique"))))
+(define-library-test insert-and-delete-datum (library path)
+  (let ((d (make-instance 'datum :id path)))
     (true (add-datum library d))
     (true (get-datum library (datum-id d)))
     (true (del-datum library d))
