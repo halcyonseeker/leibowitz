@@ -6,7 +6,7 @@
   :serial t
   :components ((:file "package")
                (:file "leibowitz")
-               (:module "ontology-backends" :components ((:file "sqlite")))
+               (:module "backends" :components ((:file "sqlite")))
                (:module "curators" :components (#+linux(:file "fs_inotify"))))
   :in-order-to ((asdf:test-op (asdf:test-op :leibowitz-core/tests))))
 

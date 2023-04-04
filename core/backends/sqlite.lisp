@@ -18,14 +18,14 @@
   (declare (ignore initargs))
   (setf (slot-value l 'handle) (sqlite:connect (slot-value l 'db-path)))
   (mapcar (lambda (tbl) (sqlite:execute-non-query (slot-value l 'handle) tbl))
-          ;; Schema methods specialize against both library and datum
-          ;; classes so we need to instantiate a dummy class of the
-          ;; type stored by this library in order to dispatch it and
-          ;; get the schema for the data table.
-          (let* ((dd (make-instance (library-member-datum l) :id "dummy"))
-                 (defs (schema dd l)))
-            (nconc (if (listp defs) defs (list defs))
-                   (list "
+          '("
+create table if not exists 'data' (
+  'id' text not null unique,
+  'type' text not null,
+  'birth' datetime not null,
+  'modified' datetime not null,
+  'terms' text
+)" "
 create table if not exists 'tags' (
   'name' text not null unique,
   'label' text,
@@ -38,18 +38,15 @@ create table if not exists 'tag_datum_junctions' (
 create table if not exists 'tag_predicates' (
   'iftag' text not null,
   'thentag' text not null
-)")))))
+)")))
 
 ;;; Reading and writing data
 
-(defmethod add-datum ((l sqlite-library) datum)
-  (error 'datum-method-not-implemented :datum datum :meth 'add-datum :lib l))
+(defmethod add-datum ((l sqlite-library) datum))
 
-(defmethod get-datum ((l sqlite-library) datum id)
-  (error 'datum-method-not-implemented :datum datum :meth 'add-datum :lib l))
+(defmethod get-datum ((l sqlite-library) datum id))
 
-(defmethod del-datum ((l sqlite-library) datum)
-  (error 'datum-method-not-implemented :datum datum :meth 'add-datum :lib l))
+(defmethod del-datum ((l sqlite-library) datum))
 
 ;;; Reading and writing tags
 
