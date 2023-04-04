@@ -135,6 +135,15 @@ for different file types."))
       (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
   (:documentation "Get this mime time of this datum's file."))
 
+(defgeneric datum-equal (d1 d2)
+  (:method ((d1 datum) (d2 datum))
+    (and (equal (datum-id d1) (datum-id d2))
+         (equal (datum-kind d1) (datum-kind d2))
+         (equal (datum-birth d1) (datum-birth d2))
+         (equal (datum-modified d1) (datum-modified d2))
+         (equal (datum-terms d1) (datum-terms d2))))
+  (:documentation "Return T if two datum instances are identical."))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Tags of stored data
 

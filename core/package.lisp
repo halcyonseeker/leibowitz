@@ -24,7 +24,8 @@
            #:datum-kind
            #:datum-birth
            #:datum-modified
-           #:datum-terms)
+           #:datum-terms
+           #:datum-equal)
   ;; Tag metadata
   (:export #:tag
            #:tag-name
