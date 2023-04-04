@@ -1,11 +1,12 @@
 
 (asdf:defsystem "leibowitz-core"
-  :depends-on (#:sqlite)
+  :depends-on (#:sqlite
+               #:local-time
+               #:osicat)
   :serial t
   :components ((:file "package")
                (:file "leibowitz")
                (:module "ontology-backends" :components ((:file "sqlite")))
-               (:module "datum-files" :components ((:file "file")))
                (:module "curators" :components (#+linux(:file "fs_inotify"))))
   :in-order-to ((asdf:test-op (asdf:test-op :leibowitz-core/tests))))
 

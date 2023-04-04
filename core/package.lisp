@@ -23,10 +23,7 @@
            #:datum-id
            #:datum-birth
            #:datum-modified
-           #:datum-terms
-           #:datum-find-birth
-           #:datum-find-modified
-           #:datum-find-terms)
+           #:datum-terms)
   ;; Tag metadata
   (:export #:tag
            #:tag-name
@@ -40,9 +37,6 @@
            #:sqlite-rows
            #:with-sqlite-tx
            )
-  ;; Datum types
-  (:export #:datum-file
-           #:datum-file-find-mime)
   ;; Curator implementations
   (:export #:fs-curator)
   )

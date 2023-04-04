@@ -71,6 +71,10 @@
     :accessor datum-id
     :initform (error "Datum ID required.")
     :documentation "The unique identifier of this piece of data.")
+   (type
+    :type string
+    :accessor datum-type
+    :documentation "This datums's type, for instance a file's mime type.")
    (birth
     :type bignum
     :accessor datum-birth
@@ -85,28 +89,29 @@
     :documentation "A dump of textual terms to be used for full-text search."))
   (:documentation "The core unit of taggable data."))
 
-(defgeneric datum-find-birth (datum)
-  (:method ((d datum)) (declare (ignore d)) (get-universal-time))
-  (:documentation "Find the date of creation."))
+(defmethod %datum-find-birth ((d datum))
+  "Find the date of creation.  POSIX doesn't specify this so we'll just
+get the current time."
+  (declare (ignore d))
+  (get-universal-time))
 
-(defgeneric datum-find-modified (datum)
-  (:method ((d datum)) (declare (ignore d)) (get-universal-time))
-  (:documentation "Find the date of last modification."))
-
-(defgeneric datum-find-terms (datum)
+(defgeneric %datum-find-terms (datum)
   (:method ((d datum)) (datum-id d))
-  (:documentation "Find textual terms to search."))
+  (:documentation "Find textual terms to search.  This will be specialized by subclasses
+for different file types."))
 
-(defgeneric schema (datum library)
-  (:documentation "Return an expression representing how a datum should be represented
-internally by a library."))
+(defmethod %datum-find-modified ((d datum))
+  (local-time:timestamp-to-universal
+   (local-time:unix-to-timestamp
+    (osicat-posix:stat-mtime
+     (osicat-posix:stat (datum-id f))))))
 
-(defmethod initialize-instance :after
-    ((d datum) &rest initargs &key &allow-other-keys)
-  (declare (ignore initargs))
-  (setf (datum-birth d) (datum-find-birth d))
-  (setf (datum-modified d) (datum-find-modified d))
-  (setf (datum-terms d) (datum-find-terms d)))
+(defmethod %datum-find-mime ((d datum))
+  ;; This interacts with the file but failures aren't being signaled
+  ;; as conditions so 💀
+  (multiple-value-bind (stdout)
+      (uiop:run-program (format NIL "file -i ~A" (datum-id f)) :output :string)
+    (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -134,20 +139,3 @@ internally by a library."))
   (:documentation "An optional and not-yet fully realized `library' companion that
 manages external sources of data and makes sure the library is kept up
 to date."))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(define-condition datum-method-not-implemented (error)
-  ((datum :initarg :datum)
-   (method :initarg :meth)
-   (library :initarg :lib))
-  (:report (lambda (c s)
-             (with-slots (datum method library) c
-               (format s "FIMXE no implementation of ~S for library ~S and datum ~S"
-                       method (class-of library) (class-of datum)))))
-  (:documentation "Libraries should provide implementations of the
-datum methods that are generic with respect to types of data, however
-these are relatively tedious to write and are comparatively slow.  For
-the sake of figuring out the core API I'm writing library methods for
-`sqlite-library' and `file-datum'"))
-
