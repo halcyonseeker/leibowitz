@@ -91,29 +91,31 @@
     :documentation "A dump of textual terms to be used for full-text search."))
   (:documentation "The core unit of taggable data."))
 
-(defmethod %datum-find-birth ((d datum))
-  "Find the date of creation.  POSIX doesn't specify this so we'll just
-get the current time."
-  (declare (ignore d))
-  (get-universal-time))
+(defgeneric %datum-find-birth (datum)
+  (:method ((d datum)) (declare (ignore d)) (get-universal-time))
+  (:documentation "Find the date of this datum's creation.  POSIX doesn't specify this
+so we'll just get the current time."))
 
 (defgeneric %datum-find-terms (datum)
   (:method ((d datum)) (datum-id d))
   (:documentation "Find textual terms to search.  This will be specialized by subclasses
 for different file types."))
 
-(defmethod %datum-find-modified ((d datum))
-  (local-time:timestamp-to-universal
-   (local-time:unix-to-timestamp
-    (osicat-posix:stat-mtime
-     (osicat-posix:stat (datum-id f))))))
+(defgeneric %datum-find-modified (datum)
+  (:method ((d datum)) (local-time:timestamp-to-universal
+                        (local-time:unix-to-timestamp
+                         (osicat-posix:stat-mtime
+                          (osicat-posix:stat (datum-id d))))))
+  (:documentation "Get the time when this datum's file was last modified."))
 
-(defmethod %datum-find-mime ((d datum))
-  ;; This interacts with the file but failures aren't being signaled
-  ;; as conditions so 💀
-  (multiple-value-bind (stdout)
-      (uiop:run-program (format NIL "file -i ~A" (datum-id f)) :output :string)
-    (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
+;; FIXME: This interacts with the file but failures aren't being
+;; signaled as conditions
+(defgeneric %datum-find-mime (datum)
+  (:method ((d datum))
+    (multiple-value-bind (stdout)
+        (uiop:run-program (format NIL "file -i ~A" (datum-id d)) :output :string)
+      (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
+  (:documentation "Get this mime time of this datum's file."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Tags of stored data
