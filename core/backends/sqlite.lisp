@@ -44,7 +44,7 @@ create table if not exists 'tag_predicates' (
 
 (defmethod add-datum ((l sqlite-library) datum))
 
-(defmethod get-datum ((l sqlite-library) datum id))
+(defmethod get-datum ((l sqlite-library) id))
 
 (defmethod del-datum ((l sqlite-library) datum))
 
