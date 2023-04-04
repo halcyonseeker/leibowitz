@@ -42,7 +42,12 @@ create table if not exists 'tag_predicates' (
 
 ;;; Reading and writing data
 
-(defmethod add-datum ((l sqlite-library) datum))
+(defmethod add-datum ((l sqlite-library) (d datum))
+  (sqlite-nq
+   l "insert into data (id, type, birth, modified, terms) values (?, ?, ?, ?, ?)"
+   (datum-id d) (datum-kind d) (datum-birth d) (datum-modified d)
+   (datum-terms d))
+  T)
 
 (defmethod get-datum ((l sqlite-library) id))
 
