@@ -3,6 +3,7 @@
 (in-package :leibowitz-core)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Central library API
 
 (defclass library () ()
   (:documentation "The root-level data structure of a collection of tagged data."))
@@ -63,6 +64,7 @@
   (:documentation "Return data that match the search terms and tag filters."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Data stored in the library
 
 (defclass datum ()
   ((id
@@ -114,6 +116,7 @@ for different file types."))
     (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Tags of stored data
 
 (defclass tag ()
   ((name
@@ -134,6 +137,7 @@ for different file types."))
   (:documentation ""))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Curators keep the library up to date
 
 (defclass curator () ()
   (:documentation "An optional and not-yet fully realized `library' companion that
