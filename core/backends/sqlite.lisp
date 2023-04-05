@@ -62,7 +62,7 @@ create table if not exists 'tag_predicates' (
 (defmethod del-datum ((l sqlite-library) datum-or-id)
   (check-type datum-or-id (or datum string pathname))
   (sqlite-nq l "delete from data where id = ?"
-             (typecase datum-or-id
+             (etypecase datum-or-id
                (string datum-or-id)
                (pathname (namestring datum-or-id))
                (datum (datum-id datum-or-id))))
