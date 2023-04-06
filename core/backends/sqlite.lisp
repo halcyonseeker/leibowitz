@@ -118,3 +118,8 @@ create table if not exists 'tag_predicates' (
      (handler-case (progn ,@body)
        (T () (sqlite-nq ,sqlite-library "rollback"))
        (:no-error () (sqlite-nq ,sqlite-library "commit")))))
+
+(defmacro ccat (&rest strings)
+  "Concatenate some strings at compile-time.  Used internally to shorten
+lines with really long SQL queries."
+  (format NIL "~{~A~}" strings))
