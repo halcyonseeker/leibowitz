@@ -84,7 +84,14 @@ create table if not exists 'tag_predicates' (
                (tag-count tag)))
   T)
 
-(defmethod get-tag ((l sqlite-library) name))
+(defmethod get-tag ((l sqlite-library) name)
+  (check-type name string)
+  (multiple-value-bind
+        (name label count)
+      (sqlite-row l "select * from tags where name = ?" name)
+    (if name
+        (make-instance 'tag :name name :label label :count count)
+        NIL)))
 
 (defmethod del-tag ((l sqlite-library) tag))
 
