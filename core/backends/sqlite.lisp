@@ -92,11 +92,27 @@ create table if not exists 'tag_predicates' (
 
 (defmethod get-datum-tags ((l sqlite-library) datum))
 
-(defmethod add-datum-tags ((l sqlite-library) datum tags))
 
 (defmethod del-datum-tags ((l sqlite-library) datum tags))
 
 (defmethod get-tag-data ((l sqlite-library) tag))
+(defmethod add-datum-tags ((l sqlite-library) datum-or-id tags)
+  (check-type datum-or-id (or datum pathname string))
+  (check-type tags list)
+  (loop for tag in tags
+        for id = (etypecase datum-or-id
+                   (string datum-or-id)
+                   (pathname (namestring datum-or-id))
+                   (datum (datum-id datum-or-id)))
+        for name = (etypecase tag (tag (tag-name tag)) (string tag))
+        do (with-sqlite-tx (l)
+             (add-tag l tag)
+             (sqlite-nq l (ccat "insert into tag_datum_junctions "
+                                "(tag_name, datum_id) values (?, ?)")
+                        name id)
+             (sqlite-nq l (ccat "update tags set count = count + 1 "
+                                "where name = ?")
+                        name))))
 
 ;;; Reading and writing tag hierarchies
 
