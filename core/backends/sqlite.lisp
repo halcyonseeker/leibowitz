@@ -93,7 +93,14 @@ create table if not exists 'tag_predicates' (
         (make-instance 'tag :name name :label label :count count)
         NIL)))
 
-(defmethod del-tag ((l sqlite-library) tag))
+(defmethod del-tag ((l sqlite-library) tag-or-name)
+  (check-type tag-or-name (or datum string))
+  (let ((name (etypecase tag-or-name
+                (tag (tag-name tag-or-name))
+                (string tag-or-name))))
+    (with-sqlite-tx (l)
+      (sqlite-nq l "delete from tags where name = ?" name)
+      (sqlite-nq l "delete from tag_datum_junctions where tag_name = ?" name))))
 
 ;;; Reading and writing datum-tag relationships
 

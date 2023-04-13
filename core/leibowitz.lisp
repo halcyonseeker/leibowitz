@@ -27,7 +27,7 @@
 (defgeneric get-tag (library name)
   (:documentation "Find a tag by its name."))
 
-(defgeneric del-tag (library tag)
+(defgeneric del-tag (library tag-or-name)
   (:documentation "Delete a tag."))
 
 ;;; Reading and writing datum-tag relationships
