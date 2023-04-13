@@ -116,7 +116,9 @@ create table if not exists 'tag_predicates' (
   `(progn
      (sqlite-nq ,sqlite-library "begin transaction")
      (handler-case (progn ,@body)
-       (T () (sqlite-nq ,sqlite-library "rollback"))
+       (T (c)
+         (sqlite-nq ,sqlite-library "rollback")
+         (error c))
        (:no-error () (sqlite-nq ,sqlite-library "commit")))))
 
 (defmacro ccat (&rest strings)
