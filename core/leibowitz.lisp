@@ -38,7 +38,7 @@
 (defgeneric add-datum-tags (library datum-or-id tags)
   (:documentation "Add one or more tags to a datum."))
 
-(defgeneric del-datum-tags (library datum tags)
+(defgeneric del-datum-tags (library datum-or-id tags)
   (:documentation "Remove one or more tags from a datum."))
 
 (defgeneric get-tag-data (library tag)

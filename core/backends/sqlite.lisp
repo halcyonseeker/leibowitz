@@ -80,7 +80,7 @@ create table if not exists 'tag_predicates' (
                (tag-name tag)
                (if (slot-boundp tag 'label)
                    (tag-label tag)
-                   "")
+                   NIL)
                (tag-count tag)))
   T)
 
@@ -89,8 +89,6 @@ create table if not exists 'tag_predicates' (
 (defmethod del-tag ((l sqlite-library) tag))
 
 ;;; Reading and writing datum-tag relationships
-
-(defmethod del-datum-tags ((l sqlite-library) datum tags))
 
 (defmethod get-tag-data ((l sqlite-library) tag))
 (defmethod add-datum-tags ((l sqlite-library) datum-or-id tags)
@@ -122,6 +120,26 @@ create table if not exists 'tag_predicates' (
                                   (datum (datum-id datum-or-id))))
         collect (destructuring-bind (name label count) row
                   (make-instance 'tag :name name :count count :label label))))
+
+(defmethod del-datum-tags ((l sqlite-library) datum-or-id tags)
+  (check-type datum-or-id (or datum pathname string))
+  (check-type tags list)
+  (loop for tag in tags
+        for name = (etypecase tag (tag (tag-name tag)) (string tag))
+        for id = (etypecase datum-or-id
+                   (string datum-or-id)
+                   (pathname (namestring datum-or-id))
+                   (datum (datum-id datum-or-id)))
+        do (with-sqlite-tx (l)
+             (sqlite-nq l (ccat "delete from tag_datum_junctions "
+                                "where tag_name = ? and datum_id = ?")
+                        name id)
+             (sqlite-nq l (ccat "update tags set count = count - 1 "
+                                "where name = ?")
+                        name)
+             (sqlite-nq l (ccat "delete from tags where name = ? and "
+                                "count = 0 and label is null")
+                        name))))
 
 ;;; Reading and writing tag hierarchies
 
