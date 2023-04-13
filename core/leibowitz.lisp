@@ -161,7 +161,9 @@ for different file types."))
     :documentation "A textual description of this tag.")
    (count
     :type integer
+    :initarg :count
     :accessor tag-count
+    :initform 0
     :documentation "The number of data with this tag"))
   (:documentation ""))
 
