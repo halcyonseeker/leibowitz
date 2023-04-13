@@ -90,7 +90,6 @@ create table if not exists 'tag_predicates' (
 
 ;;; Reading and writing datum-tag relationships
 
-(defmethod get-tag-data ((l sqlite-library) tag))
 (defmethod add-datum-tags ((l sqlite-library) datum-or-id tags)
   (check-type datum-or-id (or datum pathname string))
   (check-type tags list)
@@ -140,6 +139,18 @@ create table if not exists 'tag_predicates' (
              (sqlite-nq l (ccat "delete from tags where name = ? and "
                                 "count = 0 and label is null")
                         name))))
+
+(defmethod get-tag-data ((l sqlite-library) tag-or-name)
+  (check-type tag-or-name (or string tag))
+  (loop for row in (sqlite-rows l (ccat "select data.* from data "
+                                        "inner join tag_datum_junctions on "
+                                        "datum_id = data.id where tag_name = ?")
+                                (etypecase tag-or-name
+                                  (tag (tag-name tag-or-name))
+                                  (string tag-or-name)))
+        collect (destructuring-bind (id kind birth modified terms) row
+                  (make-instance 'datum :id id :kind kind :birth birth
+                                        :modified modified :terms terms))))
 
 ;;; Reading and writing tag hierarchies
 

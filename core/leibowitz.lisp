@@ -41,7 +41,7 @@
 (defgeneric del-datum-tags (library datum-or-id tags)
   (:documentation "Remove one or more tags from a datum."))
 
-(defgeneric get-tag-data (library tag)
+(defgeneric get-tag-data (library tag-or-name)
   (:documentation "Get the data associated with a tag."))
 
 ;;; Reading and writing tag hierarchies
