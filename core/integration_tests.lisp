@@ -45,7 +45,11 @@
 
 (define-library-test insert-and-delete-datum (library path)
   (let ((d (make-instance 'datum :id path)))
-    (true (add-datum library d))
+    (add-datum library d)
     (true (get-datum library (datum-id d)))
-    (true (del-datum library d))
+    (del-datum library d)
+    (false (get-datum library (datum-id d)))
+    (add-datum library d)
+    (true (get-datum library (datum-id d)))
+    (del-datum library (datum-id d)) ; check both kinds of arguments
     (false (get-datum library (datum-id d)))))
