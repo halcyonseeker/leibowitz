@@ -61,11 +61,19 @@ create table if not exists 'tag_predicates' (
 
 (defmethod del-datum ((l sqlite-library) datum-or-id)
   (check-type datum-or-id (or datum string pathname))
-  (sqlite-nq l "delete from data where id = ?"
-             (etypecase datum-or-id
-               (string datum-or-id)
-               (pathname (namestring datum-or-id))
-               (datum (datum-id datum-or-id))))
+  (let ((id (etypecase datum-or-id
+              (string datum-or-id)
+              (pathname (namestring datum-or-id))
+              (datum (datum-id datum-or-id)))))
+    (with-sqlite-tx (l)
+      (loop for tag in (get-datum-tags l id)
+            do (sqlite-nq l "update tags set count = count - 1 where name = ?"
+                          (tag-name tag))
+               (sqlite-nq l (ccat "delete from tags where name = ? and "
+                                  "count = 0 and label is null")
+                          (tag-name tag)))
+      (sqlite-nq l "delete from data where id = ?" id)
+      (sqlite-nq l "delete from tag_datum_junctions where datum_id = ?" id)))
   T)
 
 ;;; Reading and writing tags
