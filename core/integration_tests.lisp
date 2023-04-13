@@ -53,3 +53,13 @@
     (true (get-datum library (datum-id d)))
     (del-datum library (datum-id d)) ; check both kinds of arguments
     (false (get-datum library (datum-id d)))))
+
+(define-library-test add-tag-to-file-then-remove (l path)
+  (let ((d (make-instance 'datum :id path)))
+    (add-datum l d)
+    (add-datum-tags l d '("some" "tags"))
+    (is #'equal '("some" "tags") (loop for tag in (get-datum-tags l d)
+                                       collect (tag-name tag)))
+    (del-datum-tags l (datum-id d) '("some"))
+    (is #'equal '("tags") (loop for tag in (get-datum-tags l (datum-id d))
+                                collect (tag-name tag)))))
