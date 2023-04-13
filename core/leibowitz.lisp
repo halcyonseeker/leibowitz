@@ -32,7 +32,7 @@
 
 ;;; Reading and writing datum-tag relationships
 
-(defgeneric get-datum-tags (library datum)
+(defgeneric get-datum-tags (library datum-or-id)
   (:documentation "Return a list of the tags associated with a datum."))
 
 (defgeneric add-datum-tags (library datum-or-id tags)
