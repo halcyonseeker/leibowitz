@@ -132,3 +132,34 @@
       (is #'= 0 (tag-count (get-tag l "tag"))))))
 
 ;;; Tag Predicates
+
+;; FIXME: also test :retroactive
+(define-library-test add-predicate-to-a-tag (l)
+  (let ((t1 (make-instance 'tag :name "History"))
+        (t2 (make-instance 'tag :name "Sassanian Empire")))
+    (add-tag l t1)
+    (add-tag l t2)
+    (false (get-tag-predicates l "History"))
+    (false (get-tag-predicands l "Sassanian Empire"))
+    (add-tag-predicate l t1 t2)
+    (let ((predicates (get-tag-predicates l "History")))
+      (is #'= 1 (length predicates))
+      (is #'equal "Sassanian Empire" (tag-name (car predicates))))
+    (let ((predicands (get-tag-predicands l "Sassanian Empire")))
+      (is #'= 1 (length predicands))
+      (is #'equal "History" (tag-name (car predicands))))))
+
+(define-library-test add-tag-predicate-implicitly-creates-nonexistent-tags (l)
+  (add-tag-predicate l "Zoroastrianism" "People of The Book")
+  (is #'equal "People of The Book" (tag-name (car (get-tag-predicates l "Zoroastrianism"))))
+  (is #'equal "Zoroastrianism" (tag-name (car (get-tag-predicands l "People of The Book")))))
+
+;; FIXME: also test :retroactive
+(define-library-test add-and-remove-tag-predicate (l)
+  (add-tag-predicate l "Marguerite Porete" "Christian Mystics")
+  (add-tag-predicate l "Meister Eckhart" "Christian Mystics")
+  (is #'= 2 (length (get-tag-predicands l "Christian Mystics")))
+  (del-tag-predicate l "Meister Eckhart" "Christian Mystics")
+  (true (get-tag l "Meister Eckhart"))
+  (is #'= 1 (length (get-tag-predicands l "Christian Mystics")))
+  (false (get-tag-predicates l "Meister Eckhart")))
