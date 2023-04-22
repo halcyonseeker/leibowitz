@@ -60,8 +60,10 @@ any."))
 
 ;;; Reading and writing tag hierarchies
 
-(defgeneric add-tag-predicate (library iftag thentag)
-  (:documentation "Add a predicate such that data with IFTAG will have THENTAG."))
+(defgeneric add-tag-predicate (library iftag-or-name thentag-or-name &key retroactive)
+  (:documentation "Create a rule such that whenever the iftag is applied to a datum, the
+thantag will be as well.  If :retroactive is T, then this will go back
+and add the thentag to all data already associated with iftag."))
 
 (defgeneric get-tag-predicates (library tag)
   (:documentation "Return a list of tags to be applied to a datum with TAG."))

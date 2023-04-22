@@ -164,7 +164,16 @@ create table if not exists 'tag_predicates' (
 
 ;;; Reading and writing tag hierarchies
 
-(defmethod add-tag-predicate ((l sqlite-library) iftag thentag))
+(defmethod add-tag-predicate ((l sqlite-library) iftag-or-name thentag-or-name
+                              &key (retroactive NIL))
+  ;; FIXME: support :retroactive
+  (check-type iftag-or-name (or tag string))
+  (check-type thentag-or-name (or tag string))
+  (let ((ifname (%need-tag-name iftag-or-name))
+        (thenname (%need-tag-name thentag-or-name)))
+    (sqlite-nq l (ccat "insert or ignore into tag_predicates (iftag, thentag)"
+                       "values (?, ?)")
+               ifname thenname)))
 
 (defmethod get-tag-predicates ((l sqlite-library) tag))
 
