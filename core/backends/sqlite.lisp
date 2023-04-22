@@ -198,10 +198,12 @@ create table if not exists 'tag_predicates' (
                   (make-instance 'tag :name name :count count :label label))))
 
 (defmethod del-tag-predicate ((l sqlite-library) iftag-or-name thentag-or-name
-                              &key (retroactive NIL))
+                              &key (retroactive NIL) (cascade NIL))
   (check-type iftag-or-name (or tag string))
   (check-type thentag-or-name (or tag string))
-  ;; FIXME: support :retroactive
+  ;; FIXME: When :retroactive is T call del-datum-tags on all data
+  ;; currently tagged with iftag and remove thentag from them.  If
+  ;; :cascade is T then this will recursively remove tags.
   (let ((ifname (%need-tag-name iftag-or-name))
         (thenname (%need-tag-name thentag-or-name)))
     (sqlite-nq l "delete from tag_predicates where iftag = ? and thentag = ?"

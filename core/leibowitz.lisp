@@ -72,7 +72,7 @@ and add the thentag to all data already associated with iftag."))
   (:documentation "Do the reverse of `get-tag-predicates' and return a list of tags that
 require TAG also be applied."))
 
-(defgeneric del-tag-predicate (library iftag-or-name thentag-or-name &key retroactive)
+(defgeneric del-tag-predicate (library iftag-or-name thentag-or-name &key retroactive cascade)
   (:documentation "Remove the requirement that data with the iftag must also have
 thentag.  If :retroactive is T, this will go back and remove the
 thentag from all data with iftag."))
