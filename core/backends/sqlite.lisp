@@ -61,10 +61,7 @@ create table if not exists 'tag_predicates' (
 
 (defmethod del-datum ((l sqlite-library) datum-or-id)
   (check-type datum-or-id (or datum string pathname))
-  (let ((id (etypecase datum-or-id
-              (string datum-or-id)
-              (pathname (namestring datum-or-id))
-              (datum (datum-id datum-or-id)))))
+  (let ((id (%need-datum-id datum-or-id)))
     (with-sqlite-tx (l)
       (loop for tag in (get-datum-tags l id)
             do (sqlite-nq l "update tags set count = count - 1 where name = ?"
@@ -77,18 +74,18 @@ create table if not exists 'tag_predicates' (
 
 ;;; Reading and writing tags
 
-(defmethod add-tag ((l sqlite-library) tag)
-  (check-type tag (or tag string))
+(defmethod add-tag ((l sqlite-library) tag-or-name)
+  (check-type tag-or-name (or tag string))
   (unless (sqlite-row l "select * from tags where name = ?"
-                      (etypecase tag (tag (tag-name tag)) (string tag)))
-    (when (stringp tag)
-      (setf tag (make-instance 'tag :name tag)))
+                      (%need-tag-name tag-or-name))
+    (when (stringp tag-or-name)
+      (setf tag-or-name (make-instance 'tag :name tag-or-name)))
     (sqlite-nq l "insert into tags (name, label, count) values (?, ?, ?)"
-               (tag-name tag)
-               (if (slot-boundp tag 'label)
-                   (tag-label tag)
+               (tag-name tag-or-name)
+               (if (slot-boundp tag-or-name 'label)
+                   (tag-label tag-or-name)
                    NIL)
-               (tag-count tag)))
+               (tag-count tag-or-name)))
   T)
 
 (defmethod get-tag ((l sqlite-library) name)
@@ -102,9 +99,7 @@ create table if not exists 'tag_predicates' (
 
 (defmethod del-tag ((l sqlite-library) tag-or-name)
   (check-type tag-or-name (or datum string))
-  (let ((name (etypecase tag-or-name
-                (tag (tag-name tag-or-name))
-                (string tag-or-name))))
+  (let ((name (%need-tag-name tag-or-name)))
     (with-sqlite-tx (l)
       (sqlite-nq l "delete from tags where name = ?" name)
       (sqlite-nq l "delete from tag_datum_junctions where tag_name = ?" name))))
@@ -115,12 +110,11 @@ create table if not exists 'tag_predicates' (
   (check-type datum-or-id (or datum pathname string))
   (check-type tags list)
   (loop for tag in tags
-        for id = (etypecase datum-or-id
-                   (string datum-or-id)
-                   (pathname (namestring datum-or-id))
-                   (datum (datum-id datum-or-id)))
-        for name = (etypecase tag (tag (tag-name tag)) (string tag))
+        for id = (%need-datum-id datum-or-id)
+        for name = (%need-tag-name tag)
         do (with-sqlite-tx (l)
+             ;; FIXME: refactor this to recursively check for tag
+             ;; predicates and apply sub tags to this datum.
              (add-tag l tag)
              (sqlite-nq l (ccat "insert into tag_datum_junctions "
                                 "(tag_name, datum_id) values (?, ?)")
@@ -134,10 +128,7 @@ create table if not exists 'tag_predicates' (
   (loop for row in (sqlite-rows l (ccat "select tags.* from tags "
                                         "inner join tag_datum_junctions "
                                         "on tag_name = name where datum_id = ?")
-                                (etypecase datum-or-id
-                                  (string datum-or-id)
-                                  (pathname (namestring datum-or-id))
-                                  (datum (datum-id datum-or-id))))
+                                (%need-datum-id datum-or-id))
         collect (destructuring-bind (name label count) row
                   (make-instance 'tag :name name :count count :label label))))
 
@@ -145,12 +136,12 @@ create table if not exists 'tag_predicates' (
   (check-type datum-or-id (or datum pathname string))
   (check-type tags list)
   (loop for tag in tags
-        for name = (etypecase tag (tag (tag-name tag)) (string tag))
-        for id = (etypecase datum-or-id
-                   (string datum-or-id)
-                   (pathname (namestring datum-or-id))
-                   (datum (datum-id datum-or-id)))
+        for name = (%need-tag-name tag)
+        for id = (%need-datum-id datum-or-id)
         do (with-sqlite-tx (l)
+             ;; FIXME: refactor this to recursively remove tag
+             ;; relationships for those tags which depend on this
+             ;; one.
              (sqlite-nq l (ccat "delete from tag_datum_junctions "
                                 "where tag_name = ? and datum_id = ?")
                         name id)
@@ -166,9 +157,7 @@ create table if not exists 'tag_predicates' (
   (loop for row in (sqlite-rows l (ccat "select data.* from data "
                                         "inner join tag_datum_junctions on "
                                         "datum_id = data.id where tag_name = ?")
-                                (etypecase tag-or-name
-                                  (tag (tag-name tag-or-name))
-                                  (string tag-or-name)))
+                                (%need-tag-name tag-or-name))
         collect (destructuring-bind (id kind birth modified terms) row
                   (make-instance 'datum :id id :kind kind :birth birth
                                         :modified modified :terms terms))))
