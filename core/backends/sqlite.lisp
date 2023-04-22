@@ -181,17 +181,15 @@ create table if not exists 'tag_predicates' (
 
 (defmethod get-tag-predicates ((l sqlite-library) tag-or-name)
   (check-type tag-or-name (or tag string))
-    ;; FIXME: should I recurse on these?
-    (loop for row in (sqlite-rows l (ccat "select tags.* from tags "
-                                          "inner join tag_predicates "
-                                          "on thentag = name where iftag = ?")
-                                  (%need-tag-name tag-or-name))
-          collect (destructuring-bind (name label count) row
-                    (make-instance 'tag :name name :count count :label label))))
+  (loop for row in (sqlite-rows l (ccat "select tags.* from tags "
+                                        "inner join tag_predicates "
+                                        "on thentag = name where iftag = ?")
+                                (%need-tag-name tag-or-name))
+        collect (destructuring-bind (name label count) row
+                  (make-instance 'tag :name name :count count :label label))))
 
 (defmethod get-tag-predicands ((l sqlite-library) tag-or-name)
   (check-type tag-or-name (or tag string))
-  ;; FIXME: I have no idea if this is valid lmao
   (loop for row in (sqlite-rows l (ccat "select tags.* from tags "
                                         "inner join tag_predicates "
                                         "on iftag = name where thentag = ?")
