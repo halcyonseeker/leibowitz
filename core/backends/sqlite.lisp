@@ -166,9 +166,13 @@ create table if not exists 'tag_predicates' (
 
 (defmethod add-tag-predicate ((l sqlite-library) iftag-or-name thentag-or-name
                               &key (retroactive NIL))
-  ;; FIXME: support :retroactive
   (check-type iftag-or-name (or tag string))
   (check-type thentag-or-name (or tag string))
+  ;; FIXME: When :retroactive is T find all data with iftag then call
+  ;; add-datum-tags on them to add thentag.  This will transparently
+  ;; handle recursing through the hierarchy.
+  ;; FIXME: Throw an error when the user attempts to create a circular
+  ;; reference
   (let ((ifname (%need-tag-name iftag-or-name))
         (thenname (%need-tag-name thentag-or-name)))
     (unless (get-tag l ifname)
