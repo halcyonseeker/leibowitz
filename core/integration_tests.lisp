@@ -154,6 +154,12 @@
   (is #'equal "People of The Book" (tag-name (car (get-tag-predicates l "Zoroastrianism"))))
   (is #'equal "Zoroastrianism" (tag-name (car (get-tag-predicands l "People of The Book")))))
 
+(define-library-test add-tag-predicate-should-not-create-duplicate-tags (l)
+  (add-tag-predicate l "a" "b")
+  (add-tag-predicate l "a" "b")
+  (is #'= 1 (length (get-tag-predicates l "a")))
+  (is #'= 1 (length (get-tag-predicands l "b"))))
+
 ;; FIXME: also test :retroactive and :cascade
 (define-library-test add-and-remove-tag-predicate (l)
   (add-tag-predicate l "Marguerite Porete" "Christian Mystics")

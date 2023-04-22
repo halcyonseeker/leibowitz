@@ -37,7 +37,8 @@ create table if not exists 'tag_datum_junctions' (
 )" "
 create table if not exists 'tag_predicates' (
   'iftag' text not null,
-  'thentag' text not null
+  'thentag' text not null,
+  unique(iftag, thentag) on conflict ignore
 )")))
 
 ;;; Reading and writing data
