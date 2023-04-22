@@ -36,30 +36,101 @@
       (delete-file path))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Lower-level datum tests
+
+;; (define-test initialize-datum)
+
+;; (define-test reinitialize-datum-class-by-mime-type)
+
+;; (define-test reinitialize-datum-class-by-directory)
+
+;; (define-test reinitialize-datum-class-not-backed-by-file)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic API tests
 
-(define-library-test insert-and-retrieve-datum (library path)
+(define-library-test insert-datum (l path)
   (let ((d (make-instance 'datum :id path)))
-    (true (add-datum library d))
-    (is #'datum-equal d (get-datum library (datum-id d)))))
+    (is #'eq d (add-datum l d))))
 
-(define-library-test insert-and-delete-datum (library path)
+(define-library-test retrieve-nonexistent-datum (l)
+  (false (get-datum l "some nonexistent id"))
+  (false (get-datum l #P"/this/time/a/pathname")))
+
+(define-library-test delete-nonexistent-datum (l)
+  (del-datum l "some datum id"))
+
+;; FIXME: writing some tests for datum-equal would be worthwhile
+
+;; FIXME: write %tag-or-name and %datum-or-id and test them
+
+(define-library-test insert-and-retrieve-datum (l path)
   (let ((d (make-instance 'datum :id path)))
-    (add-datum library d)
-    (true (get-datum library (datum-id d)))
-    (del-datum library d)
-    (false (get-datum library (datum-id d)))
-    (add-datum library d)
-    (true (get-datum library (datum-id d)))
-    (del-datum library (datum-id d)) ; check both kinds of arguments
-    (false (get-datum library (datum-id d)))))
+    (add-datum l d)
+    (is #'datum-equal d (get-datum l (datum-id d)))))
 
-(define-library-test add-tag-to-file-then-remove (l path)
+(define-library-test insert-and-delete-datum (l path)
+  (let ((d (make-instance 'datum :id path)))
+    (add-datum l d)
+    (del-datum l d)
+    (false (get-datum l (datum-id d)))))
+
+(define-library-test add-single-tag-to-datum-then-remove (l path)
+  (let ((d (make-instance 'datum :id path)))
+    (add-datum l d)
+    (add-datum-tags l d '("tag"))
+    (let ((tag (car (get-datum-tags l d))))
+      (is #'equal "tag" (tag-name tag))
+      (is #'= 1 (tag-count tag)))
+    (is #'equal (datum-id d) (datum-id (car (get-tag-data l "tag"))))
+    (del-datum-tags l d '("tag"))
+    (false (get-datum-tags l d))
+    (false (get-tag-data l "tag"))
+    (is #'datum-equal d (get-datum l (datum-id d)))))
+
+(define-library-test removing-datum-removes-its-tags (l path)
   (let ((d (make-instance 'datum :id path)))
     (add-datum l d)
     (add-datum-tags l d '("some" "tags"))
-    (is #'equal '("some" "tags") (loop for tag in (get-datum-tags l d)
-                                       collect (tag-name tag)))
-    (del-datum-tags l (datum-id d) '("some"))
-    (is #'equal '("tags") (loop for tag in (get-datum-tags l (datum-id d))
-                                collect (tag-name tag)))))
+    (del-datum l d)
+    (false (get-tag l "some"))
+    (false (get-tag l "tags"))))
+
+(define-library-test decrement-count-when-data-removed-from-tag-with-other-data (l path1 path2)
+  (let ((d1 (make-instance 'datum :id path1))
+        (d2 (make-instance 'datum :id path2)))
+    (add-datum l d1)
+    (add-datum l d2)
+    (add-datum-tags l d1 '("tag"))
+    (add-datum-tags l d2 '("tag"))
+    (is #'= 2 (length (get-tag-data l "tag")))
+    (is #'= 2 (tag-count (get-tag l "tag")))
+    (del-datum l d1)
+    (is #'= 1 (length (get-tag-data l "tag")))
+    (is #'= 1 (tag-count (get-tag l "tag")))))
+
+(define-library-test removing-tag-removes-all-its-associations (l path1 path2)
+  (let ((d1 (make-instance 'datum :id path1))
+        (d2 (make-instance 'datum :id path2)))
+    (add-datum l d1)
+    (add-datum l d2)
+    (add-datum-tags l d1 '("tag"))
+    (add-datum-tags l d2 '("tag"))
+    (del-tag l "tag")
+    (false (get-tag-data l "tag"))
+    (false (get-datum-tags l d1))
+    (false (get-datum-tags l d2))))
+
+(define-library-test cannot-make-empty-tag-without-label (l)
+  (let ((tag (make-instance 'tag :name "tag")))
+    (fail (add-tag l tag)))) ; FIXME: is this really necessary
+
+(define-library-test create-empty-tag-with-label-and-not-orphaned-when-del-datum (l path)
+  (let ((tag (make-instance 'tag :name "tag" :label "hi")))
+    (add-tag l tag)
+    (is #'= 0 (tag-count (get-tag l "tag")))
+    (let ((d (make-instance 'datum :id path)))
+      (add-datum-tags l d '("tag"))
+      (is #'= 1 (tag-count (get-tag l "tag")))
+      (del-datum l d)
+      (is #'= 0 (tag-count (get-tag l "tag"))))))
