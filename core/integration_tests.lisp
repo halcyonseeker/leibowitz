@@ -73,6 +73,8 @@
     (del-datum l d)
     (false (get-datum l (datum-id d)))))
 
+;;; Tagging
+
 (define-library-test add-single-tag-to-datum-then-remove (l path)
   (let ((d (make-instance 'datum :id path)))
     (add-datum l d)
@@ -132,3 +134,5 @@
       (is #'= 1 (tag-count (get-tag l "tag")))
       (del-datum l d)
       (is #'= 0 (tag-count (get-tag l "tag"))))))
+
+;;; Tag Predicates
