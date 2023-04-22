@@ -77,16 +77,14 @@ create table if not exists 'tag_predicates' (
 
 (defmethod add-tag ((l sqlite-library) tag-or-name)
   (check-type tag-or-name (or tag string))
-  (unless (sqlite-row l "select * from tags where name = ?"
-                      (%need-tag-name tag-or-name))
-    (when (stringp tag-or-name)
-      (setf tag-or-name (make-instance 'tag :name tag-or-name)))
-    (sqlite-nq l "insert into tags (name, label, count) values (?, ?, ?)"
-               (tag-name tag-or-name)
-               (if (slot-boundp tag-or-name 'label)
-                   (tag-label tag-or-name)
-                   NIL)
-               (tag-count tag-or-name)))
+  (when (stringp tag-or-name)
+    (setf tag-or-name (make-instance 'tag :name tag-or-name)))
+  (sqlite-nq l "insert or ignore into tags (name, label, count) values (?, ?, ?)"
+             (tag-name tag-or-name)
+             (if (slot-boundp tag-or-name 'label)
+                 (tag-label tag-or-name)
+                 NIL)
+             (tag-count tag-or-name))
   T)
 
 (defmethod get-tag ((l sqlite-library) name)
