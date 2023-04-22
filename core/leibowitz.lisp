@@ -11,38 +11,50 @@
 ;;; Reading and writing data
 
 (defgeneric add-datum (library datum)
-  (:documentation "Add a new datum to the library."))
+  (:documentation "Given a datum, add it to the library then return it."))
 
 (defgeneric get-datam (library id)
-  (:documentation "Find a datum by its unique id."))
+  (:documentation "Given a datum id, return an instance retrieved from the library or
+NIL if it is not found.  ID may be either a string or a pathname."))
 
 (defgeneric del-datum (library datum-or-id)
-  (:documentation "Remove a datum from the library."))
+  (:documentation "Given a datum or its id in the form of a string or a pathname, remove
+the corresponding entry from the library.  If the datum is not
+present, do nothing."))
 
 ;;; Reading and writing tags
 
 (defgeneric add-tag (library tag)
-  (:documentation "Create a new tag."))
+  (:documentation "Given a tag instance, insert it into the library.  This creates an
+orphaned tag without any corresponding data, so generally speaking
+you'll probably want to use `add-datum-tags' instead.  This method may
+be useful for adding a tag with a label that gives it some kind of
+special role."))
 
 (defgeneric get-tag (library name)
-  (:documentation "Find a tag by its name."))
+  (:documentation "Find a tag by its name and return an instance of it or NIL if it
+isn't present."))
 
 (defgeneric del-tag (library tag-or-name)
-  (:documentation "Delete a tag."))
+  (:documentation "Given a tag or a tag name, delete it if it exists.  This will also
+remove all data associations, but not the data themselves."))
 
 ;;; Reading and writing datum-tag relationships
 
 (defgeneric get-datum-tags (library datum-or-id)
-  (:documentation "Return a list of the tags associated with a datum."))
+  (:documentation "Return a list of the tags associated with a datum where DATUM-OR-ID
+is a `datum', a string, or a pathname.  Returns NIL if there are no tags."))
 
 (defgeneric add-datum-tags (library datum-or-id tags)
   (:documentation "Add one or more tags to a datum."))
 
 (defgeneric del-datum-tags (library datum-or-id tags)
-  (:documentation "Remove one or more tags from a datum."))
+  (:documentation "Remove one or more tags from a datum.  If this leaves any tags
+orphaned they will be removed unless they're stored with a label."))
 
 (defgeneric get-tag-data (library tag-or-name)
-  (:documentation "Get the data associated with a tag."))
+  (:documentation "Return a list of the data associated with a tag or NIL if there isn't
+any."))
 
 ;;; Reading and writing tag hierarchies
 
