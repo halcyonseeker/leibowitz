@@ -24,7 +24,7 @@ present, do nothing."))
 
 ;;; Reading and writing tags
 
-(defgeneric add-tag (library tag)
+(defgeneric add-tag (library tag-or-name)
   (:documentation "Given a tag instance, insert it into the library.  This creates an
 orphaned tag without any corresponding data, so generally speaking
 you'll probably want to use `add-datum-tags' instead.  This method may
