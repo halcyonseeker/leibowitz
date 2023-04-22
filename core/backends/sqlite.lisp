@@ -73,8 +73,7 @@ create table if not exists 'tag_predicates' (
                                   "count = 0 and label is null")
                           (tag-name tag)))
       (sqlite-nq l "delete from data where id = ?" id)
-      (sqlite-nq l "delete from tag_datum_junctions where datum_id = ?" id)))
-  T)
+      (sqlite-nq l "delete from tag_datum_junctions where datum_id = ?" id))))
 
 ;;; Reading and writing tags
 
