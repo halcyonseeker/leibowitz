@@ -48,9 +48,11 @@ is a `datum', a string, or a pathname.  Returns NIL if there are no tags."))
 (defgeneric add-datum-tags (library datum-or-id tags)
   (:documentation "Add one or more tags to a datum."))
 
-(defgeneric del-datum-tags (library datum-or-id tags)
+(defgeneric del-datum-tags (library datum-or-id tags &key cascade)
   (:documentation "Remove one or more tags from a datum.  If this leaves any tags
-orphaned they will be removed unless they're stored with a label."))
+orphaned they will be removed unless they're stored with a label.  If
+:cascade is T this will also remove all tags predicated in the tags to
+be removed."))
 
 (defgeneric get-tag-data (library tag-or-name)
   (:documentation "Return a list of the data associated with a tag or NIL if there isn't

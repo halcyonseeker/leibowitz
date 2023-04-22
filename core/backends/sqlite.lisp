@@ -132,16 +132,16 @@ create table if not exists 'tag_predicates' (
         collect (destructuring-bind (name label count) row
                   (make-instance 'tag :name name :count count :label label))))
 
-(defmethod del-datum-tags ((l sqlite-library) datum-or-id tags)
+(defmethod del-datum-tags ((l sqlite-library) datum-or-id tags &key (cascade NIL))
   (check-type datum-or-id (or datum pathname string))
   (check-type tags list)
   (loop for tag in tags
         for name = (%need-tag-name tag)
         for id = (%need-datum-id datum-or-id)
         do (with-sqlite-tx (l)
-             ;; FIXME: refactor this to recursively remove tag
-             ;; relationships for those tags which depend on this
-             ;; one.
+             ;; FIXME: refactor this to check if cascade is T and
+             ;; maybe recursively remove tag relationships for those
+             ;; tags which depend on this one
              (sqlite-nq l (ccat "delete from tag_datum_junctions "
                                 "where tag_name = ? and datum_id = ?")
                         name id)
