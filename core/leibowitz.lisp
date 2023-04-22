@@ -68,8 +68,9 @@ and add the thentag to all data already associated with iftag."))
 (defgeneric get-tag-predicates (library tag-or-name)
   (:documentation "Return a list of tags to be applied to a datum with TAG."))
 
-(defgeneric get-tag-predicands (library tag)
-  (:documentation "Return a list of tags that require TAG also be applied."))
+(defgeneric get-tag-predicands (library tag-or-name)
+  (:documentation "Do the reverse of `get-tag-predicates' and return a list of tags that
+require TAG also be applied."))
 
 (defgeneric del-tag-predicate (library iftag thentag)
   (:documentation "Remove the requirement that data with IFTAG must have THENTAG."))
