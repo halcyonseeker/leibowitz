@@ -60,14 +60,14 @@
 (define-library-test delete-nonexistent-datum (l)
   (del-datum l "some datum id"))
 
-;; FIXME: writing some tests for datum-equal would be worthwhile
+;; FIXME: writing some tests for %datum-equal would be worthwhile
 
 ;; FIXME: write %tag-or-name and %datum-or-id and test them
 
 (define-library-test insert-and-retrieve-datum (l path)
   (let ((d (make-instance 'datum :id path)))
     (add-datum l d)
-    (is #'datum-equal d (get-datum l (datum-id d)))))
+    (is #'%datum-equal d (get-datum l (datum-id d)))))
 
 (define-library-test insert-and-delete-datum (l path)
   (let ((d (make-instance 'datum :id path)))
@@ -86,7 +86,7 @@
     (del-datum-tags l d '("tag"))
     (false (get-datum-tags l d))
     (false (get-tag-data l "tag"))
-    (is #'datum-equal d (get-datum l (datum-id d)))))
+    (is #'%datum-equal d (get-datum l (datum-id d)))))
 
 (define-library-test removing-datum-removes-its-tags (l path)
   (let ((d (make-instance 'datum :id path)))
