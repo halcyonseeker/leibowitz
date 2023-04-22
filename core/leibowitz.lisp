@@ -65,7 +65,7 @@ any."))
 thantag will be as well.  If :retroactive is T, then this will go back
 and add the thentag to all data already associated with iftag."))
 
-(defgeneric get-tag-predicates (library tag)
+(defgeneric get-tag-predicates (library tag-or-name)
   (:documentation "Return a list of tags to be applied to a datum with TAG."))
 
 (defgeneric get-tag-predicands (library tag)
