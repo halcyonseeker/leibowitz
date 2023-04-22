@@ -171,6 +171,10 @@ create table if not exists 'tag_predicates' (
   (check-type thentag-or-name (or tag string))
   (let ((ifname (%need-tag-name iftag-or-name))
         (thenname (%need-tag-name thentag-or-name)))
+    (unless (get-tag l ifname)
+      (add-tag l (make-instance 'tag :name ifname)))
+    (unless (get-tag l thenname)
+      (add-tag l (make-instance 'tag :name thenname)))
     (sqlite-nq l (ccat "insert or ignore into tag_predicates (iftag, thentag)"
                        "values (?, ?)")
                ifname thenname)))
