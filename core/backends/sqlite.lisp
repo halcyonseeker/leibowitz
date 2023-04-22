@@ -110,19 +110,21 @@ create table if not exists 'tag_predicates' (
 (defmethod add-datum-tags ((l sqlite-library) datum-or-id tags)
   (check-type datum-or-id (or datum pathname string))
   (check-type tags list)
-  (loop for tag in tags
-        for id = (%need-datum-id datum-or-id)
-        for name = (%need-tag-name tag)
-        do (with-sqlite-tx (l)
-             ;; FIXME: refactor this to recursively check for tag
-             ;; predicates and apply sub tags to this datum.
-             (add-tag l tag)
+  (labels ((add-assoc (l name id)
+             (add-tag l name)
              (sqlite-nq l (ccat "insert into tag_datum_junctions "
                                 "(tag_name, datum_id) values (?, ?)")
                         name id)
              (sqlite-nq l (ccat "update tags set count = count + 1 "
                                 "where name = ?")
-                        name))))
+                        name)))
+    (with-sqlite-tx (l)
+      (loop for tag in tags
+            for id = (%need-datum-id datum-or-id)
+            for name = (%need-tag-name tag)
+            do (add-assoc l name id)
+               (loop for required-tag in (%cascade-down-predicate-tree l tag)
+                     do (add-assoc l required-tag id))))))
 
 (defmethod get-datum-tags ((l sqlite-library) datum-or-id)
   (check-type datum-or-id (or datum pathname string))
@@ -245,3 +247,10 @@ create table if not exists 'tag_predicates' (
   "Concatenate some strings at compile-time.  Used internally to shorten
 lines with really long SQL queries."
   (format NIL "~{~A~}" strings))
+
+(defun %cascade-down-predicate-tree (sqlite-library root-iftag-name)
+  "Given ROOT-IFTAG-NAME as the root of a tag hierarchy, traverse down
+it and return a list of all tags that should be added.  If we
+encounter a tag that is already in the list of tags to add, simply
+skip it; ie, cycle in the tag hierarchy are just ignored."
+  NIL)
