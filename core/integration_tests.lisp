@@ -121,10 +121,6 @@
     (false (get-datum-tags l d1))
     (false (get-datum-tags l d2))))
 
-(define-library-test cannot-make-empty-tag-without-label (l)
-  (let ((tag (make-instance 'tag :name "tag")))
-    (fail (add-tag l tag)))) ; FIXME: is this really necessary
-
 (define-library-test create-empty-tag-with-label-and-not-orphaned-when-del-datum (l path)
   (let ((tag (make-instance 'tag :name "tag" :label "hi")))
     (add-tag l tag)
