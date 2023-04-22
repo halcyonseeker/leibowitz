@@ -199,7 +199,15 @@ create table if not exists 'tag_predicates' (
         collect (destructuring-bind (name label count) row
                   (make-instance 'tag :name name :count count :label label))))
 
-(defmethod del-tag-predicate ((l sqlite-library) iftag thentag))
+(defmethod del-tag-predicate ((l sqlite-library) iftag-or-name thentag-or-name
+                              &key (retroactive NIL))
+  (check-type iftag-or-name (or tag string))
+  (check-type thentag-or-name (or tag string))
+  ;; FIXME: support :retroactive
+  (let ((ifname (%need-tag-name iftag-or-name))
+        (thenname (%need-tag-name thentag-or-name)))
+    (sqlite-nq l "delete from tag_predicates where iftag = ? and thentag = ?"
+               ifname thenname)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Additional Methods

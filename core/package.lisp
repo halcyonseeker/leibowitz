@@ -16,7 +16,7 @@
            #:add-tag-predicate
            #:get-tag-predicates
            #:get-tag-predicands
-           #:del-tag-predicates
+           #:del-tag-predicate
            #:query)
   ;; A unit of tagable data
   (:export #:datum
