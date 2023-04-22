@@ -47,7 +47,7 @@ create table if not exists 'tag_predicates' (
    l "insert into data (id, type, birth, modified, terms) values (?, ?, ?, ?, ?)"
    (datum-id d) (datum-kind d) (datum-birth d) (datum-modified d)
    (datum-terms d))
-  T)
+  d)
 
 (defmethod get-datum ((l sqlite-library) id)
   (check-type id (or string pathname))
