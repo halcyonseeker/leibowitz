@@ -154,7 +154,7 @@
   (is #'equal "People of The Book" (tag-name (car (get-tag-predicates l "Zoroastrianism"))))
   (is #'equal "Zoroastrianism" (tag-name (car (get-tag-predicands l "People of The Book")))))
 
-;; FIXME: also test :retroactive
+;; FIXME: also test :retroactive and :cascade
 (define-library-test add-and-remove-tag-predicate (l)
   (add-tag-predicate l "Marguerite Porete" "Christian Mystics")
   (add-tag-predicate l "Meister Eckhart" "Christian Mystics")
