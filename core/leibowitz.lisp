@@ -190,4 +190,14 @@ to date."))
          (equal (datum-terms d1) (datum-terms d2))))
   (:documentation "Return T if two datum instances are identical."))
 
+(defun %need-tag-name (tag-or-name)
+  (etypecase tag-or-name
+    (tag (tag-name tag-or-name))
+    (string tag-or-name)))
+
+(defun %need-datum-id (datum-or-id)
+  (etypecase datum-or-id
+    (string datum-or-id)
+    (pathname (namestring datum-or-id))
+    (datum (datum-id datum-or-id))))
 
