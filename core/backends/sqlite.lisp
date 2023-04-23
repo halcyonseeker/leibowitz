@@ -33,13 +33,23 @@ create table if not exists 'tags' (
 )" "
 create table if not exists 'tag_datum_junctions' (
   'tag_name' text not null,
-  'datum_id' text not null
+  'datum_id' text not null,
+  unique(tag_name, datum_id) on conflict ignore
 )" "
 create table if not exists 'tag_predicates' (
   'iftag' text not null,
   'thentag' text not null,
   unique(iftag, thentag) on conflict ignore
-)")))
+)" "
+create trigger if not exists inc_tag_count after insert on tag_datum_junctions begin
+  update tags set count = count + 1 where name = new.tag_name;
+end
+" "
+create trigger if not exists dec_tag_count after delete on tag_datum_junctions begin
+  update tags set count = count - 1 where name = old.tag_name;
+  delete from tags where name = old.tag_name and count = 0 and label is null;
+end
+")))
 
 ;;; Reading and writing data
 
@@ -65,9 +75,7 @@ create table if not exists 'tag_predicates' (
   (let ((id (%need-datum-id datum-or-id)))
     (with-sqlite-tx (l)
       (loop for tag in (get-datum-tags l id)
-            do (sqlite-nq l "update tags set count = count - 1 where name = ?"
-                          (tag-name tag))
-               (sqlite-nq l (ccat "delete from tags where name = ? and "
+            do (sqlite-nq l (ccat "delete from tags where name = ? and "
                                   "count = 0 and label is null")
                           (tag-name tag)))
       (sqlite-nq l "delete from data where id = ?" id)
@@ -112,10 +120,7 @@ create table if not exists 'tag_predicates' (
              (add-tag l name)
              (sqlite-nq l (ccat "insert into tag_datum_junctions "
                                 "(tag_name, datum_id) values (?, ?)")
-                        name id)
-             (sqlite-nq l (ccat "update tags set count = count + 1 "
-                                "where name = ?")
-                        name)))
+                        name id)))
     (with-sqlite-tx (l)
       (loop for tag in tags
             for id = (%need-datum-id datum-or-id)
@@ -146,9 +151,6 @@ create table if not exists 'tag_predicates' (
              (sqlite-nq l (ccat "delete from tag_datum_junctions "
                                 "where tag_name = ? and datum_id = ?")
                         name id)
-             (sqlite-nq l (ccat "update tags set count = count - 1 "
-                                "where name = ?")
-                        name)
              (sqlite-nq l (ccat "delete from tags where name = ? and "
                                 "count = 0 and label is null")
                         name))))
