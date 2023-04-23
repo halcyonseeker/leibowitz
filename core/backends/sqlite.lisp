@@ -178,8 +178,6 @@ end
   ;; FIXME: When :retroactive is T find all data with iftag then call
   ;; add-datum-tags on them to add thentag.  This will transparently
   ;; handle recursing through the hierarchy.
-  ;; FIXME: Throw an error when the user attempts to create a circular
-  ;; reference
   (let ((ifname (%need-tag-name iftag-or-name))
         (thenname (%need-tag-name thentag-or-name)))
     (unless (get-tag l ifname)
