@@ -125,7 +125,7 @@ end
       (loop for tag in tags
             for id = (%need-datum-id datum-or-id)
             for name = (%need-tag-name tag)
-            for required-tags = (%cascade-down-predicate-tree l tag)
+            for required-tags = (%cascade-down-predicate-tree l name)
             do (loop for required-tag being each hash-key of required-tags
                      do (add-assoc l required-tag id))))))
 
