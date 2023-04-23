@@ -141,19 +141,21 @@ end
 (defmethod del-datum-tags ((l sqlite-library) datum-or-id tags &key (cascade NIL))
   (check-type datum-or-id (or datum pathname string))
   (check-type tags list)
-  (loop for tag in tags
-        for name = (%need-tag-name tag)
-        for id = (%need-datum-id datum-or-id)
-        do (with-sqlite-tx (l)
-             ;; FIXME: refactor this to check if cascade is T and
-             ;; maybe recursively remove tag relationships for those
-             ;; tags which depend on this one
+  (labels ((del-assoc (l name id)
              (sqlite-nq l (ccat "delete from tag_datum_junctions "
                                 "where tag_name = ? and datum_id = ?")
                         name id)
              (sqlite-nq l (ccat "delete from tags where name = ? and "
                                 "count = 0 and label is null")
-                        name))))
+                        name)))
+    (with-sqlite-tx (l)
+      (loop for tag in tags
+            for name = (%need-tag-name tag)
+            for id = (%need-datum-id datum-or-id)
+            do (del-assoc l name id)
+               (when cascade
+                 (loop for req being each hash-key of (%cascade-down-predicate-tree l name)
+                       do (del-assoc l req id)))))))
 
 (defmethod get-tag-data ((l sqlite-library) tag-or-name)
   (check-type tag-or-name (or string tag))
