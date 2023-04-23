@@ -60,10 +60,9 @@ any."))
 
 ;;; Reading and writing tag hierarchies
 
-(defgeneric add-tag-predicate (library iftag-or-name thentag-or-name &key retroactive)
+(defgeneric add-tag-predicate (library iftag-or-name thentag-or-name)
   (:documentation "Create a rule such that whenever the iftag is applied to a datum, the
-thantag will be as well.  If :retroactive is T, then this will go back
-and add the thentag to all data already associated with iftag."))
+thantag will be as well."))
 
 (defgeneric get-tag-predicates (library tag-or-name)
   (:documentation "Return a list of tags to be applied to a datum with TAG."))
@@ -72,10 +71,9 @@ and add the thentag to all data already associated with iftag."))
   (:documentation "Do the reverse of `get-tag-predicates' and return a list of tags that
 require TAG also be applied."))
 
-(defgeneric del-tag-predicate (library iftag-or-name thentag-or-name &key retroactive cascade)
+(defgeneric del-tag-predicate (library iftag-or-name thentag-or-name)
   (:documentation "Remove the requirement that data with the iftag must also have
-thentag.  If :retroactive is T, this will go back and remove the
-thentag from all data with iftag."))
+thentag."))
 
 ;;; Full-text search
 

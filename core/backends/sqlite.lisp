@@ -171,13 +171,9 @@ end
 
 ;;; Reading and writing tag hierarchies
 
-(defmethod add-tag-predicate ((l sqlite-library) iftag-or-name thentag-or-name
-                              &key (retroactive NIL))
+(defmethod add-tag-predicate ((l sqlite-library) iftag-or-name thentag-or-name)
   (check-type iftag-or-name (or tag string))
   (check-type thentag-or-name (or tag string))
-  ;; FIXME: When :retroactive is T find all data with iftag then call
-  ;; add-datum-tags on them to add thentag.  This will transparently
-  ;; handle recursing through the hierarchy.
   (let ((ifname (%need-tag-name iftag-or-name))
         (thenname (%need-tag-name thentag-or-name)))
     (unless (get-tag l ifname)
@@ -206,13 +202,9 @@ end
         collect (destructuring-bind (name label count) row
                   (make-instance 'tag :name name :count count :label label))))
 
-(defmethod del-tag-predicate ((l sqlite-library) iftag-or-name thentag-or-name
-                              &key (retroactive NIL) (cascade NIL))
+(defmethod del-tag-predicate ((l sqlite-library) iftag-or-name thentag-or-name)
   (check-type iftag-or-name (or tag string))
   (check-type thentag-or-name (or tag string))
-  ;; FIXME: When :retroactive is T call del-datum-tags on all data
-  ;; currently tagged with iftag and remove thentag from them.  If
-  ;; :cascade is T then this will recursively remove tags.
   (let ((ifname (%need-tag-name iftag-or-name))
         (thenname (%need-tag-name thentag-or-name)))
     (sqlite-nq l "delete from tag_predicates where iftag = ? and thentag = ?"

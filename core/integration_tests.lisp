@@ -139,7 +139,6 @@
 
 ;;; Tag Predicates
 
-;; FIXME: also test :retroactive
 (define-library-test add-predicate-to-a-tag (l)
   (let ((t1 (make-instance 'tag :name "History"))
         (t2 (make-instance 'tag :name "Sassanian Empire")))
@@ -166,7 +165,6 @@
   (is #'= 1 (length (get-tag-predicates l "a")))
   (is #'= 1 (length (get-tag-predicands l "b"))))
 
-;; FIXME: also test :retroactive and :cascade
 (define-library-test add-and-remove-tag-predicate (l)
   (add-tag-predicate l "Marguerite Porete" "Christian Mystics")
   (add-tag-predicate l "Meister Eckhart" "Christian Mystics")
