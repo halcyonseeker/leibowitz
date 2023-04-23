@@ -169,3 +169,13 @@
   (true (get-tag l "Meister Eckhart"))
   (is #'= 1 (length (get-tag-predicands l "Christian Mystics")))
   (false (get-tag-predicates l "Meister Eckhart")))
+
+(define-library-test add-datum-tags-cascades-down-predicate-tree (l path)
+  (let ((d (make-instance 'datum :id path)))
+    (add-datum l d)
+    (add-tag-predicate l "Ibn Rushd" "Islamic Rationalist Philosophers")
+    (add-datum-tags l d '("Ibn Rushd"))
+    (is #'equal
+        '("Ibn Rushd" "Islamic Rationalist Philosophers")
+        (sort (loop for tag in (get-datum-tags l d) collect (tag-name tag))
+              #'string<))))
