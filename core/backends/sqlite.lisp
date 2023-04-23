@@ -258,7 +258,16 @@ end")))
                                 terms)
         collect (destructuring-bind (id kind birth modified terms) row
                   (make-instance 'datum :id id :kind kind :birth birth
-                                        :modified modified :terms terms))))  )
+                                        :modified modified :terms terms))))
+
+(defmethod list-tags ((l sqlite-library) &key (limit NIL))
+  (check-type limit (or null integer))
+  )
+
+(defmethod list-data ((l sqlite-library) &key (limit NIL) (sort-by :modified))
+  (check-type limit (or null integer))
+  (assert (member sort-by '(:modified :birth :accesses :num-tags)))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Additional Methods

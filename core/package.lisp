@@ -1,7 +1,7 @@
 
 (defpackage :leibowitz-core
   (:use #:cl)
-  ;; High-level APi
+  ;; Basic administrative API
   (:export #:library
            #:add-datum
            #:get-datum
@@ -16,8 +16,11 @@
            #:add-tag-predicate
            #:get-tag-predicates
            #:get-tag-predicands
-           #:del-tag-predicate
-           #:query)
+           #:del-tag-predicate)
+  ;; Search and Listing
+  (:export #:query
+           #:list-tags
+           #:list-data)
   ;; A unit of tagable data
   (:export #:datum
            #:datum-id

@@ -75,10 +75,19 @@ require TAG also be applied."))
   (:documentation "Remove the requirement that data with the iftag must also have
 thentag."))
 
-;;; Full-text search
+;;; Searching and Listing
 
 (defgeneric query (library terms with-tags without-tags)
   (:documentation "Return data that match the search terms and tag filters."))
+
+(defgeneric list-tags (library &key limit)
+  (:documentation "Return a list of the top :limit sorted in descending order by
+count."))
+
+(defgeneric list-data (library &key limit sort-by)
+  (:documentation "Return a list of the top :limit data sorted in
+descending order by a criterion specified by :sort-by.  This defaults
+to :modified but may also be :birth, :accesses, or :num-tags."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Data stored in the library
