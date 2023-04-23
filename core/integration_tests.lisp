@@ -8,7 +8,7 @@
 (defmacro define-library-test (name (library &rest tmpfiles) &body body)
   (let ((path (gensym)))
     `(progn
-       (define-test ,name)
+       (define-test ,name :time-limit 1)
        (define-test ,(read-from-string (format NIL "sqlite-library-~A" name))
          :parent ,name
          (let* ((,path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_sqlite_test"))
@@ -201,3 +201,11 @@
     (add-datum-tags l d '("Ibn Rushd"))
     (del-datum-tags l d '("Ibn Rushd") :cascade T)
     (false (get-datum-tags l d))))
+
+(define-library-test cycles-in-tag-hierarchy-are-detected (l path)
+  ;; This will timeout if it fails
+  (let ((d (make-instance 'datum :id path)))
+    (add-tag-predicate l "first" "second")
+    (add-tag-predicate l "second" "third")
+    (add-tag-predicate l "third" "first")
+    (add-datum-tags l d '("first"))))
