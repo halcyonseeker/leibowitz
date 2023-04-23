@@ -17,6 +17,7 @@
                         collect `(,var (uiop:tmpize-pathname
                                         #P"/tmp/leibowitz_core_test_tmpfile"))))
            (unwind-protect (progn ,@body)
+             (sqlite:disconnect (slot-value ,library 'leibowitz-core::handle))
              ,@(loop for var in tmpfiles
                      collect `(delete-file ,var))
              (delete-file ,path)))))))
