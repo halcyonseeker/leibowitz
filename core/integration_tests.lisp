@@ -131,6 +131,12 @@
       (del-datum l d)
       (is #'= 0 (tag-count (get-tag l "tag"))))))
 
+(define-library-test duplicate-tag-junctions-are-impossible (l path)
+  (let ((d (make-instance 'datum :id path)))
+    (add-datum-tags l d '("tag"))
+    (add-datum-tags l d '("tag"))
+    (is #'= 1 (length (get-datum-tags l d)))))
+
 ;;; Tag Predicates
 
 ;; FIXME: also test :retroactive
