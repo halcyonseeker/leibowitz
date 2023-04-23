@@ -161,6 +161,21 @@ for different file types."))
       (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
   (:documentation "Get this mime time of this datum's file."))
 
+(defgeneric datum-print-long-report (library datum)
+  (:method ((l library) (d datum))
+    (format T "   Datum: ~A~%" (datum-id d))
+    (format T "    Type: ~A~%" (datum-kind d))
+    (format T "Modified: ~A~%" (local-time:format-rfc1123-timestring
+                                NIL (local-time:universal-to-timestamp
+                                     (datum-modified d))))
+    (format T "    Born: ~A~%" (local-time:format-rfc1123-timestring
+                                NIL (local-time:universal-to-timestamp
+                                     (datum-birth d))))
+    (format T "    Tags: ~{~S~^, ~}~%" (loop for tag in (get-datum-tags l d)
+                                                 collect (tag-name tag)))
+    )
+  (:documentation "Print a human-friendly summary of this datum."))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Tags of stored data
 
