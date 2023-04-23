@@ -262,12 +262,19 @@ end")))
 
 (defmethod list-tags ((l sqlite-library) &key (limit NIL))
   (check-type limit (or null integer))
-  )
+  ;; FIXME: support :limit
+  (loop for row in (sqlite-rows l "select * from tags order by count desc")
+        collect (destructuring-bind (name label count) row
+                  (make-instance 'tag :name name :count count :label label))))
 
 (defmethod list-data ((l sqlite-library) &key (limit NIL) (sort-by :modified))
   (check-type limit (or null integer))
   (assert (member sort-by '(:modified :birth :accesses :num-tags)))
-  )
+  ;; FIXME: support :limit and :sort-by
+  (loop for row in (sqlite-rows l "select * from data order by modified desc")
+        collect (destructuring-bind (id kind birth modified terms) row
+                  (make-instance 'datum :id id :kind kind :birth birth
+                                        :modified modified :terms terms)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Additional Methods
