@@ -199,6 +199,14 @@ for different file types."))
     :documentation "The number of data with this tag"))
   (:documentation ""))
 
+(defgeneric tag-print-long-report (library tag)
+  (:method ((l library) (tag tag))
+    (format T "  Tag: ~A~%" (tag-name tag))
+    (format T "Label: ~A~%" (tag-label tag))
+    (format T " Data: ~{~S~^, ~}~%" (loop for datum in (get-tag-data l tag)
+                                          collect (datum-id datum))))
+  (:documentation "Print a human-friendly summary of this tag."))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Curators keep the library up to date
 
