@@ -2,6 +2,27 @@
 
 (in-package :leibowitz-core)
 
+;; Helper macros; these need to be declared before they're called.
+
+(defmacro with-sqlite-tx ((sqlite-library) &body body)
+  "Run BODY as an atomic SQLite transaction."
+  `(progn
+     (sqlite-nq ,sqlite-library "begin transaction")
+     (handler-case (progn ,@body)
+       (T (c)
+         (sqlite-nq ,sqlite-library "rollback")
+         (error c))
+       (:no-error (c)
+         (declare (ignore c))
+         (sqlite-nq ,sqlite-library "commit")))))
+
+(defmacro ccat (&rest strings)
+  "Concatenate some strings at compile-time.  Used internally to shorten
+lines with really long SQL queries."
+  (format NIL "~{~A~}" strings))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defclass sqlite-library (library)
   ((db-path
     :type (or string pathname)
@@ -225,23 +246,6 @@ end
 (defmethod sqlite-rows ((l sqlite-library) &rest args)
   "Run a query on this database that returns multiple rows."
   (apply #'sqlite:execute-to-list (nconc (list (slot-value l 'handle)) args)))
-
-(defmacro with-sqlite-tx ((sqlite-library) &body body)
-  "Run BODY as an atomic SQLite transaction."
-  `(progn
-     (sqlite-nq ,sqlite-library "begin transaction")
-     (handler-case (progn ,@body)
-       (T (c)
-         (sqlite-nq ,sqlite-library "rollback")
-         (error c))
-       (:no-error (c)
-         (declare (ignore c))
-         (sqlite-nq ,sqlite-library "commit")))))
-
-(defmacro ccat (&rest strings)
-  "Concatenate some strings at compile-time.  Used internally to shorten
-lines with really long SQL queries."
-  (format NIL "~{~A~}" strings))
 
 (defun %cascade-down-predicate-tree (lib root &optional (tbl NIL))
   "Given ROOT as the root tag of a tag hierarchy, traverse down it and
