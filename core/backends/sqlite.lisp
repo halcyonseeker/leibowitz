@@ -62,15 +62,29 @@ create table if not exists 'tag_predicates' (
   'thentag' text not null,
   unique(iftag, thentag) on conflict ignore
 )" "
+create virtual table if not exists 'search' using fts5 (
+  'terms',
+  'id',
+  content='data'
+)" "
 create trigger if not exists inc_tag_count after insert on tag_datum_junctions begin
   update tags set count = count + 1 where name = new.tag_name;
-end
-" "
+end" "
 create trigger if not exists dec_tag_count after delete on tag_datum_junctions begin
   update tags set count = count - 1 where name = old.tag_name;
   delete from tags where name = old.tag_name and count = 0 and label is null;
+end" "
+create trigger if not exists data_into_fts after insert on data begin
+  insert into search (id, terms) values (new.id, new.terms);
+end" "
+create trigger if not exists data_from_fts after delete on data begin
+  insert into search (search, id, terms) values ('delete', old.id, old.terms);
 end
-")))
+" "
+create trigger if not exists data_update_fts after update on data begin
+  insert into search (search, id, terms) values ('delete', old.id, old.terms);
+  insert into search (id, terms) values (new.id, new.terms);
+end")))
 
 ;;; Reading and writing data
 
@@ -231,6 +245,20 @@ end
         (thenname (%need-tag-name thentag-or-name)))
     (sqlite-nq l "delete from tag_predicates where iftag = ? and thentag = ?"
                ifname thenname)))
+
+;;; Searching and Listing
+
+(defmethod query ((l sqlite-library) terms with-tags without-tags)
+  (check-type terms string)
+  (check-type with-tags list)
+  (check-type without-tags list)
+  (loop for row in (sqlite-rows l (ccat "select data.* from search "
+                                        "left join data on data.id = search.id "
+                                        "where search match ? order by rank")
+                                terms)
+        collect (destructuring-bind (id kind birth modified terms) row
+                  (make-instance 'datum :id id :kind kind :birth birth
+                                        :modified modified :terms terms))))  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Additional Methods

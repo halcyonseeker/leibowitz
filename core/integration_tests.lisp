@@ -215,3 +215,10 @@
   (del-tag l "fiction")
   (false (get-tag-predicates l "science fiction"))
   (false (get-tag-predicands l "entertainment")))
+
+;;; Searching and Listing
+
+(define-library-test search-for-string (l path)
+  (let ((d (add-datum l (make-instance 'datum :id path))))
+    ;; This will fial if the file isn't in /tmp
+    (is #'equal (datum-id d) (datum-id (car (query l "tmp" NIL NIL))))))
