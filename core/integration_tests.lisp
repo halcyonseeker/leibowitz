@@ -209,3 +209,10 @@
     (add-tag-predicate l "second" "third")
     (add-tag-predicate l "third" "first")
     (add-datum-tags l d '("first"))))
+
+(define-library-test del-tag-removes-predicate-associations (l)
+  (add-tag-predicate l "science fiction" "fiction")
+  (add-tag-predicate l "fiction" "entertainment")
+  (del-tag l "fiction")
+  (false (get-tag-predicates l "science fiction"))
+  (false (get-tag-predicands l "entertainment")))

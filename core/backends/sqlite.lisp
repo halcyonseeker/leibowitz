@@ -109,7 +109,9 @@ end
   (let ((name (%need-tag-name tag-or-name)))
     (with-sqlite-tx (l)
       (sqlite-nq l "delete from tags where name = ?" name)
-      (sqlite-nq l "delete from tag_datum_junctions where tag_name = ?" name))))
+      (sqlite-nq l "delete from tag_datum_junctions where tag_name = ?" name)
+      (sqlite-nq l "delete from tag_predicates where iftag = ? or thentag = ?"
+                 name name))))
 
 ;;; Reading and writing datum-tag relationships
 
