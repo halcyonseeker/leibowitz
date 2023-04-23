@@ -120,8 +120,8 @@ create table if not exists 'tag_predicates' (
       (loop for tag in tags
             for id = (%need-datum-id datum-or-id)
             for name = (%need-tag-name tag)
-            do (add-assoc l name id)
-               (loop for required-tag in (%cascade-down-predicate-tree l tag)
+            for required-tags = (%cascade-down-predicate-tree l tag)
+            do (loop for required-tag being each hash-key of required-tags
                      do (add-assoc l required-tag id))))))
 
 (defmethod get-datum-tags ((l sqlite-library) datum-or-id)
@@ -246,9 +246,21 @@ create table if not exists 'tag_predicates' (
 lines with really long SQL queries."
   (format NIL "~{~A~}" strings))
 
-(defun %cascade-down-predicate-tree (sqlite-library root-iftag-name)
-  "Given ROOT-IFTAG-NAME as the root of a tag hierarchy, traverse down
-it and return a list of all tags that should be added.  If we
-encounter a tag that is already in the list of tags to add, simply
-skip it; ie, cycle in the tag hierarchy are just ignored."
-  NIL)
+(defun %cascade-down-predicate-tree (lib root &optional (tbl NIL))
+  "Given ROOT as the root tag of a tag hierarchy, traverse down it and
+return a hash table of all tags that should be added.  If we encounter
+a tag that is already in the table of tags to add, simply skip it; ie,
+cycles in the tag hierarchy are just ignored."
+  ;; Create the hash table the first time this function is called
+  (unless tbl (setf tbl (make-hash-table :test #'equal)))
+  ;; Do a recursive breadth-first search of the graph, skipping
+  ;; whenever we find a tag that was previously encountered in order
+  ;; to avoid recursing infinitely.
+  (setf (gethash root tbl) root)
+  (loop for tag in (get-tag-predicates lib root)
+        for name = (tag-name tag)
+        unless (gethash (tag-name tag) tbl)
+          do (setf (gethash (tag-name tag) tbl) (tag-name tag))
+             (%cascade-down-predicate-tree lib (tag-name tag) tbl))
+  tbl)
+
