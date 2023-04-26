@@ -90,7 +90,7 @@ end")))
 
 (defmethod add-datum ((l sqlite-library) (d datum))
   (sqlite-nq
-   l "insert into data (id, type, birth, modified, terms) values (?, ?, ?, ?, ?)"
+   l "insert or replace into data (id, type, birth, modified, terms) values (?, ?, ?, ?, ?)"
    (datum-id d) (datum-kind d) (datum-birth d) (datum-modified d)
    (datum-terms d))
   d)

@@ -74,6 +74,11 @@
     (del-datum l d)
     (false (get-datum l (datum-id d)))))
 
+(define-library-test insert-and-update-datum (l path)
+  (let ((d (add-datum l (make-instance 'datum :id path))))
+    (setf (datum-terms d) "hi")
+    (is #'equal "hi" (datum-terms (add-datum l d)))))
+
 ;;; Tagging
 
 (define-library-test add-single-tag-to-datum-then-remove (l path)
