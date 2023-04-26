@@ -15,3 +15,4 @@
 /docs/core_paper/*.pdf
 /docs/core_paper/*.css
 /docs/core_paper/*.html
+/build
