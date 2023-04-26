@@ -274,7 +274,7 @@ end")))
   (loop for row in (sqlite-rows l "select * from data order by modified desc")
         collect (destructuring-bind (id kind birth modified terms) row
                   (make-instance 'datum :id id :kind kind :birth birth
-                                        :modified modified :terms terms)))))
+                                        :modified modified :terms terms))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Additional Methods
