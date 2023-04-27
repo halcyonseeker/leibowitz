@@ -45,15 +45,26 @@
       (delete-file path))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Lower-level datum tests
+;; Lower-level datum and library behavior
 
-;; (define-test initialize-datum)
+(define-test datum-is-reinitialized-by-mime-type-major-part-only
+  (with-tmp-files (path)
+    (with-open-file (s path :direction :output :if-exists :supersede)
+      (format s "hi :3~%"))
+    (let ((d (make-instance 'datum :id path)))
+      (of-type datum-text d)
+      (is #'equal "text/plain" (datum-kind d))
+      (is #'equal (format NIL "hi :3~%") (datum-terms d)))))
 
-;; (define-test reinitialize-datum-class-by-mime-type)
+(define-test datum-is-reinitialized-by-mime-type-full
+  (with-tmp-files (path)
+    (with-open-file (s path :direction :output :if-exists :supersede)
+      (format s "<!DOCTYPE html>~%<html><head></head><body>hi :^3</body></html>"))
+    (let ((d (make-instance 'datum :id path)))
+      (of-type datum-text/html d)
+      (is #'equal "text/html" (datum-kind d))
+      (is #'equal "hi :^3" (datum-terms d)))))
 
-;; (define-test reinitialize-datum-class-by-directory)
-
-;; (define-test reinitialize-datum-class-not-backed-by-file)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic API tests
@@ -86,6 +97,15 @@
   (let ((d (add-datum l (make-instance 'datum :id path))))
     (setf (datum-terms d) "hi")
     (is #'equal "hi" (datum-terms (add-datum l d)))))
+
+(define-library-test datum-also-reinitialized-when-reading-from-db (l path)
+  (with-open-file (s path :direction :output :if-exists :supersede)
+    (format s "hi :3~%"))
+  (add-datum l (make-instance 'datum :id path))
+  (let ((d (get-datum l path)))
+    (of-type datum-text d)
+    (is #'equal "text/plain" (datum-kind d))
+    (is #'equal (format NIL "hi :3~%") (datum-terms d))))
 
 ;;; Tagging
 

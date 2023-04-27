@@ -132,8 +132,18 @@ to :modified but may also be :birth, :accesses, or :num-tags."))
     (setf (datum-birth d) (%datum-find-birth d)))
   (unless (slot-boundp d 'modified)
     (setf (datum-modified d) (%datum-find-modified d)))
-  (unless (slot-boundp d 'terms)
-    (setf (datum-terms d) (%datum-find-terms d))))
+  ;; Change this datum's class to the appropriate one based on its
+  ;; mime type.
+  (let ((major-mime (read-from-string
+                     (format NIL "datum-~A" (subseq (datum-kind d)
+                                                    0 (search "/" (datum-kind d))))))
+        (full-mime (read-from-string (format NIL "datum-~A" (datum-kind d)))))
+    (handler-case (change-class d (find-class full-mime))
+      (#+sbcl sb-pcl:class-not-found-error ()
+        (handler-case (change-class d (find-class major-mime))
+          (#+sbcl sb-pcl:class-not-found-error ())))))
+    (unless (slot-boundp d 'terms)
+      (setf (datum-terms d) (%datum-find-terms d))))
 
 (defgeneric %datum-find-birth (datum)
   (:method ((d datum)) (declare (ignore d)) (get-universal-time))

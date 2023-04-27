@@ -28,6 +28,9 @@
            #:datum-birth
            #:datum-modified
            #:datum-terms)
+  ;; Specific types of data
+  (:export #:datum-text
+           #:datum-text/html)
   ;; Tag metadata
   (:export #:tag
            #:tag-name
