@@ -248,6 +248,10 @@ end")))
 
 ;;; Searching and Listing
 
+;; FIXME: Improve search!  We should be able to search in different or
+;; all fields (id, body, tags) and filter for tags at the same time as
+;; searching for text.
+
 (defmethod query ((l sqlite-library) terms with-tags without-tags)
   (check-type terms string)
   (check-type with-tags list)
@@ -260,6 +264,7 @@ end")))
                   (make-instance 'datum :id id :kind kind :birth birth
                                         :modified modified :terms terms))))
 
+;; FIXME: currently untested
 (defmethod list-tags ((l sqlite-library) &key (limit NIL))
   (check-type limit (or null integer))
   ;; FIXME: support :limit
@@ -267,6 +272,7 @@ end")))
         collect (destructuring-bind (name label count) row
                   (make-instance 'tag :name name :count count :label label))))
 
+;; FIXME: currently untested
 (defmethod list-data ((l sqlite-library) &key (limit NIL) (sort-by :modified))
   (check-type limit (or null integer))
   (assert (member sort-by '(:modified :birth :accesses :num-tags)))
