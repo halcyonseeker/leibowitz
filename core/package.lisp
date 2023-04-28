@@ -30,7 +30,8 @@
            #:datum-terms)
   ;; Specific types of data
   (:export #:datum-text
-           #:datum-text/html)
+           #:datum-text/html
+           #:datum-link/web)
   ;; Tag metadata
   (:export #:tag
            #:tag-name

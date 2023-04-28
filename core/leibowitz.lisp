@@ -124,16 +124,15 @@ to :modified but may also be :birth, :accesses, or :num-tags."))
 (defmethod initialize-instance :after
     ((d datum) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
+  ;; Set the information required maybe to change our class
   (when (pathnamep (datum-id d))
     (setf (datum-id d) (namestring (datum-id d))))
   (unless (slot-boundp d 'kind)
-    (setf (datum-kind d) (%datum-find-mime d)))
-  (unless (slot-boundp d 'birth)
-    (setf (datum-birth d) (%datum-find-birth d)))
-  (unless (slot-boundp d 'modified)
-    (setf (datum-modified d) (%datum-find-modified d)))
-  ;; Change this datum's class to the appropriate one based on its
-  ;; mime type.
+    (let ((kind (%datum-find-url-scheme-in-id (datum-id d))))
+      (if kind
+          (setf (datum-kind d) (format NIL "link/~A" kind))
+          (setf (datum-kind d) (%datum-find-mime d)))))
+  ;; Change class to the appropriate one by mime type or URL scheme
   (let ((major-mime (read-from-string
                      (format NIL "datum-~A" (subseq (datum-kind d)
                                                     0 (search "/" (datum-kind d))))))
@@ -142,8 +141,13 @@ to :modified but may also be :birth, :accesses, or :num-tags."))
       (#+sbcl sb-pcl:class-not-found-error ()
         (handler-case (change-class d (find-class major-mime))
           (#+sbcl sb-pcl:class-not-found-error ())))))
-    (unless (slot-boundp d 'terms)
-      (setf (datum-terms d) (%datum-find-terms d))))
+  ;; Now set information with methods that might vary by class
+  (unless (slot-boundp d 'birth)
+    (setf (datum-birth d) (%datum-find-birth d)))
+  (unless (slot-boundp d 'modified)
+    (setf (datum-modified d) (%datum-find-modified d)))
+  (unless (slot-boundp d 'terms)
+    (setf (datum-terms d) (%datum-find-terms d))))
 
 (defgeneric %datum-find-birth (datum)
   (:method ((d datum)) (declare (ignore d)) (get-universal-time))
@@ -185,6 +189,16 @@ for different file types."))
                                                  collect (tag-name tag)))
     )
   (:documentation "Print a human-friendly summary of this datum."))
+
+(defun %datum-find-url-scheme-in-id (id)
+  "Little helper to find some kind of URL scheme in a datum's ID."
+  (check-type id string)
+  (let ((scheme (let ((pos (search ":" id)))
+                  (when pos (subseq id 0 pos)))))
+    (cond ((or (equal scheme "https")
+               (equal scheme "http"))
+           "web")
+          (T scheme))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Tags of stored data

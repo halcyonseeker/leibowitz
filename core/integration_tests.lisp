@@ -65,6 +65,12 @@
       (is #'equal "text/html" (datum-kind d))
       (is #'equal "hi :^3" (datum-terms d)))))
 
+(define-test datum-is-reinitialized-by-url-scheme-in-id
+  (let ((d (make-instance 'datum :id "https://thepiratebay.org")))
+    (of-type datum-link/web d)
+    (is #'equal "link/web" (datum-kind d))
+    (is #'equal "https://thepiratebay.org" (datum-terms d))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic API tests
