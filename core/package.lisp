@@ -24,6 +24,7 @@
   ;; A unit of tagable data
   (:export #:datum
            #:datum-id
+           #:datum-collection
            #:datum-kind
            #:datum-birth
            #:datum-modified
