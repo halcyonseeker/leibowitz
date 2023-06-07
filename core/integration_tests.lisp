@@ -95,7 +95,10 @@
 
 ;; homedir-specific methods
 
-;; FIXME: here go a bunch of regex tests for gitignore-like knowability
+;; FIXME: here go a bunch of regex tests for gitignore-like
+;; knowability
+
+;; FIXME: other stuff with the root set to a subdirectory of /tmp.
 
 ;; link-specific methods
 
