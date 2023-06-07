@@ -3,7 +3,9 @@
   (:use #:cl)
   ;; Basic administrative API
   (:export #:library
-           #:add-datum
+           #:library-collections
+           #:library-get-datum-collection)
+  (:export #:add-datum
            #:get-datum
            #:del-datum
            #:add-tag
@@ -37,6 +39,13 @@
   (:export #:tag
            #:tag-name
            #:tag-count)
+  ;; Mutually-exclusive kinds of data
+  (:export #:collection
+           #:collection-applicable-p)
+  ;; Types of collections
+  (:export #:collection-homedir
+           #:collection-link
+           #:collection-link/web)
   ;; Library curator API
   (:export #:curator)
   ;; SQLite library backend

@@ -9,7 +9,9 @@
                (:module "backends" :components ((:file "sqlite")))
                (:module "curators" :components (#+linux(:file "fs_inotify")))
                (:module "datatypes" :components ((:file "text")
-                                                 (:file "link"))))
+                                                 (:file "link")))
+               (:module "collections" :components ((:file "homedir")
+                                                   (:file "link"))))
   :in-order-to ((asdf:test-op (asdf:test-op :leibowitz-core/tests))))
 
 (asdf:defsystem "leibowitz-core/tests"

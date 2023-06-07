@@ -5,8 +5,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Central library API
 
-(defclass library () ()
+(defclass library ()
+  ((collections
+    :type list
+    :initarg :collections
+    :accessor library-collections
+    :initform (list (make-instance 'collection-homedir)
+                    (make-instance 'collection-link/web))
+    :documentation "A list of cons cells mapping predicate
+    functions to instances of collection classes.  Use the
+    `library-get-datum-collection' method instead of querying these
+    directly."))
   (:documentation "The root-level data structure of a collection of tagged data."))
+
+(defgeneric library-get-datum-collection (library id)
+  (:method ((l library) id)
+    (check-type id (or string pathname))
+    (find-if (lambda (c) (collection-applicable-p c id)) (library-collections l)))
+  (:documentation "Return the collection instance applicable to id.  This should be used
+to populate the :collection slot when instantiating a datum."))
 
 ;;; Reading and writing data
 
@@ -234,6 +251,17 @@ for different file types."))
     (format T " Data: ~{~S~^, ~}~%" (loop for datum in (get-tag-data l tag)
                                           collect (datum-id datum))))
   (:documentation "Print a human-friendly summary of this tag."))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Collections
+
+(defclass collection () ()
+  (:documentation "Each datum stored in a library is part of a collection.  Unlike tags,
+collections are mutually exclusive and govern how each datum's id
+corresponds with files on disk."))
+
+(defgeneric collection-applicable-p (collection id)
+  (:documentation "Check if this collection is applicable to a given ID."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Curators keep the library up to date
