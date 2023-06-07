@@ -100,11 +100,9 @@ to :modified but may also be :birth, :accesses, or :num-tags."))
     :initform (error "Datum ID required.")
     :documentation "The unique identifier of this piece of data.")
    (collection
-    :type string
     :initarg :collection
     :accessor datum-collection
-    :initform "collection-homedir"
-    :documentation "The collection this datum is a member of.  See the `collection'.")
+    :documentation "A reference to the `collection' instance in `library' that manages this datum.")
    (kind
     :type string
     :initarg :kind
@@ -147,13 +145,6 @@ to :modified but may also be :birth, :accesses, or :num-tags."))
       (#+sbcl sb-pcl:class-not-found-error ()
         (handler-case (change-class d (find-class major-mime))
           (#+sbcl sb-pcl:class-not-found-error ())))))
-  ;; Change collection slot by URL scheme.  Since we don't have access
-  ;; to the library instance here, custom subdirectory collections
-  ;; need to be set manually with the :collection initarg.
-  (let ((kind (%datum-find-url-scheme-in-id (datum-id d))))
-    (when kind
-      ;; FIXME: where should error handling go?
-      (setf (datum-collection d) (format NIL "collection-link/~A" kind))))
   ;; Now set information with methods that might vary by class
   (unless (slot-boundp d 'birth)
     (setf (datum-birth d) (%datum-find-birth d)))

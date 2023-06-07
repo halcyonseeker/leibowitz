@@ -71,9 +71,6 @@
     (is #'equal "link/web" (datum-kind d))
     (is #'equal "https://thepiratebay.org" (datum-terms d))))
 
-(define-test datum-collection-slot-reinitialized-by-url-in-id
-  (let ((d (make-instance 'datum :id "https://ccru.net")))
-    (is #'equal "collection-link/web" (datum-collection d))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic API tests
