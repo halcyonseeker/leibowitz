@@ -102,7 +102,8 @@ end")))
       (sqlite-row l "select * from data where id = ?" (namestring id))
     (if id
         (make-instance 'datum :id id :kind kind :birth birth
-                              :modified modified :terms terms)
+                              :modified modified :terms terms
+                              :collection (library-get-datum-collection l id))
         NIL)))
 
 (defmethod del-datum ((l sqlite-library) datum-or-id)
@@ -202,7 +203,8 @@ end")))
                                 (%need-tag-name tag-or-name))
         collect (destructuring-bind (id kind birth modified terms) row
                   (make-instance 'datum :id id :kind kind :birth birth
-                                        :modified modified :terms terms))))
+                                        :modified modified :terms terms
+                                        :collection (library-get-datum-collection l id)))))
 
 ;;; Reading and writing tag hierarchies
 
@@ -262,7 +264,8 @@ end")))
                                 terms)
         collect (destructuring-bind (id kind birth modified terms) row
                   (make-instance 'datum :id id :kind kind :birth birth
-                                        :modified modified :terms terms))))
+                                        :modified modified :terms terms
+                                        :collection (library-get-datum-collection l id)))))
 
 ;; FIXME: currently untested
 (defmethod list-tags ((l sqlite-library) &key (limit NIL))
@@ -280,7 +283,8 @@ end")))
   (loop for row in (sqlite-rows l "select * from data order by modified desc")
         collect (destructuring-bind (id kind birth modified terms) row
                   (make-instance 'datum :id id :kind kind :birth birth
-                                        :modified modified :terms terms))))
+                                        :modified modified :terms terms
+                                        :collection (library-get-datum-collection l id)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Additional Methods
