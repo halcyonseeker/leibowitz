@@ -18,6 +18,21 @@
     directly."))
   (:documentation "The root-level data structure of a collection of tagged data."))
 
+(defmethod initialize-instance :after
+    ((l library) &rest initargs &key &allow-other-keys)
+  (let ((homedir (getf initargs :homedir))
+        (linkdir (getf initargs :linkdir)))
+    (when homedir
+      (setf (collection-homedir-root
+             (find-if (lambda (c) (eql (type-of c) 'collection-homedir))
+                      (library-collections l)))
+            homedir))
+    (when linkdir
+      (setf (collection-link/web-directory
+             (find-if (lambda (c) (eql (type-of c) 'collection-link/web))
+                      (library-collections l)))
+            linkdir))))
+
 (defgeneric library-get-datum-collection (library id)
   (:method ((l library) id)
     (check-type id (or string pathname))
