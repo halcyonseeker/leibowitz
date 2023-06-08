@@ -24,7 +24,7 @@
 
 (defmethod collection-applicable-p ((c collection-homedir) id)
   (check-type id (or string pathname))
-  (if (search (namestring (collection-homedir-root c)) (namestring id))
+  (if (eql 0 (search (namestring (collection-homedir-root c)) (namestring id)))
       c
       NIL))
 
