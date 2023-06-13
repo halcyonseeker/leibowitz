@@ -38,6 +38,7 @@
   ;; Tag metadata
   (:export #:tag
            #:tag-name
+           #:tag-label
            #:tag-count)
   ;; Mutually-exclusive kinds of data
   (:export #:collection
