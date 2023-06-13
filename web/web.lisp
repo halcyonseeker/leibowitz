@@ -108,8 +108,3 @@ package."
 ;;; END QUESTIONABLE HACKS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(leibowitz-route (test-webserver-setup lib :uri "/") ()
-  (format NIL "<pre>~A</pre>"
-          (cl-who:escape-string
-           (with-output-to-string (s)
-             (describe lib s)))))

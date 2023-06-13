@@ -5,4 +5,6 @@
                #:cl-who)
   :serial t
   :components ((:file "package")
-               (:file "web")))
+               (:file "web")
+               (:file "html")
+               (:file "routes")))
