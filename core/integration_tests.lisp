@@ -6,20 +6,26 @@
 (in-package :leibowitz-core/tests)
 
 (defmacro define-library-test (name (library &rest tmpfiles) &body body)
-  (let ((path (gensym)))
+  (let ((path (gensym))
+        (home (gensym)))
     `(progn
        (define-test ,name :time-limit 1)
        (define-test ,(read-from-string (format NIL "sqlite-library-~A" name))
          :parent ,name
-         (let* ((,path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_sqlite_test"))
-                (,library (make-instance 'sqlite-library :db-path ,path))
+         (let* ((,home (ensure-directories-exist
+                        (pathname
+                         (format NIL "/tmp/leibowitz_core_test_home-tmp~36R/"
+                                 (random (expt 36 8))))))
+                (,path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_sqlite_test"))
+                (,library (make-instance 'sqlite-library :db-path ,path :homedir ,home))
                 ,@(loop for var in tmpfiles
                         collect `(,var (uiop:tmpize-pathname
-                                        #P"/tmp/leibowitz_core_test_tmpfile"))))
+                                        (merge-pathnames ,home #P"testfile")))))
            (unwind-protect (progn ,@body)
              (sqlite:disconnect (slot-value ,library 'leibowitz-core::handle))
              ,@(loop for var in tmpfiles
                      collect `(delete-file ,var))
+             (uiop:delete-directory-tree ,home :validate T)
              (delete-file ,path)))))))
 
 (defmacro with-tmp-files ((&rest tmpfiles) &body body)
