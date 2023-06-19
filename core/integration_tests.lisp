@@ -90,15 +90,16 @@
                           l (merge-pathnames (user-homedir-pathname) "sub")))
       (isnt #'eq (homedir) (library-get-datum-collection l "/hopefully/not/your/~")))))
 
-(define-library-test library-get-datum-collection-works-for-link/web (l)
-  (labels ((web ()
-             (find-if (lambda (elem) (eql (type-of elem) 'collection-link/web))
-                      (library-collections l))))
-    (is #'eq (web) (library-get-datum-collection l "https://dreamwidth.org"))
-    (is #'eq (web) (library-get-datum-collection l "http://alt.suicide.holiday"))
-    (isnt #'eq (web) (library-get-datum-collection l "ftp://yourmomsnudes.zip"))
-    (isnt #'eq (web) (library-get-datum-collection l ".sbclrc"))
-    (isnt #'eq (web) (library-get-datum-collection l #p".sbclrc"))))
+(define-test library-get-datum-collection-works-for-link/web
+  (let ((l (make-instance 'library)))
+    (labels ((web ()
+               (find-if (lambda (elem) (eql (type-of elem) 'collection-link/web))
+                        (library-collections l))))
+      (is #'eq (web) (library-get-datum-collection l "https://dreamwidth.org"))
+      (is #'eq (web) (library-get-datum-collection l "http://alt.suicide.holiday"))
+      (isnt #'eq (web) (library-get-datum-collection l "ftp://yourmomsnudes.zip"))
+      (isnt #'eq (web) (library-get-datum-collection l ".sbclrc"))
+      (isnt #'eq (web) (library-get-datum-collection l #p".sbclrc")))))
 
 ;; homedir-specific methods
 
