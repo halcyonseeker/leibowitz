@@ -80,14 +80,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Collections API tests
 
-(define-library-test library-get-datum-collection-works-for-homedir (l)
-  (labels ((homedir ()
-             (find-if (lambda (elem) (eql (type-of elem) 'collection-homedir))
-                      (library-collections l))))
-    (is #'eq (homedir) (library-get-datum-collection l (user-homedir-pathname)))
-    (is #'eq (homedir) (library-get-datum-collection
-                        l (merge-pathnames (user-homedir-pathname) "sub")))
-    (isnt #'eq (homedir) (library-get-datum-collection l "/hopefully/not/your/~"))))
+(define-test library-get-datum-collection-works-for-homedir
+  (let ((l (make-instance 'library)))
+    (labels ((homedir ()
+               (find-if (lambda (elem) (eql (type-of elem) 'collection-homedir))
+                        (library-collections l))))
+      (is #'eq (homedir) (library-get-datum-collection l (user-homedir-pathname)))
+      (is #'eq (homedir) (library-get-datum-collection
+                          l (merge-pathnames (user-homedir-pathname) "sub")))
+      (isnt #'eq (homedir) (library-get-datum-collection l "/hopefully/not/your/~")))))
 
 (define-library-test library-get-datum-collection-works-for-link/web (l)
   (labels ((web ()
