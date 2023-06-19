@@ -130,7 +130,7 @@
 ;; FIXME: writing some tests for leibowitz-core::%datum-equal would be worthwhile
 
 (define-library-test insert-and-retrieve-datum (l path)
-  (let ((d (make-instance 'datum :id path)))
+  (let ((d (make-instance 'datum :id path :collection (library-get-datum-collection l path))))
     (add-datum l d)
     (is #'leibowitz-core::%datum-equal d (get-datum l (datum-id d)))))
 
@@ -157,7 +157,7 @@
 ;;; Tagging
 
 (define-library-test add-single-tag-to-datum-then-remove (l path)
-  (let ((d (make-instance 'datum :id path)))
+  (let ((d (make-instance 'datum :id path :collection (library-get-datum-collection l path))))
     (add-datum l d)
     (add-datum-tags l d '("tag"))
     (let ((tag (car (get-datum-tags l d))))
