@@ -28,4 +28,8 @@
       c
       NIL))
 
+(defmethod collection-index ((l library) (c collection-homedir) id)
+  (check-type id (or string pathname))
+  (add-datum l (make-instance 'datum :id id :collection c)))
+
 ;; FIXME: write the knowability method

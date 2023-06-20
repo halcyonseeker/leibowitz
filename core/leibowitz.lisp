@@ -42,6 +42,10 @@ to populate the :collection slot when instantiating a datum."))
 
 ;;; Reading and writing data
 
+(defgeneric index (library path)
+  (:documentation "High-level function to index a file, URL, or all files beneath a
+directory tree."))
+
 (defgeneric add-datum (library datum)
   (:documentation "Given a datum, add it to the library then return it."))
 
@@ -277,6 +281,10 @@ corresponds with files on disk."))
 
 (defgeneric collection-applicable-p (collection id)
   (:documentation "Check if this collection is applicable to a given ID."))
+
+(defgeneric collection-index (library collection id)
+  (:documentation "Index a file or url into the library per the rules of this
+collection."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Curators keep the library up to date

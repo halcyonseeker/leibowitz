@@ -5,7 +5,8 @@
   (:export #:library
            #:library-collections
            #:library-get-datum-collection)
-  (:export #:add-datum
+  (:export #:index
+           #:add-datum
            #:get-datum
            #:del-datum
            #:add-tag
@@ -42,9 +43,11 @@
            #:tag-count)
   ;; Mutually-exclusive kinds of data
   (:export #:collection
-           #:collection-applicable-p)
-  ;; Types of collections
+           #:collection-applicable-p
+           #:collection-index)
+  ;; Types of collectionsn
   (:export #:collection-homedir
+           #:collection-homedir-root
            #:collection-link
            #:collection-link/web)
   ;; Library curator API

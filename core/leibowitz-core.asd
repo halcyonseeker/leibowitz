@@ -2,7 +2,8 @@
 (asdf:defsystem "leibowitz-core"
   :depends-on (#:sqlite
                #:local-time
-               #:osicat)
+               #:osicat
+               #:cl-fad)
   :serial t
   :components ((:file "package")
                (:file "leibowitz")

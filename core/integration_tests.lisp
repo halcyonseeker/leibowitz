@@ -154,6 +154,51 @@
     (is #'equal "text/plain" (datum-kind d))
     (is #'equal (format NIL "hi :3~%") (datum-terms d))))
 
+;;; High-level indexer method
+
+(define-library-test index-single-file (l path)
+  (let ((indexed (index l path)))
+    (true indexed)
+    (is #'leibowitz-core::%datum-equal (car indexed) (get-datum l path))))
+
+(define-library-test index-url (l)
+  (let ((indexed (index l "https://nyaa.si")))
+    (true indexed)
+    (is #'leibowitz-core::%datum-equal
+        (car indexed) (get-datum l "https://nyaa.si"))))
+
+(define-library-test index-flat-directory (l p1 p2 p3 p4 p5)
+  (let ((home (collection-homedir-root
+               (find-if (lambda (c)
+                          (eql (type-of c) 'collection-homedir))
+                        (library-collections l)))))
+    (index l home)
+    (is #'equal (namestring p1) (datum-id (get-datum l p1)))
+    (is #'equal (namestring p2) (datum-id (get-datum l p2)))
+    (is #'equal (namestring p3) (datum-id (get-datum l p3)))
+    (is #'equal (namestring p4) (datum-id (get-datum l p4)))
+    (is #'equal (namestring p5) (datum-id (get-datum l p5)))))
+
+(define-library-test index-directory-tree (l p1)
+  (let ((home (collection-homedir-root
+                           (find-if (lambda (c)
+                                      (eql (type-of c) 'collection-homedir))
+                                    (library-collections l)))))
+    (labels ((touchsub (name)
+               (let ((sub (ensure-directories-exist
+                           (merge-pathnames home #P"sub/"))))
+                 (uiop:tmpize-pathname (merge-pathnames sub name)))))
+      (let ((p2 (touchsub #P"p2"))
+            (p3 (touchsub #P"p3"))
+            (p4 (touchsub #P"p4"))
+            (p5 (touchsub #P"p5")))
+        (index l home)
+        (is #'equal (namestring p1) (datum-id (get-datum l p1)))
+        (is #'equal (namestring p2) (datum-id (get-datum l p2)))
+        (is #'equal (namestring p3) (datum-id (get-datum l p3)))
+        (is #'equal (namestring p4) (datum-id (get-datum l p4)))
+        (is #'equal (namestring p5) (datum-id (get-datum l p5)))))))
+
 ;;; Tagging
 
 (define-library-test add-single-tag-to-datum-then-remove (l path)

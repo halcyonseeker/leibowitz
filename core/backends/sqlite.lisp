@@ -88,6 +88,20 @@ end")))
 
 ;;; Reading and writing data
 
+;; FIXME: calling on a five mb git repo is monstrously slow...
+(defmethod index ((l sqlite-library) path-or-url)
+  (check-type path-or-url (or string pathname))
+  (cond ((uiop:directory-exists-p path-or-url)
+         (let ((data NIL))
+           (cl-fad:walk-directory
+            path-or-url
+            (lambda (path)
+              (push (collection-index l (library-get-datum-collection l path) path)
+                    data)))
+           data))
+        (T (list (collection-index
+                  l (library-get-datum-collection l path-or-url) path-or-url)))))
+
 (defmethod add-datum ((l sqlite-library) (d datum))
   (sqlite-nq
    l "insert or replace into data (id, type, birth, modified, terms) values (?, ?, ?, ?, ?)"

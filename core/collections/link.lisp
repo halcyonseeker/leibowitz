@@ -7,6 +7,10 @@
   (:documentation "A collection of URIs that may or may not have been downloaded to
 disk."))
 
+(defmethod collection-index ((l library) (c collection-link) id)
+  (check-type id string)
+  (add-datum l (make-instance 'datum :id id :collection c)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass collection-link/web (collection-link)
