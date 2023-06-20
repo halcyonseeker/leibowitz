@@ -95,11 +95,12 @@ end")))
    (datum-terms d))
   d)
 
-(defmethod get-datum ((l sqlite-library) id)
-  (check-type id (or string pathname))
+(defmethod get-datum ((l sqlite-library) path-or-url)
+  (check-type path-or-url (or string pathname))
   (multiple-value-bind
         (id kind birth modified terms)
-      (sqlite-row l "select * from data where id = ?" (namestring id))
+      (sqlite-row l "select * from data where id = ?"
+                  (if (pathnamep path-or-url) (namestring path-or-url) path-or-url))
     (if id
         (make-instance 'datum :id id :kind kind :birth birth
                               :modified modified :terms terms
