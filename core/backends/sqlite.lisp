@@ -290,12 +290,16 @@ end")))
         collect (destructuring-bind (name label count) row
                   (make-instance 'tag :name name :count count :label label))))
 
-;; FIXME: currently untested
-(defmethod list-data ((l sqlite-library) &key (limit NIL) (sort-by :modified))
-  (check-type limit (or null integer))
-  (assert (member sort-by '(:modified :birth :accesses :num-tags)))
-  ;; FIXME: support :limit and :sort-by
-  (loop for row in (sqlite-rows l "select * from data order by modified desc")
+;; FIXME: Track datum :accesses and :tag-count so we can sort by them
+(defmethod list-data ((l sqlite-library) &key (sort-by :modified) (direction :descending))
+  (assert (member sort-by '(:modified :birth)))
+  (assert (member direction '(:descending :ascending)))
+  (loop for row in (sqlite-rows
+                    l (format NIL "select * from data order by ~A ~A"
+                              (cond ((eql sort-by :modified) "modified")
+                                    ((eql sort-by :birth) "birth"))
+                              (cond ((eql direction :descending) "desc")
+                                    ((eql direction :ascending) "asc"))))
         collect (destructuring-bind (id kind birth modified terms) row
                   (make-instance 'datum :id id :kind kind :birth birth
                                         :modified modified :terms terms

@@ -120,7 +120,7 @@ thentag."))
   (:documentation "Return a list of the top :limit sorted in descending order by
 count."))
 
-(defgeneric list-data (library &key limit sort-by)
+(defgeneric list-data (library &key direction sort-by)
   (:documentation "Return a list of the top :limit data sorted in
 descending order by a criterion specified by :sort-by.  This defaults
 to :modified but may also be :birth, :accesses, or :num-tags."))
