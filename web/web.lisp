@@ -21,6 +21,7 @@ route handler access the corresponding library"))
 
 (defmethod webserver-run ((w webserver))
   (setf hunchentoot:*show-lisp-errors-p* t)
+  (setf hunchentoot:*catch-errors-p* NIL)
   (hunchentoot:start w))
 
 (defmethod webserver-die ((w webserver))
