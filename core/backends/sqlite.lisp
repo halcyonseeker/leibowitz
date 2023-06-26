@@ -283,9 +283,9 @@ end")))
                                         :collection (library-get-datum-collection l id)))))
 
 ;; FIXME: currently untested
-(defmethod list-tags ((l sqlite-library) &key (limit NIL))
-  (check-type limit (or null integer))
-  ;; FIXME: support :limit
+;; FIXME: how would we sort by popularly viewed tags?
+;; FIXME: support pagination
+(defmethod list-tags ((l sqlite-library))
   (loop for row in (sqlite-rows l "select * from tags order by count desc")
         collect (destructuring-bind (name label count) row
                   (make-instance 'tag :name name :count count :label label))))

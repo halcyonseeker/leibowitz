@@ -116,7 +116,7 @@ thentag."))
 (defgeneric query (library terms with-tags without-tags)
   (:documentation "Return data that match the search terms and tag filters."))
 
-(defgeneric list-tags (library &key limit)
+(defgeneric list-tags (library)
   (:documentation "Return a list of the top :limit sorted in descending order by
 count."))
 
