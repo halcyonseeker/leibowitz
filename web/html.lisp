@@ -23,8 +23,7 @@
                                                 (:a :href "/timeline" "Timeline")
                                                 (:a :href "/tags" "Tags")
                                                 (:a :href "/tree" "Tree")
-                                                (:a :href "/search" "Search")
-                                                (:a :href "/shared" "Shared"))
+                                                (:a :href "/search" "Search"))
                                   do (when (equal (nth 2 link) here)
                                        (setf link (append (subseq link 0 3)
                                                           '(:class "here")
@@ -53,3 +52,22 @@
      (:h2 "Top Tags")
     (:section
      (:h2 "File Types")))))
+
+(defun list-data-as-html (lib &rest options &key &allow-other-keys)
+  "Beautify the output of `leibowitz-core:list-data' as a HTML datum
+listing.  Key arguments are passed unmodified to that method."
+  (check-type lib library)
+  `((:section :id "tiles"
+              ,@(loop for datum in (apply #'list-data (nconc (list lib) options))
+                      collect `(:div :class "tile"
+                                     ,(cl-who:escape-string (datum-id datum)))))))
+
+(defun list-tags-as-html (lib &rest options &key &allow-other-keys)
+  (check-type lib library)
+  `((:section
+     (:ul ,@(loop for tag in (apply #'list-tags (nconc (list lib) options))
+                  collect `(:li ,(tag-name tag)
+                                (:span :class "tag-count"
+                                       ,(format nil "(~a)" (tag-count tag)))
+                                (:span :class "tag-desc"
+                                       ,(tag-label tag))))))))
