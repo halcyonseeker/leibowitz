@@ -48,3 +48,9 @@
              :title "Search | Leibowitz Web"
              :sidebar `((:section "Idk"))
              :body `((:section (:b "FIXME ") "Search results"))))
+
+(leibowitz-route (datum-view lib :uri "/datum") (id)
+  (let ((id (hunchentoot:url-decode id)))
+    (make-page :title "Datum View | Leibowitz Web"
+               :sidebar (make-datum-view-sidebar lib id)
+               :body (make-datum-view-page lib id))))

@@ -60,7 +60,10 @@ listing.  Key arguments are passed unmodified to that method."
   `((:section :id "tiles"
               ,@(loop for datum in (apply #'list-data (nconc (list lib) options))
                       collect `(:div :class "tile"
-                                     ,(cl-who:escape-string (datum-id datum)))))))
+                                     (:a :href ,(format NIL "/datum?id=~A"
+                                                        (hunchentoot:url-encode
+                                                         (datum-id datum)))
+                                         ,(cl-who:escape-string (datum-id datum))))))))
 
 (defun list-tags-as-html (lib &rest options &key &allow-other-keys)
   (check-type lib library)
@@ -71,3 +74,16 @@ listing.  Key arguments are passed unmodified to that method."
                                        ,(format nil "(~a)" (tag-count tag)))
                                 (:span :class "tag-desc"
                                        ,(tag-label tag))))))))
+
+(defun make-datum-view-sidebar (lib datum-id)
+  (check-type lib library)
+  (check-type datum-id string)
+  `((:section "Metadata will go here")))
+
+(defun make-datum-view-page (lib datum-id)
+  (check-type lib library)
+  (check-type datum-id string)
+  `((:section
+     (:pre ,(cl-who:escape-string
+             (with-output-to-string (s)
+               (describe (get-datum lib datum-id) s)))))))
