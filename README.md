@@ -23,3 +23,12 @@ At present Leibowitz is only usable as a Common Lisp library from a
 REPL, however I intend on building several user interface options,
 including a subcommand-based CLI, a booru or wiki-style web UI, a JSON
 HTTP API, a 9p API, and maybe a desktop application.
+
+Notes
+-----
+* For thumbnailing in the prototype, consider using an implementation
+  of the freedesktop thumbnail dbus protocol (because that's a thing
+  apparently???) like <https://docs.xfce.org/xfce/tumbler/start>.  I'd
+  rather not depend on dbus and instead write a library with a simple
+  API that wraps up ffmpeg and imagemagick, maybe with OS-specific
+  logic for querying themes and pulling icons as a fallback.
