@@ -19,6 +19,15 @@
                   until (eq line 'eof)
                   do (format out "~A~%" line))))))
 
+(defmethod datum-html-report ((l library) (d datum-text))
+  (declare (ignore l))
+  `((:section
+     (:pre ,(cl-who:escape-string
+             (with-open-file (stream (datum-id d))
+               (let ((contents (make-string (file-length stream))))
+                 (read-sequence contents stream)
+                 contents)))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass datum-text/html (datum)

@@ -3,7 +3,8 @@
   :depends-on (#:sqlite
                #:local-time
                #:osicat
-               #:cl-fad)
+               #:cl-fad
+               #:cl-who)
   :serial t
   :components ((:file "package")
                (:file "leibowitz")

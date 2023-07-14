@@ -230,6 +230,16 @@ for different file types."))
     )
   (:documentation "Print a human-friendly summary of this datum."))
 
+(defgeneric datum-html-report (library datum)
+  (:method ((l library) (d datum))
+    (declare (ignore l))
+    `((:section
+       (:pre ,(cl-who:escape-string
+               (with-output-to-string (s)
+                 (describe d s)))))))
+  (:documentation "Return this datum summarized as a cl-who XHTML structure.  It should
+consist of a list containing at least one section tag."))
+
 (defun %datum-find-url-scheme-in-id (id)
   "Little helper to find some kind of URL scheme in a datum's ID."
   (check-type id string)

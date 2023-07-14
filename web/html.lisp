@@ -83,7 +83,4 @@ listing.  Key arguments are passed unmodified to that method."
 (defun make-datum-view-page (lib datum-id)
   (check-type lib library)
   (check-type datum-id string)
-  `((:section
-     (:pre ,(cl-who:escape-string
-             (with-output-to-string (s)
-               (describe (get-datum lib datum-id) s)))))))
+  (datum-html-report lib (get-datum lib datum-id)))

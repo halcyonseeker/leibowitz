@@ -20,6 +20,8 @@
            #:get-tag-predicates
            #:get-tag-predicands
            #:del-tag-predicate)
+  ;; Display methods
+  (:export #:datum-html-report)
   ;; Search and Listing
   (:export #:query
            #:list-tags
