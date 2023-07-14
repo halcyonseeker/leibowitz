@@ -80,31 +80,32 @@ package."
                                       (default-parameter-type ''string)
                                       (default-request-type :both))
       description
-    `(progn
-       ,@(when uri
-           (list
-            (alexandria:once-only (uri host acceptor-names)
-              `(progn
-                 (setq *handler-alist*
-                       (delete-if (lambda (list)
-                                    (and (or (and (equal ,uri (first list))
-                                                  ,(if host
-                                                      `(string= ,host (fourth list))))
-                                             (eq ',name (third list)))
-                                         (or (eq ,acceptor-names t)
-                                             (eq (second list) t)
-                                             (intersection ,acceptor-names
-                                                           (second list)))))
-                                  *handler-alist*))
-                 (push (list ,uri ,acceptor-names ',name ,host)
-                       *handler-alist*)))))
-       (defmethod ,(read-from-string (format NIL "webserver-route-~A" name))
-           ((,library library) &key ,@(loop for part in lambda-list
-                                            collect (hunchentoot::make-defun-parameter
-                                                     part
-                                                     default-parameter-type
-                                                     default-request-type)))
-         ,@body))))
+      (let ((name (read-from-string (format NIL "webserver-route-~A" name))))
+        `(progn
+           ,@(when uri
+               (list
+                (alexandria:once-only (uri host acceptor-names)
+                                      `(progn
+                                         (setq *handler-alist*
+                                               (delete-if (lambda (list)
+                                                            (and (or (and (equal ,uri (first list))
+                                                                          ,(if host
+                                                                               `(string= ,host (fourth list))))
+                                                                     (eq ',name (third list)))
+                                                                 (or (eq ,acceptor-names t)
+                                                                     (eq (second list) t)
+                                                                     (intersection ,acceptor-names
+                                                                                   (second list)))))
+                                                          *handler-alist*))
+                                         (push (list ,uri ,acceptor-names ',name ,host)
+                                               *handler-alist*)))))
+           (defmethod ,name
+             ((,library library) &key ,@(loop for part in lambda-list
+                                              collect (hunchentoot::make-defun-parameter
+                                                       part
+                                                       default-parameter-type
+                                                       default-request-type)))
+             ,@body)))))
 
 ;;; END QUESTIONABLE HACKS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
