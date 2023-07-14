@@ -10,6 +10,9 @@
   (hunchentoot:handle-static-file
    (merge-pathnames #P"code/leibowitz/web/style.css" (user-homedir-pathname))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Top-level pages
+
 (leibowitz-route (index-page lib :uri "/") ()
   (make-page :here "/"
              :title "Recent | Leibowitz Web"
@@ -49,8 +52,14 @@
              :sidebar `((:section "Idk"))
              :body `((:section (:b "FIXME ") "Search results"))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Datum view machinery
+
 (leibowitz-route (datum-view lib :uri "/datum") (id)
   (let ((id (hunchentoot:url-decode id)))
     (make-page :title "Datum View | Leibowitz Web"
                :sidebar (make-datum-view-sidebar lib id)
                :body (make-datum-view-page lib id))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Tag view machinery
