@@ -240,6 +240,20 @@ for different file types."))
   (:documentation "Return this datum summarized as a cl-who XHTML structure.  It should
 consist of a list containing at least one section tag."))
 
+(defgeneric datum-html-sidebar (library datum)
+  (:method ((l library) (d datum))
+    `((:section (:h2 "About")
+                (:ul (:li "Mime type")
+                     (:li "Collection")
+                     (:li "Created on")
+                     (:li "Last modified")))
+      ,(%collection-html-sidebar-section-for-datum l (datum-collection d) d)
+      (:section (:h2 "Tags")
+                (:ul (:li "list tags here")))))
+    (:documentation "Return a cl-who XHTML structure holding some metatdata to be
+displayed in the sidebar.  Like `datum-html-report', this should
+consist of a list of sections."))
+
 (defun %datum-find-url-scheme-in-id (id)
   "Little helper to find some kind of URL scheme in a datum's ID."
   (check-type id string)
@@ -295,6 +309,15 @@ corresponds with files on disk."))
 (defgeneric collection-index (library collection id)
   (:documentation "Index a file or url into the library per the rules of this
 collection."))
+
+(defgeneric %collection-html-sidebar-section-for-datum (library collection datum)
+  (:method ((l library) (c collection) (d datum))
+    NIL)
+  (:documentation "Return an XHTML <section></section> as a cl-who structur which will
+be slotted into the sidebar of this datum's report page.  The
+intention is this might be used to display collection-specific
+metadata about this datum, for instance the artist name and source URL
+in a hypothetical collection managing a gallery-dl archive."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Curators keep the library up to date

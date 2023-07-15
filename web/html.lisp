@@ -78,7 +78,7 @@ listing.  Key arguments are passed unmodified to that method."
 (defun make-datum-view-sidebar (lib datum-id)
   (check-type lib library)
   (check-type datum-id string)
-  `((:section "Metadata will go here")))
+  (datum-html-sidebar lib (get-datum lib datum-id)))
 
 (defun make-datum-view-page (lib datum-id)
   (check-type lib library)

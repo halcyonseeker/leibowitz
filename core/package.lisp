@@ -21,7 +21,8 @@
            #:get-tag-predicands
            #:del-tag-predicate)
   ;; Display methods
-  (:export #:datum-html-report)
+  (:export #:datum-html-report
+           #:datum-html-sidebar)
   ;; Search and Listing
   (:export #:query
            #:list-tags
