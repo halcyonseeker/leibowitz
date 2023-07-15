@@ -42,6 +42,7 @@ lines with really long SQL queries."
           '("
 create table if not exists 'data' (
   'id' text not null unique,
+  'accesses' integer not null,
   'type' text not null,
   'birth' datetime not null,
   'modified' datetime not null,
@@ -103,20 +104,21 @@ end")))
                   l (library-get-datum-collection l path-or-url) path-or-url)))))
 
 (defmethod add-datum ((l sqlite-library) (d datum))
-  (sqlite-nq
-   l "insert or replace into data (id, type, birth, modified, terms) values (?, ?, ?, ?, ?)"
-   (datum-id d) (datum-kind d) (datum-birth d) (datum-modified d)
-   (datum-terms d))
+  (sqlite-nq l (ccat "insert or replace into data "
+                     "(id, accesses, type, birth, modified, terms) "
+                     "values (?, ?, ?, ?, ?, ?)")
+             (datum-id d) (datum-accesses d) (datum-kind d) (datum-birth d)
+             (datum-modified d) (datum-terms d))
   d)
 
 (defmethod get-datum ((l sqlite-library) path-or-url)
   (check-type path-or-url (or string pathname))
   (multiple-value-bind
-        (id kind birth modified terms)
+        (id accesses kind birth modified terms)
       (sqlite-row l "select * from data where id = ?"
                   (if (pathnamep path-or-url) (namestring path-or-url) path-or-url))
     (if id
-        (make-instance 'datum :id id :kind kind :birth birth
+        (make-instance 'datum :id id :accesses accesses :kind kind :birth birth
                               :modified modified :terms terms
                               :collection (library-get-datum-collection l id))
         NIL)))
@@ -216,9 +218,10 @@ end")))
                                         "inner join tag_datum_junctions on "
                                         "datum_id = data.id where tag_name = ?")
                                 (%need-tag-name tag-or-name))
-        collect (destructuring-bind (id kind birth modified terms) row
-                  (make-instance 'datum :id id :kind kind :birth birth
-                                        :modified modified :terms terms
+        collect (destructuring-bind (id accesses kind birth modified terms) row
+                  (make-instance 'datum :id id :accesses accesses :kind kind
+                                        :birth birth :modified modified
+                                        :terms terms
                                         :collection (library-get-datum-collection l id)))))
 
 ;;; Reading and writing tag hierarchies
@@ -278,9 +281,10 @@ end")))
                                         "left join data on data.id = search.id "
                                         "where search match ? order by rank")
                                 terms)
-        collect (destructuring-bind (id kind birth modified terms) row
-                  (make-instance 'datum :id id :kind kind :birth birth
-                                        :modified modified :terms terms
+        collect (destructuring-bind (id accesses kind birth modified terms) row
+                  (make-instance 'datum :id id :accesses accesses :kind kind
+                                        :birth birth :modified modified
+                                        :terms terms
                                         :collection (library-get-datum-collection l id)))))
 
 ;; FIXME: currently untested
@@ -290,19 +294,21 @@ end")))
         collect (destructuring-bind (name label count) row
                   (make-instance 'tag :name name :count count :label label))))
 
-;; FIXME: Track datum :accesses and :tag-count so we can sort by them
+;; FIXME: Track datum tag-count so we can sort by them
 (defmethod list-data ((l sqlite-library) &key (sort-by :modified) (direction :descending))
-  (assert (member sort-by '(:modified :birth)))
+  (assert (member sort-by '(:modified :birth :accesses)))
   (assert (member direction '(:descending :ascending)))
   (loop for row in (sqlite-rows
                     l (format NIL "select * from data order by ~A ~A"
                               (cond ((eql sort-by :modified) "modified")
-                                    ((eql sort-by :birth) "birth"))
+                                    ((eql sort-by :birth) "birth")
+                                    ((eql sort-by :accesses) "accesses"))
                               (cond ((eql direction :descending) "desc")
                                     ((eql direction :ascending) "asc"))))
-        collect (destructuring-bind (id kind birth modified terms) row
-                  (make-instance 'datum :id id :kind kind :birth birth
-                                        :modified modified :terms terms
+        collect (destructuring-bind (id accesses kind birth modified terms) row
+                  (make-instance 'datum :id id :accesses accesses :kind kind
+                                        :birth birth :modified modified
+                                        :terms terms
                                         :collection (library-get-datum-collection l id)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

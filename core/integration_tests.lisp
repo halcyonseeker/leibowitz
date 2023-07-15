@@ -154,6 +154,13 @@
     (is #'equal "text/plain" (datum-kind d))
     (is #'equal (format NIL "hi :3~%") (datum-terms d))))
 
+(define-library-test datum-accesses-preserved (l path)
+  (let ((d (add-datum l (make-instance 'datum :id path))))
+    (is #'= 0 (datum-accesses d))
+    (incf (datum-accesses d))
+    (add-datum l d)
+    (is #'= 1 (datum-accesses (get-datum l path)))))
+
 ;;; High-level indexer method
 
 (define-library-test index-single-file (l path)

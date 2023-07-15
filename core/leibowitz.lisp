@@ -135,6 +135,13 @@ to :modified but may also be :birth, :accesses, or :num-tags."))
     :accessor datum-id
     :initform (error "Datum ID required.")
     :documentation "The unique identifier of this piece of data.")
+   (accesses
+    :initarg :accesses
+    :initform 0
+    :accessor datum-accesses
+    :documentation "Track how often the user accesses this datum.
+    This slot must be manually incremented, it does not happen
+    under-the-hood in get-datum.")
    (collection
     :initarg :collection
     :accessor datum-collection
