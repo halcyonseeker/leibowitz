@@ -269,6 +269,8 @@ end")))
 ;; all fields (id, body, tags) and filter for tags at the same time as
 ;; searching for text.
 
+;;; FIXME: listing and search methods should all support pagination!
+
 ;; FIXME: add support for tag filtering
 (defmethod query ((l sqlite-library) terms)
   (check-type terms string)
@@ -283,7 +285,6 @@ end")))
 
 ;; FIXME: currently untested
 ;; FIXME: how would we sort by popularly viewed tags?
-;; FIXME: support pagination
 (defmethod list-tags ((l sqlite-library))
   (loop for row in (sqlite-rows l "select * from tags order by count desc")
         collect (destructuring-bind (name label count) row
