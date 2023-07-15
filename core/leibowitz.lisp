@@ -260,6 +260,10 @@ consist of a list containing at least one section tag."))
                              (:year 4) " " (:hour 2) ":" (:min 2)))))
          `(:section (:h2 "About")
                     (:ul (:li (:span :class "datum-metadata-key"
+                                     "Accesses")
+                              (:span :class "datum-metadata-var"
+                                     ,(format NIL "~A" (datum-accesses d))))
+                         (:li (:span :class "datum-metadata-key"
                                      "Mime Type")
                               (:span :class "datum-metadata-var"
                                      ,(datum-kind d)))

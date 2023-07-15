@@ -24,7 +24,8 @@
   (make-page :here "/popular"
              :title "Popular | Leibowitz Web"
              :sidebar (make-datum-listing-sidebar lib)
-             :body `((:section (:b "FIXME ") "Implement access logging!"))))
+             :body (list-data-as-html lib :sort-by :accesses
+                                          :direction :descending)))
 
 (leibowitz-route (timeline-page lib :uri "/timeline") ()
   (make-page :here "/timeline"
