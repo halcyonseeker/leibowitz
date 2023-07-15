@@ -111,6 +111,15 @@ a:not(visited) {
 	padding: 10px;
 	flex: 1;
 }
+.datum-metadata-key {
+	font-size: small;
+	font-weight: bold;
+	color: var(--fg);
+}
+.datum-metadata-var {
+	font-size: small;
+	color: var(--fg);
+}
 
 /* Send the sidebar to the bottom on smaller screens */
 @media(max-width: 660px) {

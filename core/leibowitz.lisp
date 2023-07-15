@@ -246,14 +246,37 @@ consist of a list containing at least one section tag."))
 
 (defgeneric datum-html-sidebar (library datum)
   (:method ((l library) (d datum))
-    `((:section (:h2 "About")
-                (:ul (:li "Mime type")
-                     (:li "Collection")
-                     (:li "Created on")
-                     (:li "Last modified")))
-      ,(%collection-html-sidebar-section-for-datum l (datum-collection d) d)
-      (:section (:h2 "Tags")
-                (:ul (:li "list tags here")))))
+    `(,(labels ((timefmt (universal)
+                  (local-time:format-timestring
+                   NIL (local-time:universal-to-timestamp universal)
+                   :format '(:short-weekday ", " :short-month " " (:day 2) " "
+                             (:year 4) " " (:hour 2) ":" (:min 2)))))
+         `(:section (:h2 "About")
+                    (:ul (:li (:span :class "datum-metadata-key"
+                                     "Mime Type")
+                              (:span :class "datum-metadata-var"
+                                     ,(datum-kind d)))
+                         (:li (:span :class "datum-metadata-key"
+                                     "Collection")
+                              (:span :class "datum-metadata-var"
+                                     ,(format NIL "~A" (type-of (datum-collection d)))))
+                         (:li (:span :class "datum-metadata-key"
+                                     "Birth")
+                              (:span :class "datum-metadata-var"
+                                     ,(timefmt (datum-birth d))))
+                         (:li (:span :class "datum-metadata-key"
+                                     "Modified")
+                              (:span :class "datum-metadata-var"
+                                     ,(timefmt (datum-modified d)))))))
+        ,(%collection-html-sidebar-section-for-datum l (datum-collection d) d)
+        (:section (:h2 "Tags")
+                  (:ul ,@(loop for tag in (get-datum-tags l d)
+                               collect `(:li (:a :href ,(format NIL "/tag?name=~A"
+                                                                (hunchentoot:url-encode
+                                                                 (tag-name tag)))
+                                                 ,(tag-name tag))
+                                             (:span :class "tag-count"
+                                                    ,(format nil "(~a)" (tag-count tag)))))))))
     (:documentation "Return a cl-who XHTML structure holding some metatdata to be
 displayed in the sidebar.  Like `datum-html-report', this should
 consist of a list of sections."))
