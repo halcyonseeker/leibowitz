@@ -9,7 +9,7 @@
   (let ((path (gensym))
         (home (gensym)))
     `(progn
-       (define-test ,name :time-limit 1)
+       (define-test ,name :time-limit 2)
        (define-test ,(read-from-string (format NIL "sqlite-library-~A" name))
          :parent ,name
          (let* ((,home (ensure-directories-exist
@@ -348,5 +348,25 @@
     ;; This will fial if the file isn't in /tmp
     (is #'equal (datum-id d) (datum-id (car (query l "tmp"))))))
 
-;; FIXME: Write tests for sorting and listing
-
+(define-library-test list-data-test-sort-and-direction (l p1 p2)
+  (add-datum l (make-instance 'datum :id p1))
+  (sleep 1) ;; timestamps have a granularity of 1 second smh
+  (with-open-file (s p2 :direction :output :if-exists :supersede)
+    (format s "hi :3~%"))
+  (add-datum l (make-instance 'datum :id p2))
+  ;; most recently modified first
+  (destructuring-bind (d1 d2)
+      (list-data l :sort-by :modified :direction :descending)
+    (true (>= (datum-modified d1) (datum-modified d2))))
+  ;; least recently modified first
+  (destructuring-bind (d1 d2)
+      (list-data l :sort-by :modified :direction :ascending)
+    (true (<= (datum-modified d1) (datum-modified d2))))
+  ;; most recently created first
+  (destructuring-bind (d1 d2)
+      (list-data l :sort-by :birth :direction :descending)
+    (true (>= (datum-birth d1) (datum-birth d2))))
+  ;; least recently created first
+  (destructuring-bind (d1 d2)
+      (list-data l :sort-by :birth :direction :ascending)
+    (true (<= (datum-birth d1) (datum-birth d2)))))
