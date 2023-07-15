@@ -16,20 +16,20 @@
 (leibowitz-route (index-page lib :uri "/") ()
   (make-page :here "/"
              :title "Recent | Leibowitz Web"
-             :sidebar (make-datum-listing-sidebar)
+             :sidebar (make-datum-listing-sidebar lib)
              :body (list-data-as-html lib :sort-by :modified
                                           :direction :descending)))
 
 (leibowitz-route (popular-page lib :uri "/popular") ()
   (make-page :here "/popular"
              :title "Popular | Leibowitz Web"
-             :sidebar (make-datum-listing-sidebar)
+             :sidebar (make-datum-listing-sidebar lib)
              :body `((:section (:b "FIXME ") "Implement access logging!"))))
 
 (leibowitz-route (timeline-page lib :uri "/timeline") ()
   (make-page :here "/timeline"
              :title "Timeline | Leibowitz Web"
-             :sidebar (make-datum-listing-sidebar)
+             :sidebar (make-datum-listing-sidebar lib)
              :body (list-data-as-html lib :sort-by :birth
                                           :direction :ascending)))
 

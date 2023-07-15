@@ -42,7 +42,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun make-datum-listing-sidebar ()
+(defun make-datum-listing-sidebar (lib)
   `((:section
      (:h2 "Search")
      (:form :method "get" :action "/search" :id "search-form"
@@ -50,8 +50,16 @@
             (:button "Go!")))
     (:section
      (:h2 "Top Tags")
+     ;; FIXME: add an argument to list-tags to return only the top N.
+     (:ul ,@(loop for tag in (list-tags lib)
+                  collect `(:li (:a :href ,(format NIL "/tag?name=~A"
+                                                   (hunchentoot:url-encode
+                                                    (tag-name tag)))
+                                    ,(tag-name tag))
+                                (:span :class "tag-count"
+                                       ,(format nil "(~a)" (tag-count tag)))))))
     (:section
-     (:h2 "File Types")))))
+     (:h2 "File Types"))))
 
 (defun list-data-as-html (lib &rest options &key &allow-other-keys)
   "Beautify the output of `leibowitz-core:list-data' as a HTML datum
