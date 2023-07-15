@@ -65,3 +65,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tag view machinery
+
+(leibowitz-route (tag-view lib :uri "/tag") (name)
+  (let ((name (hunchentoot:url-decode name)))
+    (make-page :title "Tag View | Leibowitz Web"
+               :sidebar (make-tag-view-sidebar lib name)
+               :body (make-tag-view-page lib name))))

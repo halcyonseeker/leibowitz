@@ -84,7 +84,9 @@ listing.  Key arguments are passed unmodified to that method."
   (check-type lib library)
   `((:section
      (:ul ,@(loop for tag in (apply #'list-tags (nconc (list lib) options))
-                  collect `(:li ,(tag-name tag)
+                  collect `(:li (:a :href ,(format NIL "/tag?name=~A"
+                                                   (hunchentoot:url-encode (tag-name tag)))
+                                    ,(tag-name tag))
                                 (:span :class "tag-count"
                                        ,(format nil "(~a)" (tag-count tag)))
                                 (:span :class "tag-desc"
@@ -99,3 +101,23 @@ listing.  Key arguments are passed unmodified to that method."
   (check-type lib library)
   (check-type datum-id string)
   (datum-html-report lib (get-datum lib datum-id)))
+
+(defun make-tag-view-sidebar (lib tag-name)
+  (check-type lib library)
+  (check-type tag-name string)
+  `((:section (:p "Metadata will go here")
+              (:h2 "Related tags")
+              (:p "Not sure how we'll do this"))))
+
+(defun make-tag-view-page (lib tag-name)
+  (check-type lib library)
+  (check-type tag-name string)
+  (let ((tag (get-tag lib tag-name)))
+    `((:section (:h2 ,tag-name)
+                (:span :class "tag-count"
+                       ,(format NIL "(~A)" (tag-count tag)))
+                (:span :class "tag-desc"
+                       ,(tag-label tag)))
+      (:section :id "tiles"
+                ,@(loop for datum in (get-tag-data lib tag-name)
+                        collect (datum-html-preview lib datum))))))
