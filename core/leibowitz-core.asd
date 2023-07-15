@@ -4,6 +4,7 @@
                #:local-time
                #:osicat
                #:cl-fad
+               #:hunchentoot
                #:cl-who)
   :serial t
   :components ((:file "package")
