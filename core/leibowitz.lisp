@@ -113,7 +113,7 @@ thentag."))
 
 ;;; Searching and Listing
 
-(defgeneric query (library terms with-tags without-tags)
+(defgeneric query (library terms)
   (:documentation "Return data that match the search terms and tag filters."))
 
 (defgeneric list-tags (library)

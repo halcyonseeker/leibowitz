@@ -269,10 +269,9 @@ end")))
 ;; all fields (id, body, tags) and filter for tags at the same time as
 ;; searching for text.
 
-(defmethod query ((l sqlite-library) terms with-tags without-tags)
+;; FIXME: add support for tag filtering
+(defmethod query ((l sqlite-library) terms)
   (check-type terms string)
-  (check-type with-tags list)
-  (check-type without-tags list)
   (loop for row in (sqlite-rows l (ccat "select data.* from search "
                                         "left join data on data.id = search.id "
                                         "where search match ? order by rank")
