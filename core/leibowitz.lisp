@@ -173,14 +173,18 @@ to :modified but may also be :birth, :accesses, or :num-tags."))
           (setf (datum-kind d) (format NIL "link/~A" kind))
           (setf (datum-kind d) (%datum-find-mime d)))))
   ;; Change class to the appropriate one by mime type or URL scheme
-  (let ((major-mime (read-from-string
-                     (format NIL "datum-~A" (subseq (datum-kind d)
-                                                    0 (search "/" (datum-kind d))))))
-        (full-mime (read-from-string (format NIL "datum-~A" (datum-kind d)))))
-    (handler-case (change-class d (find-class full-mime))
-      (#+sbcl sb-pcl:class-not-found-error ()
-        (handler-case (change-class d (find-class major-mime))
-          (#+sbcl sb-pcl:class-not-found-error ())))))
+  (handler-case
+      (let ((full-mime (read-from-string
+                        (format NIL "leibowitz-core:datum-~A" (datum-kind d)))))
+        (change-class d (find-class full-mime)))
+    (#+sbcl sb-int:simple-reader-package-error ()
+      (handler-case
+          (let ((major-mime (read-from-string
+                             (format NIL "leibowitz-core:datum-~A"
+                                     (subseq (datum-kind d)
+                                             0 (search "/" (datum-kind d)))))))
+            (change-class d (find-class major-mime)))
+        (#+sbcl sb-int:simple-reader-package-error ()))))
   ;; Now set information with methods that might vary by class
   (unless (slot-boundp d 'birth)
     (setf (datum-birth d) (%datum-find-birth d)))
