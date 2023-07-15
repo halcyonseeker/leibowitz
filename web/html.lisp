@@ -53,20 +53,13 @@
     (:section
      (:h2 "File Types")))))
 
-;;; FIXME: the following two pages have a lot of duplicate code, they
-;;; can be compacted!
-
 (defun list-data-as-html (lib &rest options &key &allow-other-keys)
   "Beautify the output of `leibowitz-core:list-data' as a HTML datum
 listing.  Key arguments are passed unmodified to that method."
   (check-type lib library)
   `((:section :id "tiles"
               ,@(loop for datum in (apply #'list-data (nconc (list lib) options))
-                      collect `(:div :class "tile"
-                                     (:a :href ,(format NIL "/datum?id=~A"
-                                                        (hunchentoot:url-encode
-                                                         (datum-id datum)))
-                                         ,(cl-who:escape-string (datum-id datum))))))))
+                      collect (datum-html-preview lib datum)))))
 
 (defun list-search-results-as-html (lib terms)
   (check-type lib library)
@@ -74,11 +67,7 @@ listing.  Key arguments are passed unmodified to that method."
   `(,(make-search-page-search-box lib terms)
     (:section :id "tiles"
               ,@(loop for datum in (query lib terms)
-                      collect `(:div :class "tile"
-                                     (:a :href ,(format NIL "/datum?id=~A"
-                                                        (hunchentoot:url-encode
-                                                         (datum-id datum)))
-                                         ,(cl-who:escape-string (datum-id datum))))))))
+                      collect (datum-html-preview lib datum)))))
 
 (defun make-search-page-search-box (lib &optional terms)
   (check-type lib library)

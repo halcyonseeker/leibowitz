@@ -254,6 +254,18 @@ consist of a list containing at least one section tag."))
 displayed in the sidebar.  Like `datum-html-report', this should
 consist of a list of sections."))
 
+;; FIXME: add a list layout
+;; FIXME: add an actual thumbnail of the datum and make the preview
+;; more detailed
+(defgeneric datum-html-preview (library datum)
+  (:method ((l library) (d datum))
+    `(:div :class "tile"
+           (:small (:a :href ,(format NIL "/datum?id=~A"
+                                      (hunchentoot:url-encode (datum-id d)))
+                       ,(cl-who:escape-string (datum-id d))))))
+  (:documentation "Return a cl-who XHTML structure displaying a thumbnail preview of
+this datum that links to the full detail page."))
+
 (defun %datum-find-url-scheme-in-id (id)
   "Little helper to find some kind of URL scheme in a datum's ID."
   (check-type id string)
