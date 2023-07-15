@@ -116,9 +116,25 @@ listing.  Key arguments are passed unmodified to that method."
 (defun make-tag-view-sidebar (lib tag-name)
   (check-type lib library)
   (check-type tag-name string)
-  `((:section (:p "Metadata will go here")
-              (:h2 "Related tags")
-              (:p "Not sure how we'll do this"))))
+  `((:section
+     (:h2 "Predicates")
+     (:ul ,@(loop for tag in (get-tag-predicates lib tag-name)
+                  collect `(:li (:a :href ,(format NIL "/tag?name=~A"
+                                                   (hunchentoot:url-encode (tag-name tag)))
+                                    ,(tag-name tag))
+                                (:span :class "tag-count"
+                                       ,(format nil "(~a)" (tag-count tag)))))))
+    (:section
+     (:h2 "Predicands")
+     (:ul ,@(loop for tag in (get-tag-predicands lib tag-name)
+                  collect `(:li (:a :href ,(format NIL "/tag?name=~A"
+                                                   (hunchentoot:url-encode (tag-name tag)))
+                                    ,(tag-name tag))
+                                (:span :class "tag-count"
+                                       ,(format nil "(~a)" (tag-count tag)))))))
+    (:section
+     (:h2 "Related tags")
+     (:p "I'll need to figure out something clever here :p"))))
 
 (defun make-tag-view-page (lib tag-name)
   (check-type lib library)
