@@ -46,11 +46,13 @@
              :sidebar `((:section "File system highlights or smth"))
              :body `((:section (:b "FIXME ") "Write a file browser"))))
 
-(leibowitz-route (search-page lib :uri "/search") ()
+(leibowitz-route (search-page lib :uri "/search") (q)
   (make-page :here "/search"
              :title "Search | Leibowitz Web"
-             :sidebar `((:section "Idk"))
-             :body `((:section (:b "FIXME ") "Search results"))))
+             :sidebar `((:section "Idk yet"))
+             :body (if q
+                       (list-search-results-as-html lib q)
+                       `(,(make-search-page-search-box lib)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Datum view machinery
