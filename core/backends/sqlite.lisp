@@ -37,6 +37,7 @@ lines with really long SQL queries."
 (defmethod initialize-instance :after
     ((l sqlite-library) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
+  (ensure-directories-exist (directory-namestring (slot-value l 'db-path)))
   (setf (slot-value l 'handle) (sqlite:connect (slot-value l 'db-path)))
   (mapcar (lambda (tbl) (sqlite:execute-non-query (slot-value l 'handle) tbl))
           '("

@@ -26,12 +26,14 @@
       (setf (collection-homedir-root
              (find-if (lambda (c) (eql (type-of c) 'collection-homedir))
                       (library-collections l)))
-            homedir))
+            homedir)
+      (ensure-directories-exist homedir))
     (when linkdir
       (setf (collection-link/web-directory
              (find-if (lambda (c) (eql (type-of c) 'collection-link/web))
                       (library-collections l)))
-            linkdir))))
+            linkdir)
+      (ensure-directories-exist linkdir))))
 
 (defgeneric library-get-datum-collection (library id)
   (:method ((l library) id)
