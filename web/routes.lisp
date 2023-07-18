@@ -64,6 +64,11 @@
                :sidebar (make-datum-view-sidebar lib id)
                :body (make-datum-view-page lib id))))
 
+(leibowitz-route (datum-raw lib :uri "/raw") (id)
+  (let ((d (get-datum lib (hunchentoot:url-decode id))))
+    (setf (hunchentoot:content-type*) (datum-kind d))
+    (injest-raw-datum lib d)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tag view machinery
 

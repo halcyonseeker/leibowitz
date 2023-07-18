@@ -6,6 +6,7 @@
            #:library-collections
            #:library-get-datum-collection)
   (:export #:index
+           #:injest-raw-datum
            #:add-datum
            #:get-datum
            #:del-datum

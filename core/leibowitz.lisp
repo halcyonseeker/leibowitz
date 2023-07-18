@@ -278,7 +278,9 @@ consist of a list containing at least one section tag."))
                          (:li (:span :class "datum-metadata-key"
                                      "Modified")
                               (:span :class "datum-metadata-var"
-                                     ,(timefmt (datum-modified d)))))))
+                                     ,(timefmt (datum-modified d)))))
+                    (:a :href ,(format NIL "/raw?id=~A" (hunchentoot:url-encode (datum-id d)))
+                        "View Raw")))
         ,(%collection-html-sidebar-section-for-datum l (datum-collection d) d)
         (:section (:h2 "Tags")
                   (:ul ,@(loop for tag in (get-datum-tags l d)
@@ -303,6 +305,18 @@ consist of a list of sections."))
                        ,(cl-who:escape-string (datum-id d))))))
   (:documentation "Return a cl-who XHTML structure displaying a thumbnail preview of
 this datum that links to the full detail page."))
+
+(defgeneric injest-raw-datum (library datum)
+  (:method ((l library) (d datum))
+    ;; FIXME: do collections need to have control over this?
+    (with-open-file (s (datum-id d) :element-type '(unsigned-byte 8))
+      (let ((buf (make-array (file-length s) :element-type '(unsigned-byte 8))))
+        (handler-case
+            (loop for byte = (read-byte s)
+                  for index from 0 to (file-length s)
+                  do (setf (aref buf index) byte))
+          (end-of-file () buf)))))
+  (:documentation "Return a datum as an array of bytes."))
 
 (defun %datum-find-url-scheme-in-id (id)
   "Little helper to find some kind of URL scheme in a datum's ID."
