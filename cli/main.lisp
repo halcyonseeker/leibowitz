@@ -49,6 +49,11 @@
                    :description "Print zsh-completions to stdout."
                    :long-name "zsh-completions"
                    :key :zsh-completions)
+                  (clingon:make-option
+                   :flag
+                   :description "Print markdown usage docs to standard-output."
+                   :long-name "markdown-documentation"
+                   :key :markdown-documentation)
                   )))
 
 (defun cli-handler (cmd)
@@ -56,6 +61,9 @@
     (clingon:print-usage-and-exit cmd *standard-output*))
   (when (clingon:getopt cmd :zsh-completions)
     (clingon:print-documentation :zsh-completions (cli-definition) *standard-output*)
+    (uiop:quit 0))
+  (when (clingon:getopt cmd :markdown-documentation)
+    (clingon:print-documentation :markdown (cli-definition) T)
     (uiop:quit 0))
   (let ((root (clingon:getopt cmd :root)))
     (setf *library*
