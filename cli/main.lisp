@@ -57,9 +57,7 @@
   (when (clingon:getopt cmd :generate-zsh-completions)
     (clingon:print-documentation :zsh-completions (cli-definition) *standard-output*)
     (uiop:quit 0))
-  (format T "Setting up application from top-level commands...~%")
-  (let ((free-args (clingon:command-arguments cmd))
-        (root (clingon:getopt cmd :root)))
+  (let ((root (clingon:getopt cmd :root)))
     (setf *library*
           (if root
               ;; FIXME: Normalize the path!  Is it relative?  Resolve it to
@@ -74,9 +72,7 @@
               (make-instance 'sqlite-library
                              :db-path (merge-pathnames "leibowitz/ontology.db"
                                                        (uiop:xdg-data-home))
-                             :homedir (user-homedir-pathname))))
-    (describe *library*)
-    (format T "Free arguments: ~S~%" free-args)))
+                             :homedir (user-homedir-pathname))))))
 
 (defun handle-toplevel-args (cmd)
   "By default clingon doesn't call the handler function for the
@@ -104,12 +100,11 @@ argument."
   (let* ((args (clingon:command-arguments cmd))
          (root (clingon:getopt cmd :root))
          (jobs (if args args (if root (list root) (error "Idk what to index bro")))))
-    (format T "Things to index: ~S...~%" jobs)
     (loop for job in jobs
-          do (format T "Indexing ~S..." job)
+          do (format T "Indexing ~A..." job)
+             (finish-output)
              (index *library* job)
-             (format T "done~%"))
-    (format T "Done indexing :)~%")))
+             (format T "done~%"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: web
