@@ -47,14 +47,14 @@
                   (clingon:make-option
                    :flag
                    :description "Print zsh-completions to stdout."
-                   :long-name "generate-zsh-completions"
-                   :key :generate-zsh-completions)
+                   :long-name "zsh-completions"
+                   :key :zsh-completions)
                   )))
 
 (defun cli-handler (cmd)
   (when (clingon:getopt cmd :help)
     (clingon:print-usage-and-exit cmd *standard-output*))
-  (when (clingon:getopt cmd :generate-zsh-completions)
+  (when (clingon:getopt cmd :zsh-completions)
     (clingon:print-documentation :zsh-completions (cli-definition) *standard-output*)
     (uiop:quit 0))
   (let ((root (clingon:getopt cmd :root)))
