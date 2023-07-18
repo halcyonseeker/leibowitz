@@ -222,7 +222,7 @@ for different file types."))
 (defgeneric %datum-find-mime (datum)
   (:method ((d datum))
     (multiple-value-bind (stdout)
-        (uiop:run-program (format NIL "file -Ei ~A" (datum-id d)) :output :string)
+        (uiop:run-program (list "file" "-Ei" (datum-id d)) :output :string)
       (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
   (:documentation "Get this mime time of this datum's file."))
 
