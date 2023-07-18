@@ -34,6 +34,7 @@
    :handler #'cli-handler
    :sub-commands (list (cli-subcommand/index-definition)
                        (cli-subcommand/web-definition)
+                       (cli-subcommand/find-definition)
                        )
    :options (list (clingon:make-option
                    :filepath
@@ -138,3 +139,21 @@ argument."
      (find-if (lambda (th) (search "hunchentoot-listener-" (bt:thread-name th)))
               (bt:all-threads)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: find
+
+(defun cli-subcommand/find-definition ()
+  (clingon:make-command
+   :name "find"
+   :description "Search your data."
+   :usage "[query terms...]"
+   :handler #'cli-subcommand/find-handler
+   ;; FIXME: once query supports it, here will go options to filter by
+   ;; tags and other attributes
+   ))
+
+(defun cli-subcommand/find-handler (cmd)
+  (handle-toplevel-args cmd)
+  (let ((terms (format NIL "~{~A~^ ~}" (clingon:command-arguments cmd))))
+    (loop for d in (query *library* terms)
+          do (format T "~A~%" (datum-id d)))))
