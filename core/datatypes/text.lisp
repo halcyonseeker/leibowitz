@@ -12,12 +12,7 @@
 
 (defmethod %datum-find-terms ((d datum-text))
   "Return the contents of this file to be indexed by the search engine."
-  (setf (datum-terms d)
-        (with-open-file (in (datum-id d))
-          (with-output-to-string (out)
-            (loop for line = (read-line in nil 'eof)
-                  until (eq line 'eof)
-                  do (format out "~A~%" line))))))
+  (setf (datum-terms d) (injest-raw-datum d)))
 
 (defmethod injest-raw-datum ((d datum-text))
   (with-open-file (in (datum-id d))
