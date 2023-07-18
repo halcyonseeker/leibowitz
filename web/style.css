@@ -111,6 +111,9 @@ a:not(visited) {
 	padding: 10px;
 	flex: 1;
 }
+#content img {
+	max-width: 100%;
+}
 .datum-metadata-key {
 	font-size: small;
 	font-weight: bold;

@@ -12,6 +12,7 @@
                (:module "backends" :components ((:file "sqlite")))
                (:module "curators" :components (#+linux(:file "fs_inotify")))
                (:module "datatypes" :components ((:file "text")
+                                                 (:file "image")
                                                  (:file "link")))
                (:module "collections" :components ((:file "homedir")
                                                    (:file "link"))))

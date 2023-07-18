@@ -41,6 +41,7 @@
   ;; Specific types of data
   (:export #:datum-text
            #:datum-text/html
+           #:datum-image
            #:datum-link/web)
   ;; Tag metadata
   (:export #:tag
