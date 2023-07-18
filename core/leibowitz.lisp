@@ -306,8 +306,8 @@ consist of a list of sections."))
   (:documentation "Return a cl-who XHTML structure displaying a thumbnail preview of
 this datum that links to the full detail page."))
 
-(defgeneric injest-raw-datum (library datum)
-  (:method ((l library) (d datum))
+(defgeneric injest-raw-datum (datum)
+  (:method ((d datum))
     ;; FIXME: do collections need to have control over this?
     (with-open-file (s (datum-id d) :element-type '(unsigned-byte 8))
       (let ((buf (make-array (file-length s) :element-type '(unsigned-byte 8))))
@@ -316,7 +316,8 @@ this datum that links to the full detail page."))
                   for index from 0 to (file-length s)
                   do (setf (aref buf index) byte))
           (end-of-file () buf)))))
-  (:documentation "Return a datum as an array of bytes."))
+  (:documentation "Return a datum in its most primitive form, either an array of bytes
+or a UTF-8 string."))
 
 (defun %datum-find-url-scheme-in-id (id)
   "Little helper to find some kind of URL scheme in a datum's ID."

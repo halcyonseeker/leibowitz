@@ -67,7 +67,7 @@
 (leibowitz-route (datum-raw lib :uri "/raw") (id)
   (let ((d (get-datum lib (hunchentoot:url-decode id))))
     (setf (hunchentoot:content-type*) (datum-kind d))
-    (injest-raw-datum lib d)))
+    (injest-raw-datum d)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tag view machinery

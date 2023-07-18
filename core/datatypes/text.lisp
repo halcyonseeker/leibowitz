@@ -19,6 +19,13 @@
                   until (eq line 'eof)
                   do (format out "~A~%" line))))))
 
+(defmethod injest-raw-datum ((d datum-text))
+  (with-open-file (in (datum-id d))
+    (with-output-to-string (out)
+      (loop for line = (read-line in nil 'eof)
+            until (eq line 'eof)
+            do (format out "~A~%" line)))))
+
 (defmethod datum-html-report ((l library) (d datum-text))
   (declare (ignore l))
   `((:section
