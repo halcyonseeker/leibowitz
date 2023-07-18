@@ -219,12 +219,10 @@ for different file types."))
                           (osicat-posix:stat (datum-id d))))))
   (:documentation "Get the time when this datum's file was last modified."))
 
-;; FIXME: This interacts with the file but failures aren't being
-;; signaled as conditions
 (defgeneric %datum-find-mime (datum)
   (:method ((d datum))
     (multiple-value-bind (stdout)
-        (uiop:run-program (format NIL "file -i ~A" (datum-id d)) :output :string)
+        (uiop:run-program (format NIL "file -Ei ~A" (datum-id d)) :output :string)
       (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
   (:documentation "Get this mime time of this datum's file."))
 
