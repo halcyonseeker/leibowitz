@@ -26,16 +26,14 @@ HTTP API, a 9p API, and maybe a desktop application.
 
 Bugs, tasks, and fixmes
 -----------------------
-* Calling `leibowitz find xyz` from the command line sometimes returns
-  an error `Code CORRUPT: database disk image is malformed.` with the
-  offending stanza being `select data.* from search left join data on
-  data.id = search.id where search match ? order by rank`.  Connecting
-  to the database and running `pragma integrity_check` yields okay.
-  Several times when this happened there were multiple leibowitz
-  processes running on that same database, so maybe that is partially
-  the culprit?  Some light stackoverflowing indicated this might be a
-  result damaged indexes, which would make sense considering it only
-  (so far) shows up when doing full-text search.
+* Sometimes doing a full-text search yields an error `Code CORRUPT:
+  database disk image is malformed.` with the offending stanza being
+  `select data.* from search left join data on data.id = search.id
+  where search match ? order by rank`.  Connecting to the database and
+  running `pragma integrity_check` yields okay.  Some light
+  stackoverflowing indicated this might be a result damaged indexes,
+  which would make sense considering it only (so far) shows up when
+  doing full-text search.
 * The cli needs a way to normalize paths before passing them to the
   library; CL is absolutely clueless when it comes to resolving unix
   path notation.
