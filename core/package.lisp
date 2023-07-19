@@ -42,6 +42,7 @@
   (:export #:datum-text
            #:datum-text/html
            #:datum-image
+           #:datum-video
            #:datum-link/web)
   ;; Tag metadata
   (:export #:tag

@@ -14,6 +14,7 @@
                (:module "curators" :components (#+linux(:file "fs_inotify")))
                (:module "datatypes" :components ((:file "text")
                                                  (:file "image")
+                                                 (:file "video")
                                                  (:file "link")))
                (:module "collections" :components ((:file "homedir")
                                                    (:file "link"))))
