@@ -166,9 +166,14 @@ a:not(visited) {
 	height: 150px;
 	padding: 10px;
 	margin: 5px;
+	text-align: center;
 	background-color: #009797;
 	border: 2px solid black;
 	overflow: hidden;           /* Just for testing */
+}
+
+#sidebar-and-content-container .tile img {
+	height: 100px;
 }
 
 /**********************************************************************/

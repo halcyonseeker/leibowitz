@@ -69,6 +69,19 @@
     (setf (hunchentoot:content-type*) (datum-kind d))
     (injest-raw-datum d)))
 
+;; FIXME: Temporary workaround to load a thumbnail from the library's
+;; cache directory.  We really need to store static files in a set
+;; place and use hunchentoot's static file handler instead!
+(leibowitz-route (datum-thumbnail lib :uri "/thumbnail") (path)
+  (format T "---- We're being asked to load ~S~%" (hunchentoot:url-decode path))
+  (with-open-file (s (hunchentoot:url-decode path) :element-type '(unsigned-byte 8))
+    (let ((buf (make-array (file-length s) :element-type '(unsigned-byte 8))))
+      (handler-case
+          (loop for byte = (read-byte s)
+                for index from 0 to (file-length s)
+                do (setf (aref buf index) byte))
+        (end-of-file () buf)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tag view machinery
 

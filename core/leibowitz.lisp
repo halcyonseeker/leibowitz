@@ -295,14 +295,18 @@ displayed in the sidebar.  Like `datum-html-report', this should
 consist of a list of sections."))
 
 ;; FIXME: add a list layout
-;; FIXME: add an actual thumbnail of the datum and make the preview
-;; more detailed
 (defgeneric datum-html-preview (library datum)
   (:method ((l library) (d datum))
     `(:div :class "tile"
-           (:small (:a :href ,(format NIL "/datum?id=~A"
-                                      (hunchentoot:url-encode (datum-id d)))
-                       ,(cl-who:escape-string (datum-id d))))))
+           (:a :href ,(format NIL "/datum?id=~A"
+                              (hunchentoot:url-encode (datum-id d)))
+               ,(handler-case
+                    `(:img :src ,(format NIL "/thumbnail?path=~A"
+                                         (hunchentoot:url-encode
+                                          (namestring (thumbnailer:get-thumbnail
+                                                       (datum-id d) (datum-kind d))))))
+                  (thumbnailer:unsupported-file-type ()))
+               (:div (:small ,(cl-who:escape-string (datum-id d)))))))
   (:documentation "Return a cl-who XHTML structure displaying a thumbnail preview of
 this datum that links to the full detail page."))
 

@@ -5,7 +5,8 @@
                #:osicat
                #:cl-fad
                #:hunchentoot
-               #:cl-who)
+               #:cl-who
+               #:thumbnailer)
   :serial t
   :components ((:file "package")
                (:file "leibowitz")
