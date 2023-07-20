@@ -73,7 +73,6 @@ a:not(visited) {
 	font-size: large;
 }
 #navbar {
-	background-color: var(--ui-bg);
 	padding: 8px 8px 8px 0px;
 }
 #navbar a {
