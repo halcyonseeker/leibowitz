@@ -375,6 +375,16 @@
     ;; This will fial if the file isn't in /tmp
     (is #'equal (datum-id d) (datum-id (car (query l "tmp"))))))
 
+(define-library-test query-can-paginate-with-offset-limit (l p1 p2 p3 p4 p5 p6)
+  (loop for p in (list p1 p2 p3 p4 p5 p6)
+        do (add-datum l (make-instance 'datum :id p)))
+  (is #'= 6 (length (query l "tmp")))
+  (is #'= 3 (length (query l "tmp" :offset 0 :limit 3)))
+  (is #'= 1 (length (query l "tmp" :offset 5 :limit 1)))
+  (is #'= 0 (length (query l "tmp" :offset 0 :limit 0)))
+  (fail (query l "tmp" :limit 2))
+  (fail (query l "tmp" :offset 9)))
+
 (define-library-test list-data-test-sort-and-direction (l p1 p2)
   (add-datum l (make-instance 'datum :id p1))
   (sleep 1) ;; timestamps have a granularity of 1 second smh

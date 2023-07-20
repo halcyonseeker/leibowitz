@@ -276,15 +276,21 @@ end")))
 ;; all fields (id, body, tags) and filter for tags at the same time as
 ;; searching for text.
 
-;;; FIXME: listing and search methods should all support pagination!
-
 ;; FIXME: add support for tag filtering
-(defmethod query ((l sqlite-library) terms)
+(defmethod query ((l sqlite-library) terms &key (limit NIL) (offset NIL))
   (check-type terms string)
-  (loop for row in (sqlite-rows l (ccat "select data.* from search "
-                                        "left join data on data.id = search.id "
-                                        "where search match ? order by rank")
-                                terms)
+  (check-type offset (or null integer))
+  (check-type limit (or null integer))
+  (when (or offset limit) (assert (and offset limit)))
+  (loop for row in (sqlite-rows
+                    l (format NIL "~A ~A ~A ~A"
+                              "select data.* from search"
+                              "left join data on data.id = search.id"
+                              "where search match ? order by rank"
+                              (if (and limit offset)
+                                  (format NIL "limit ~A offset ~A" limit offset)
+                                  ""))
+                    terms)
         collect (destructuring-bind (id accesses kind birth modified terms) row
                   (make-instance 'datum :id id :accesses accesses :kind kind
                                         :birth birth :modified modified

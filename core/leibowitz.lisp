@@ -120,8 +120,10 @@ thentag."))
 
 ;;; Searching and Listing
 
-(defgeneric query (library terms)
-  (:documentation "Return data that match the search terms and tag filters."))
+(defgeneric query (library terms &key limit offset)
+  (:documentation "Return data that match the search terms.  :limit and :offset may be
+used for pagination and are set to NIL by default, returning all
+matching data."))
 
 (defgeneric list-tags (library)
   (:documentation "Return a list of the top :limit sorted in descending order by
