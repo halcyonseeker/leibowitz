@@ -19,10 +19,21 @@ Features include:
 * **Modular backends** in which to store the tag ontology and text
   dump for search.  Right now only SQLite is supported.
 
-At present Leibowitz is only usable as a Common Lisp library from a
-REPL, however I intend on building several user interface options,
-including a subcommand-based CLI, a booru or wiki-style web UI, a JSON
-HTTP API, a 9p API, and maybe a desktop application.
+At present Leibowitz is very much a work in progress and is varying
+degrees of useful from a REPL, the command line, and a web UI. I
+intend on also building several other user interface options,
+including a JSON HTTP API, a 9p API, and a desktop application using
+TK or maybe QT.
+
+Installation
+------------
+
+Right now in order to build or use Leibowitz you need ffmpeg,
+imagemagick, sqlite, make, quicklisp, and sbcl.  On my machine I can
+build it as an executable with `make` or hack on it from a REPL with
+`(load #P"leibowitz.asd"` and `(ql:quickload :leibowitz)`.  I'd like
+Leibowitz to be easy to build, install, and use for people who don't
+know Common Lisp, but it's still a fair long ways off from that goal.
 
 Bugs, tasks, and fixmes
 -----------------------
@@ -37,6 +48,13 @@ Bugs, tasks, and fixmes
 * The cli needs a way to normalize paths before passing them to the
   library; CL is absolutely clueless when it comes to resolving unix
   path notation.
+* Add more error handling to the web UI!  Right now it is insanely
+  easy to get this thing to crash.
+* Make indexing and thumbnail generation operations run in parallel,
+  they're way too slow right now.
+* Improve search by allow the user to search in different fields
+  instead of a homogeneous dump.  Also include tags in datum search
+  terms.
 
 Notes
 -----
