@@ -2,7 +2,7 @@
 
 (in-package :leibowitz-web)
 
-(defun make-page (&key here sidebar title body)
+(defun make-page (lib &key here sidebar title body limit offset)
   (eval
    `(cl-who:with-html-output-to-string (*standard-output* nil :prologue t :indent t)
       (:html
@@ -32,6 +32,18 @@
               (:div :id "sidebar-and-content-container"
                     (:aside :id "sidebar" :class "ui" ,@sidebar)
                     (:main :id "content" ,@body))
+              ,(when (and limit offset)
+                 `(:nav :id "pagination" :class "ui"
+                        ,@(loop with total = (library-data-quantity lib)
+                                with pages = (ceiling (/ total limit))
+                                for p from 1 to pages
+                                for pth-link-offset = (* limit (- p 1))
+                                collect `(:a :class ,(if (= offset pth-link-offset)
+                                                        "page-link here"
+                                                        "page-link")
+                                             :href ,(format NIL "~A?limit=~A&offset=~A"
+                                                            here limit pth-link-offset)
+                                             ,(format NIL "~A" p)))))
               (:footer :id "footer"
                        (:hr)
                        (:a :href "https://sr.ht/~thalia/leibowitz"
@@ -69,12 +81,12 @@ listing.  Key arguments are passed unmodified to that method."
               ,@(loop for datum in (apply #'list-data (nconc (list lib) options))
                       collect (datum-html-preview lib datum)))))
 
-(defun list-search-results-as-html (lib terms)
+(defun list-search-results-as-html (lib terms limit offset)
   (check-type lib library)
   (check-type terms string)
   `(,(make-search-page-search-box lib terms)
     (:section :id "tiles"
-              ,@(loop for datum in (query lib terms)
+              ,@(loop for datum in (query lib terms :limit limit :offset offset)
                       collect (datum-html-preview lib datum)))))
 
 (defun make-search-page-search-box (lib &optional terms)

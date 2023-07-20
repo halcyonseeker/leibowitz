@@ -122,6 +122,17 @@ a:not(visited) {
 	font-size: small;
 	color: var(--fg);
 }
+#pagination {
+	text-align: center;
+	padding: 8px 8px 8px 0px;
+}
+#pagination a {
+	text-decoration: none;
+}
+#pagination a.here {
+	font-weight: bold;
+}
+
 
 /* Send the sidebar to the bottom on smaller screens */
 @media(max-width: 660px) {
