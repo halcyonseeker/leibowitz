@@ -88,6 +88,9 @@ create trigger if not exists data_update_fts after update on data begin
   insert into search (id, terms) values (new.id, new.terms);
 end")))
 
+(defmethod library-data-quantity ((l sqlite-library))
+  (sqlite-row l "select count(*) from data"))
+
 ;;; Reading and writing data
 
 ;; FIXME: calling on a five mb git repo is monstrously slow...

@@ -161,6 +161,12 @@
     (add-datum l d)
     (is #'= 1 (datum-accesses (get-datum l path)))))
 
+(define-library-test get-datum-quantity (l p1 p2 p3)
+  (add-datum l (make-instance 'datum :id p1))
+  (add-datum l (make-instance 'datum :id p2))
+  (add-datum l (make-instance 'datum :id p3))
+  (is #'= 3 (library-data-quantity l)))
+
 ;;; High-level indexer method
 
 (define-library-test index-single-file (l path)

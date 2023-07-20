@@ -42,6 +42,11 @@
   (:documentation "Return the collection instance applicable to id.  This should be used
 to populate the :collection slot when instantiating a datum."))
 
+;;; Library metadata
+
+(defgeneric library-data-quantity (library)
+  (:documentation "Return the number of data stored in this library."))
+
 ;;; Reading and writing data
 
 (defgeneric index (library path)

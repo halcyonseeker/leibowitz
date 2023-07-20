@@ -4,6 +4,7 @@
   ;; Basic administrative API
   (:export #:library
            #:library-collections
+           #:library-data-quantity
            #:library-get-datum-collection)
   (:export #:index
            #:injest-raw-datum
