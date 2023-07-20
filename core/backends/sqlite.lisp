@@ -299,16 +299,23 @@ end")))
                   (make-instance 'tag :name name :count count :label label))))
 
 ;; FIXME: Track datum tag-count so we can sort by them
-(defmethod list-data ((l sqlite-library) &key (sort-by :modified) (direction :descending))
+(defmethod list-data ((l sqlite-library) &key (sort-by :modified) (direction :descending)
+                                           (limit NIL) (offset NIL))
   (assert (member sort-by '(:modified :birth :accesses)))
   (assert (member direction '(:descending :ascending)))
+  (check-type limit (or null integer))
+  (check-type offset (or null integer))
+  (when (or limit offset) (assert (and limit offset)))
   (loop for row in (sqlite-rows
-                    l (format NIL "select * from data order by ~A ~A"
+                    l (format NIL "select * from data order by ~A ~A ~A"
                               (cond ((eql sort-by :modified) "modified")
                                     ((eql sort-by :birth) "birth")
                                     ((eql sort-by :accesses) "accesses"))
                               (cond ((eql direction :descending) "desc")
-                                    ((eql direction :ascending) "asc"))))
+                                    ((eql direction :ascending) "asc"))
+                              (if (and limit offset)
+                                  (format NIL "limit ~A offset ~A" limit offset)
+                                  "")))
         collect (destructuring-bind (id accesses kind birth modified terms) row
                   (make-instance 'datum :id id :accesses accesses :kind kind
                                         :birth birth :modified modified

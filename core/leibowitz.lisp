@@ -127,10 +127,15 @@ thentag."))
   (:documentation "Return a list of the top :limit sorted in descending order by
 count."))
 
-(defgeneric list-data (library &key direction sort-by)
-  (:documentation "Return a list of the top :limit data sorted in
-descending order by a criterion specified by :sort-by.  This defaults
-to :modified but may also be :birth, :accesses, or :num-tags."))
+(defgeneric list-data (library &key direction sort-by offset limit)
+  (:documentation "Return a list of data.  :direction may be either :ascending or
+:descending and controls the manner in which the data are returned; it
+defaults to :descending.  :sort-by controls the sorting criterion and
+may be one of :modified, :birth, or :accesses, defaulting to
+:modified.  :limit and :offset may be used for pagination and are set
+to NIL by default.  That is all to say that calling this method
+without any keys will return a list of all data sorted from the most
+recently modified to the least recently modified."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Data stored in the library
