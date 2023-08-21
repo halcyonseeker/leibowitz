@@ -3,6 +3,7 @@
   (:use #:cl)
   ;; Basic administrative API
   (:export #:library
+           #:library-thumbnail-cache-dir
            #:library-collections
            #:library-data-quantity
            #:library-get-datum-collection)

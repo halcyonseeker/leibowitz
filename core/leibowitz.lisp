@@ -6,7 +6,13 @@
 ;;; Central library API
 
 (defclass library ()
-  ((collections
+  ((thumbnail-cache-dir
+    :type :pathname
+    :initarg :thumbnail-cache-dir
+    :initform (error "thumbnail-cache-dir required.")
+    :accessor library-thumbnail-cache-dir
+    :documentation "A directory in which to cache file thumbnails.")
+   (collections
     :type list
     :initarg :collections
     :accessor library-collections
@@ -20,6 +26,7 @@
 
 (defmethod initialize-instance :after
     ((l library) &rest initargs &key &allow-other-keys)
+  (ensure-directories-exist (library-thumbnail-cache-dir l))
   (let ((homedir (getf initargs :homedir))
         (linkdir (getf initargs :linkdir)))
     (when homedir
@@ -313,10 +320,13 @@ consist of a list of sections."))
            (:a :href ,(format NIL "/datum?id=~A"
                               (hunchentoot:url-encode (datum-id d)))
                ,(handler-case
-                    `(:img :src ,(format NIL "/thumbnail?path=~A"
-                                         (hunchentoot:url-encode
-                                          (namestring (thumbnailer:get-thumbnail
-                                                       (datum-id d) (datum-kind d))))))
+                    `(:img :src ,(let ((thumbnailer:*thumbnail-cache-dir*
+                                         (library-thumbnail-cache-dir l)))
+                                   (format NIL "/thumbnail?path=~A"
+                                           (hunchentoot:url-encode
+                                            (namestring
+                                             (thumbnailer:get-thumbnail
+                                              (datum-id d) (datum-kind d)))))))
                   (thumbnailer:unsupported-file-type ()))
                (:div (:small ,(cl-who:escape-string (datum-id d)))))))
   (:documentation "Return a cl-who XHTML structure displaying a thumbnail preview of
