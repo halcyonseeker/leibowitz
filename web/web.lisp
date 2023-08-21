@@ -1,6 +1,6 @@
 ;;; A booru-style web UI
 
-(in-package :leibowitz-web)
+(in-package :leibowitz.web)
 
 (defclass webserver (hunchentoot:acceptor)
   ((library

@@ -1,6 +1,6 @@
 ;;; Page generators
 
-(in-package :leibowitz-web)
+(in-package :leibowitz.web)
 
 (defun make-page (lib &key here sidebar title body limit offset)
   (eval
@@ -74,7 +74,7 @@
      (:h2 "File Types"))))
 
 (defun list-data-as-html (lib &rest options &key &allow-other-keys)
-  "Beautify the output of `leibowitz-core:list-data' as a HTML datum
+  "Beautify the output of `leibowitz.core:list-data' as a HTML datum
 listing.  Key arguments are passed unmodified to that method."
   (check-type lib library)
   `((:section :id "tiles"

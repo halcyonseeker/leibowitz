@@ -1,6 +1,6 @@
 
-(asdf:defsystem "leibowitz-web"
-  :depends-on (#:leibowitz-core
+(asdf:defsystem "leibowitz.web"
+  :depends-on (#:leibowitz.core
                #:hunchentoot
                #:cl-who)
   :serial t

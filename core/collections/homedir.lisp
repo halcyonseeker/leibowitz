@@ -1,6 +1,6 @@
 ;;; The default collection, used for files in the user's home
 
-(in-package :leibowitz-core)
+(in-package :leibowitz.core)
 
 (defclass collection-homedir (collection)
   ((root

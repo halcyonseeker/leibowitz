@@ -1,5 +1,5 @@
 
-(defpackage :leibowitz-core
+(defpackage :leibowitz.core
   (:use #:cl)
   ;; Basic administrative API
   (:export #:library

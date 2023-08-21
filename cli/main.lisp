@@ -1,12 +1,12 @@
 ;;; Entrypoint for the command-line application
 
-(defpackage :leibowitz-cli
+(defpackage :leibowitz.cli
   (:use #:cl
-        #:leibowitz-core
-        #:leibowitz-web)
+        #:leibowitz.core
+        #:leibowitz.web)
   (:export #:main))
 
-(in-package :leibowitz-cli)
+(in-package :leibowitz.cli)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Globals set at runtime

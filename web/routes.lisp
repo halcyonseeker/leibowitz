@@ -1,6 +1,6 @@
 ;;; HTTP endpoint handlers
 
-(in-package :leibowitz-web)
+(in-package :leibowitz.web)
 
 ;; FIXME: adapt the hackjob to let us push static file handlers onto
 ;; the dispatch table per hunchentoot's documentation.

@@ -1,6 +1,6 @@
 ;;; Datum subclass for displaying images
 
-(in-package :leibowitz-core)
+(in-package :leibowitz.core)
 
 (defclass datum-image (datum)
   ()

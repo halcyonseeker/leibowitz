@@ -1,7 +1,7 @@
 
-(defpackage :leibowitz-web
+(defpackage :leibowitz.web
   (:use #:cl
-        #:leibowitz-core)
+        #:leibowitz.core)
   (:export #:webserver
            #:webserver-run
            #:webserver-die))

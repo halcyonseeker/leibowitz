@@ -2,8 +2,8 @@
 
 (defpackage :leibowitz
   (:use #:cl
-        #:leibowitz-core
-        #:leibowitz-web
-        #:leibowitz-cli))
+        #:leibowitz.core
+        #:leibowitz.web
+        #:leibowitz.cli))
 
 (in-package :leibowitz)

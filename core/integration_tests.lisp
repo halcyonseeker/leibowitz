@@ -1,9 +1,9 @@
 ;; integration_tests.lisp — Uniformly test every library backend.
 
-(defpackage :leibowitz-core/tests
-  (:use #:cl #:leibowitz-core #:parachute))
+(defpackage :leibowitz.core/tests
+  (:use #:cl #:leibowitz.core #:parachute))
 
-(in-package :leibowitz-core/tests)
+(in-package :leibowitz.core/tests)
 
 (defmacro define-library-test (name (library &rest tmpfiles) &body body)
   (let ((path (gensym))
@@ -22,7 +22,7 @@
                         collect `(,var (uiop:tmpize-pathname
                                         (merge-pathnames ,home #P"testfile")))))
            (unwind-protect (progn ,@body)
-             (sqlite:disconnect (slot-value ,library 'leibowitz-core::handle))
+             (sqlite:disconnect (slot-value ,library 'leibowitz.core::handle))
              ,@(loop for var in tmpfiles
                      collect `(delete-file ,var))
              (uiop:delete-directory-tree ,home :validate T)
@@ -127,12 +127,12 @@
 (define-library-test delete-nonexistent-datum (l)
   (del-datum l "some datum id"))
 
-;; FIXME: writing some tests for leibowitz-core::%datum-equal would be worthwhile
+;; FIXME: writing some tests for leibowitz.core::%datum-equal would be worthwhile
 
 (define-library-test insert-and-retrieve-datum (l path)
   (let ((d (make-instance 'datum :id path :collection (library-get-datum-collection l path))))
     (add-datum l d)
-    (is #'leibowitz-core::%datum-equal d (get-datum l (datum-id d)))))
+    (is #'leibowitz.core::%datum-equal d (get-datum l (datum-id d)))))
 
 (define-library-test insert-and-delete-datum (l path)
   (let ((d (make-instance 'datum :id path)))
@@ -172,12 +172,12 @@
 (define-library-test index-single-file (l path)
   (let ((indexed (index l path)))
     (true indexed)
-    (is #'leibowitz-core::%datum-equal (car indexed) (get-datum l path))))
+    (is #'leibowitz.core::%datum-equal (car indexed) (get-datum l path))))
 
 (define-library-test index-url (l)
   (let ((indexed (index l "https://nyaa.si")))
     (true indexed)
-    (is #'leibowitz-core::%datum-equal
+    (is #'leibowitz.core::%datum-equal
         (car indexed) (get-datum l "https://nyaa.si"))))
 
 (define-library-test index-flat-directory (l p1 p2 p3 p4 p5)
@@ -225,7 +225,7 @@
     (del-datum-tags l d '("tag"))
     (false (get-datum-tags l d))
     (false (get-tag-data l "tag"))
-    (is #'leibowitz-core::%datum-equal d (get-datum l (datum-id d)))))
+    (is #'leibowitz.core::%datum-equal d (get-datum l (datum-id d)))))
 
 ;; FIXME: right now there is no way to update the tag label after
 ;; creation; add-tag doesn't do anything if there's already a tag of

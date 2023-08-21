@@ -1,6 +1,6 @@
 ;;; Datum subclass for displaying videos
 
-(in-package :leibowitz-core)
+(in-package :leibowitz.core)
 
 (defclass datum-video (datum)
   ()

@@ -1,6 +1,6 @@
 ;;; Collection subclass for managing on-disk representations of URI's
 
-(in-package :leibowitz-core)
+(in-package :leibowitz.core)
 
 (defclass collection-link (collection)
   ()

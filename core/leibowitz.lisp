@@ -1,6 +1,6 @@
 ;; leibowitz.lisp — Define the core API for all library operations.
 
-(in-package :leibowitz-core)
+(in-package :leibowitz.core)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Central library API
@@ -196,12 +196,12 @@ recently modified to the least recently modified."))
   ;; Change class to the appropriate one by mime type or URL scheme
   (handler-case
       (let ((full-mime (read-from-string
-                        (format NIL "leibowitz-core:datum-~A" (datum-kind d)))))
+                        (format NIL "leibowitz.core:datum-~A" (datum-kind d)))))
         (change-class d (find-class full-mime)))
     (#+sbcl sb-int:simple-reader-package-error ()
       (handler-case
           (let ((major-mime (read-from-string
-                             (format NIL "leibowitz-core:datum-~A"
+                             (format NIL "leibowitz.core:datum-~A"
                                      (subseq (datum-kind d)
                                              0 (search "/" (datum-kind d)))))))
             (change-class d (find-class major-mime)))

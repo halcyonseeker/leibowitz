@@ -4,15 +4,15 @@
       do (push dir asdf:*central-registry*))
 
 (asdf:defsystem "leibowitz"
-  :depends-on (#:leibowitz-core
-               #:leibowitz-web
-               #:leibowitz-cli)
+  :depends-on (#:leibowitz.core
+               #:leibowitz.web
+               #:leibowitz.cli)
   :components ((:file "package"))
   :build-operation "program-op"
   :build-pathname "build/leibowitz"
-  :entry-point "leibowitz-cli:main"
+  :entry-point "leibowitz.cli:main"
   :in-order-to ((asdf:test-op (asdf:test-op "leibowitz/tests"))))
 
 (asdf:defsystem "leibowitz/tests"
-  :depends-on (#:leibowitz-core/tests)
-  :perform (asdf:test-op (op c) (asdf:test-system :leibowitz-core/tests)))
+  :depends-on (#:leibowitz.core/tests)
+  :perform (asdf:test-op (op c) (asdf:test-system :leibowitz.core/tests)))

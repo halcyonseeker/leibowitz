@@ -1,6 +1,6 @@
 ;; fs_inotify.lisp — Manage library data as files on Linux.
 
-(in-package :leibowitz-core)
+(in-package :leibowitz.core)
 
 (defclass fs-curator (curator)
   ()

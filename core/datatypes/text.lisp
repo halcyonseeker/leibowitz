@@ -1,6 +1,6 @@
 ;;; Datum subclasses for files with the mime type text/*
 
-(in-package :leibowitz-core)
+(in-package :leibowitz.core)
 
 ;; FIXME: for each of these, figure out an absolute path-resolution
 ;; algorithm for datum-id.  Maybe add a datum slot storing the path to

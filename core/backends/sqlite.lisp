@@ -1,6 +1,6 @@
 ;; A library backend to store the ontology in an SQLite database.
 
-(in-package :leibowitz-core)
+(in-package :leibowitz.core)
 
 ;; Helper macros; these need to be declared before they're called.
 
