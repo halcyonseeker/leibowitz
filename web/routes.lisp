@@ -83,14 +83,13 @@
 ;; Datum view machinery
 
 (leibowitz-route (datum-view lib :uri "/datum") (id)
-  (let ((id (hunchentoot:url-decode id)))
-    (make-page lib
-               :title "Datum View | Leibowitz Web"
-               :sidebar (make-datum-view-sidebar lib id)
-               :body (make-datum-view-page lib id))))
+  (make-page lib
+             :title "Datum View | Leibowitz Web"
+             :sidebar (make-datum-view-sidebar lib id)
+             :body (make-datum-view-page lib id)))
 
 (leibowitz-route (datum-raw lib :uri "/raw") (id)
-  (let ((d (get-datum lib (hunchentoot:url-decode id))))
+  (let ((d (get-datum lib id)))
     (setf (hunchentoot:content-type*) (datum-kind d))
     (injest-raw-datum d)))
 
@@ -98,8 +97,7 @@
 ;; cache directory.  We really need to store static files in a set
 ;; place and use hunchentoot's static file handler instead!
 (leibowitz-route (datum-thumbnail lib :uri "/thumbnail") (path)
-  (format T "---- We're being asked to load ~S~%" (hunchentoot:url-decode path))
-  (with-open-file (s (hunchentoot:url-decode path) :element-type '(unsigned-byte 8))
+  (with-open-file (s path :element-type '(unsigned-byte 8))
     (let ((buf (make-array (file-length s) :element-type '(unsigned-byte 8))))
       (handler-case
           (loop for byte = (read-byte s)
@@ -111,8 +109,7 @@
 ;; Tag view machinery
 
 (leibowitz-route (tag-view lib :uri "/tag") (name)
-  (let ((name (hunchentoot:url-decode name)))
-    (make-page lib
-               :title "Tag View | Leibowitz Web"
-               :sidebar (make-tag-view-sidebar lib name)
-               :body (make-tag-view-page lib name))))
+  (make-page lib
+             :title "Tag View | Leibowitz Web"
+             :sidebar (make-tag-view-sidebar lib name)
+             :body (make-tag-view-page lib name)))
