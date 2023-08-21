@@ -17,7 +17,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entrypoint
 
-(defun get-thumbnail (path mime)
+(defun get-thumbnail (path mime &key (async NIL))
   "Return a path to the thumbnail of PATH in `*thumbnail-cache-dir*',
 generating it if it doesn't exist or if PATH was modified after the
 thumbnail was last generated."
@@ -28,15 +28,10 @@ thumbnail was last generated."
                                    (> (file-write-date path)
                                       (file-write-date cached-path)))))
     (when generate-thumbnail-p
-      (cond ((and (equal (subseq mime 0 6) "image/")
-                  (not (equal mime "image/gif")))
-             (imagemagick-generate-thumbnail path cached-path))
-            ((equal (subseq mime 0 6) "video/")
-             (ffmpeg-generate-thumbnail path cached-path))
-            (T (restart-case
-                   (error 'unsupported-file-type :mime mime :path path)
-                 (skip-file () :report "Skip this file"
-                   (return-from get-thumbnail (values NIL NIL)))))))
+      (restart-case
+          (dispatch-thumbnailer path cached-path mime async)
+        (skip-file () :report "Skip this file"
+          (return-from get-thumbnail (values NIL NIL)))))
     (values cached-path generate-thumbnail-p)))
 
 (define-condition unsupported-file-type (error)
@@ -83,3 +78,14 @@ the thumbnail cache."
     (ensure-directories-exist (directory-namestring path))
     (pathname (concatenate 'string (namestring path) ".jpg"))))
 
+(defun dispatch-thumbnailer (path cached-path mime async)
+  (let ((func (cond ((and (equal (subseq mime 0 6) "image/")
+                          (not (equal mime "image/gif")))
+                     #'imagemagick-generate-thumbnail)
+                    ((equal (subseq mime 0 6) "video/")
+                     #'ffmpeg-generate-thumbnail)
+                    (T (error 'unsupported-file-type :mime mime :path path)))))
+    (if async
+        (bt:make-thread (lambda () (funcall func path cached-path))
+                        :name "Thumbnailer worker")
+        (funcall func path cached-path))))
