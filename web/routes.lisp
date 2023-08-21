@@ -84,7 +84,9 @@
 
 (leibowitz-route (datum-view lib :uri "/datum") (id)
   (make-page lib
-             :title "Datum View | Leibowitz Web"
+             :title (format NIL "~A | Leibowitz Web" (pathname-name id))
+             :header `((:h1 ,(pathname-name id))
+                       (:small ,id))
              :sidebar (make-datum-view-sidebar lib id)
              :body (make-datum-view-page lib id)))
 

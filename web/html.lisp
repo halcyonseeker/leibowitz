@@ -2,7 +2,7 @@
 
 (in-package :leibowitz.web)
 
-(defun make-page (lib &key here sidebar title body limit offset)
+(defun make-page (lib &key here sidebar title body limit offset header)
   (eval
    `(cl-who:with-html-output-to-string (*standard-output* nil :prologue t :indent t)
       (:html
@@ -14,7 +14,7 @@
                      :content "text/html;charset=utf-8")
               (:link :rel "stylesheet" :href "/style.css" :media "screen"))
        (:body (:div :id "header-and-navbar-container"
-                    (:header :id "header" (:h1 ,title))
+                    (:header :id "header" ,@(if header header `((:h1 ,title))))
                     (:nav :id "navbar" :class "ui"
                           ;; Apply the "here" class to whichever link
                           ;; corresponds to the current page, if any
