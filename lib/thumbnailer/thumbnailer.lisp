@@ -56,7 +56,8 @@ thumbnail was last generated."
                           "-format" "jpg"
                           "-thumbnail" "300x300"
                           "-strip"
-                          (namestring cached-path))))
+                          (namestring cached-path))
+                    :error-output T))
 
 (defun ffmpeg-generate-thumbnail (original-path cached-path)
   (uiop:run-program (list *ffmpeg-exe*
@@ -64,7 +65,8 @@ thumbnail was last generated."
                           "-vf" "select=eq(n\,34)"
                           "-vf" "scale=300:-2"
                           "-vframes" "1"
-                          (namestring cached-path))))
+                          (namestring cached-path))
+                    :error-output T))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Helpers
