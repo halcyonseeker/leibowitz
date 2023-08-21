@@ -10,7 +10,7 @@ build: $(LISP_SOURCES_REGEX)
 
 test: $(LISP_SOURCES_REGEX)
 	sbcl --load leibowitz.asd \
-	     --eval '(progn (ql:quickload :leibowitz) (asdf:test-system :leibowitz-core) (quit))'
+	     --eval '(progn (ql:quickload :leibowitz) (asdf:test-system :leibowitz) (quit))'
 
 completions: build
 	build/leibowitz --zsh-completions > build/_leibowitz
