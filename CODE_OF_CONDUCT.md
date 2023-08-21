@@ -3,8 +3,8 @@ Code of Conduct of Pirates Edward Low and George Lowther
 
 
 1. The Captain is to have two full Shares; the Quartermaster is to
-    have one Share and one Half; The Doctor, Mate, Gunner and
-    Boatswain, one Share and one Quarter.
+   have one Share and one Half; The Doctor, Mate, Gunner and
+   Boatswain, one Share and one Quarter.
 
 2. He that shall be found guilty of taking up any Unlawful Weapon on
    Board the Privateer or any other prize by us taken, so as to Strike
