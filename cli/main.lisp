@@ -35,6 +35,7 @@
    :sub-commands (list (cli-subcommand/index-definition)
                        (cli-subcommand/web-definition)
                        (cli-subcommand/find-definition)
+                       (cli-subcommand/show-definition)
                        )
    :options (list (clingon:make-option
                    :filepath
@@ -163,3 +164,19 @@ argument."
   (let ((terms (format NIL "~{~A~^ ~}" (clingon:command-arguments cmd))))
     (loop for d in (query *library* terms)
           do (format T "~A~%" (datum-id d)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: show
+
+(defun cli-subcommand/show-definition ()
+  (clingon:make-command
+   :name "show"
+   :description "Print summaries of data."
+   :usage "[data ids...]"
+   :handler #'cli-subcommand/show-handler))
+
+(defun cli-subcommand/show-handler (cmd)
+  (handle-toplevel-args cmd)
+  (loop for p in (clingon:command-arguments cmd)
+        do (datum-print-long-report
+            *library* (get-datum *library* p))))
