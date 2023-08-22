@@ -76,10 +76,13 @@
               ;; about something bizarre like ~/../../mnt/some-disk?
               (make-instance 'sqlite-library
                              :db-path (format NIL "~A/.leibowitz/ontology.db" root)
+                             :thumbnail-cache-dir (pathname (format NIL "~A/.leibowitz/thumbnails/" root))
                              :homedir root)
               (make-instance 'sqlite-library
                              :db-path (merge-pathnames "leibowitz/ontology.db"
                                                        (uiop:xdg-data-home))
+                             :thumbnail-cache-dir (merge-pathnames "leibowitz/thumbnails/"
+                                                                   (uiop:xdg-data-home))
                              :homedir (user-homedir-pathname))))))
 
 (defun handle-toplevel-args (cmd)
