@@ -32,7 +32,8 @@
    :name "leibowitz"
    :description "A lispy object-storage layer for unix file systems."
    :handler #'cli-handler
-   :sub-commands (list (cli-subcommand/index-definition)
+   :sub-commands (list (cli-subcommand/help-definition)
+                       (cli-subcommand/index-definition)
                        (cli-subcommand/web-definition)
                        (cli-subcommand/find-definition)
                        (cli-subcommand/show-definition)
@@ -95,6 +96,35 @@ subcommand handlers should do is call this function on their
 argument."
   (let ((top-level-cmd (clingon:command-parent cmd)))
     (funcall (clingon:command-handler top-level-cmd) top-level-cmd)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: help
+
+(defun cli-subcommand/help-definition ()
+  (clingon:make-command
+   :name "help"
+   :description "Another way to print help info."
+   :usage "[subcommand]"
+   :handler #'cli-subcommand/help-handler
+   :options NIL))
+
+(defun cli-subcommand/help-handler (cmd)
+  (handle-toplevel-args cmd)
+  (let ((args (clingon:command-arguments cmd)))
+    (if args
+        (let ((subcmd-to-print (find-if (lambda (cmd)
+                                          (equal (clingon:command-name cmd)
+                                                 (car args)))
+                                        (clingon:command-sub-commands
+                                         (clingon:command-parent cmd)))))
+          (if subcmd-to-print
+              (clingon:print-usage-and-exit subcmd-to-print
+                                            *standard-output*)
+              ;; FIXME: we need to detect invalid subcommands in
+              ;; general and dumb help to stderr, exiting with nonzero
+              (error "No such subcommand")))
+        (clingon:print-usage-and-exit (clingon:command-parent cmd)
+                                      *standard-output*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: index
