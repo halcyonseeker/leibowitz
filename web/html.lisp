@@ -112,19 +112,6 @@ listing.  Key arguments are passed unmodified to that method."
                                 (:span :class "tag-desc"
                                        ,(tag-label tag))))))))
 
-(defun make-datum-view-sidebar (lib datum-id)
-  (check-type lib library)
-  (check-type datum-id string)
-  (datum-html-sidebar lib (get-datum lib datum-id)))
-
-(defun make-datum-view-page (lib datum-id)
-  (check-type lib library)
-  (check-type datum-id string)
-  (let ((d (get-datum lib datum-id)))
-    (incf (datum-accesses d))
-    (add-datum lib d)
-    (datum-html-report lib d)))
-
 (defun make-tag-view-sidebar (lib tag-name)
   (check-type lib library)
   (check-type tag-name string)
