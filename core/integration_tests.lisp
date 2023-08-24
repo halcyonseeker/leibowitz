@@ -17,7 +17,8 @@
                          (format NIL "/tmp/leibowitz_core_test_home-tmp~36R/"
                                  (random (expt 36 8))))))
                 (,path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_sqlite_test"))
-                (,library (make-instance 'sqlite-library :db-path ,path :homedir ,home))
+                (,library (make-instance 'sqlite-library :db-path ,path :homedir ,home
+                                                         :thumbnail-cache-dir ,home))
                 ,@(loop for var in tmpfiles
                         collect `(,var (uiop:tmpize-pathname
                                         (merge-pathnames ,home #P"testfile")))))
@@ -41,7 +42,8 @@
 
 (define-test create-sqlite-library
   (let* ((path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_testing_sqlite_db"))
-         (lbry (make-instance 'sqlite-library :db-path path)))
+         (lbry (make-instance 'sqlite-library :db-path path
+                                              :thumbnail-cache-dir "")))
     (unwind-protect
          (progn
            (false (sqlite-rows lbry "select * from tags"))
