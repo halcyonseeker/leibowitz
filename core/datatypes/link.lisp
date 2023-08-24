@@ -6,6 +6,9 @@
   ()
   (:documentation "Parent class for data that lack an underlying file."))
 
+;; FIXME: we'll specialize this by link type from now on
+(defmethod datum-title ((d datum-link))
+  (datum-id d))
 
 ;; FIXME: add a list layout
 (defmethod datum-html-preview ((l library) (d datum-link))

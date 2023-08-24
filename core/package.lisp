@@ -40,7 +40,8 @@
            #:datum-kind
            #:datum-birth
            #:datum-modified
-           #:datum-terms)
+           #:datum-terms
+           #:datum-title)
   ;; Specific types of data
   (:export #:datum-text
            #:datum-text/html

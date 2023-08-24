@@ -245,6 +245,11 @@ for different file types."))
       (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
   (:documentation "Get this mime time of this datum's file."))
 
+(defgeneric datum-title (datum)
+  (:method ((d datum))
+    (pathname-name (datum-id d)))
+  (:documentation "Return a friendly title for this datum."))
+
 (defgeneric datum-print-long-report (library datum)
   (:method ((l library) (d datum))
     (format T "   Datum: ~A~%" (datum-id d))
