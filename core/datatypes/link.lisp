@@ -6,6 +6,14 @@
   ()
   (:documentation "Parent class for data that lack an underlying file."))
 
+
+;; FIXME: add a list layout
+(defmethod datum-html-preview ((l library) (d datum-link))
+  `(:div :class "tile"
+         (:a :href ,(format NIL "/datum?id=~A"
+                            (hunchentoot:url-encode (datum-id d)))
+             (:div (:small ,(cl-who:escape-string (datum-id d)))))))
+
 (defmethod %datum-find-modified ((d datum-link))
   "Since stored links don't correspond directly to an underlying file
 there isn't any modification time we can infer."
