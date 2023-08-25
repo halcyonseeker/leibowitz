@@ -151,6 +151,23 @@ listing.  Key arguments are passed unmodified to that method."
                                     ,(cl-who:escape-string
                                       (enough-namestring p dir)))))))))
 
+(defun make-datum-view-page (lib datum)
+  (incf (datum-accesses datum))
+  (add-datum lib datum)
+  (nconc
+   (list
+    `(:section :id "tag-editor"
+      (:details
+       (:summary "Edit Tags")
+       (:form :method "put" :action "/datum"
+              (:textarea :placeholder "No tags yet, enter each on a new line"
+                         ,(with-output-to-string (s)
+                            (loop for tag in (get-datum-tags lib datum)
+                                  do (format s "~A~%" (tag-name tag)))))
+              (:input :type "submit" :value "Save Tags"))))
+    `(:hr))
+   (datum-html-report lib datum)))
+
 (defun make-tag-view-sidebar (lib tag-name)
   (check-type lib library)
   (check-type tag-name string)

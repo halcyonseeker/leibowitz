@@ -100,10 +100,7 @@
                    :header `((:h1 ,(datum-title d))
                              (:small ,id))
                    :sidebar (datum-html-sidebar lib d)
-                   :body (progn
-                           (incf (datum-accesses d))
-                           (add-datum lib d)
-                           (datum-html-report lib d)))
+                   :body (make-datum-view-page lib d))
         ;; FIXME: maybe make a template page for expected errors
         (progn
           (setf (hunchentoot:return-code*) 404)
