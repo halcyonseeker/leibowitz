@@ -57,7 +57,7 @@
 (defun make-datum-listing-sidebar (lib)
   `((:section
      (:h2 "Search")
-     (:form :method "get" :action "/search" :id "search-form"
+     (:form :method "get" :action "/search" :class "sidebar-form"
             (:input :name "q")
             (:button "Go!")))
     (:section

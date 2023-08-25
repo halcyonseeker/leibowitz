@@ -118,9 +118,6 @@ ul.path-breadcrumbs a:visited {
 	border-bottom: solid 0.1rem var(--fg);
 	font-size: medium;
 }
-#search-form {
-	display: block;
-}
 .tag-count {
 	font-size: small;
 	color: var(--fg);
@@ -225,4 +222,8 @@ ul.path-breadcrumbs a:visited {
 #sidebar-and-content-container #content label {
 	display: table-cell;
 	padding: 5px;
+}
+
+#sidebar-and-content-container #sidebar .sidebar-form {
+	display: block;
 }
