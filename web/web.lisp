@@ -67,8 +67,6 @@ almost verbatim from `hunchentoot:dispatch-easy-handlers'."
                         (t (funcall uri request))))
           do (return handler)))
 
-;; FIXME: I want the library to be an explicitly named variable in the
-;; handlers, don't just pass it implicitly!
 (defmacro leibowitz-route (description lambda-list &body body)
   "Cribbed almost verbatim from `hunchentoot:define-easy-handler' except
 that it creates handlers as methods of `library' rather than as normal
