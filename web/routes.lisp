@@ -60,12 +60,20 @@
              :body (list-tags-as-html lib)))
 
 
-(leibowitz-route (tree-page lib :uri "/tree") ()
-  (make-page lib
-             :here "/tree"
-             :title "Tree | Leibowitz Web"
-             :sidebar `((:section "File system highlights or smth"))
-             :body `((:section (:b "FIXME ") "Write a file browser"))))
+(leibowitz-route (tree-page lib :uri "/tree") (dir)
+  (let ((dir (if dir dir (user-homedir-pathname))))
+    (if (and (uiop:directory-exists-p dir)
+             (uiop:absolute-pathname-p (pathname dir)))
+        (make-page lib
+                   :here "/tree"
+                   :title "Tree | Leibowitz Web"
+                   :header (make-tree-breadcrumbs dir)
+                   :sidebar (make-tree-sidebar)
+                   :body (list-contents-of-directory dir))
+        ;; FIXME: make a template for expected errors
+        (progn
+          (setf (hunchentoot:return-code*) 404)
+          (format NIL "Directory ~S does not exist" dir)))))
 
 (leibowitz-route (search-page lib :uri "/search") (q limit offset)
     (let ((limit (if limit (parse-integer limit) 50))

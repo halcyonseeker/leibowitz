@@ -112,6 +112,45 @@ listing.  Key arguments are passed unmodified to that method."
                                 (:span :class "tag-desc"
                                        ,(tag-label tag))))))))
 
+(defun make-tree-breadcrumbs (dir)
+  `((:h1 "Tree | Leibowitz Web")
+    (:nav
+     (:ul :class "path-breadcrumbs"
+          ,@(loop with path-so-far = "/"
+                  for part in (pathname-directory dir)
+                  when (stringp part)
+                    do (setf path-so-far
+                             (concatenate 'string path-so-far part "/"))
+                  when (stringp part)
+                    collect `(:li
+                              (:a :href ,(format NIL "/tree?dir=~A"
+                                                 (hunchentoot:url-encode
+                                                  path-so-far))
+                                  ,part)))))))
+
+(defun make-tree-sidebar ()
+  `((:section
+     (:h2 "Quick Links")
+     (:ul ,@(loop for d in (reverse (uiop:subdirectories (user-homedir-pathname)))
+                  collect `(:li (:a :href ,(format NIL "/tree?dir=~A"
+                                                   (hunchentoot:url-encode
+                                                    (namestring d)))
+                                    ,(cl-who:escape-string
+                                      (enough-namestring
+                                       d (user-homedir-pathname))))))))))
+
+;; FIXME: make the listing prettier and more informative and figure
+;; out a proper policy for opening files.
+(defun list-contents-of-directory (dir)
+  `((:section
+     (:ul ,@(loop for p in (nconc (reverse (uiop:subdirectories dir))
+                                  (reverse (uiop:directory-files dir)))
+                  collect `(:li (:a :href ,(format NIL "/tree?dir=~A"
+                                                   (hunchentoot:url-encode
+                                                    (namestring p)))
+                                    ,(cl-who:escape-string
+                                      (enough-namestring p dir)))))))))
+
 (defun make-tag-view-sidebar (lib tag-name)
   (check-type lib library)
   (check-type tag-name string)

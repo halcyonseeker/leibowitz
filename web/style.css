@@ -82,6 +82,25 @@ a:not(visited) {
 	font-weight: bold;
 }
 
+ul.path-breadcrumbs {
+	font-size: small;
+	list-style: none;
+	padding-left: 0px;
+}
+ul.path-breadcrumbs li {
+	display: inline;
+}
+ul.path-breadcrumbs li:before {
+	color: var(--fg);
+	content: "/";
+}
+ul.path-breadcrumbs a {
+	text-decoration: none;
+}
+ul.path-breadcrumbs a:visited {
+	color: var(--unvisited-link);
+}
+
 /* #sidebar-and-content-container and its children */
 #sidebar-and-content-container {
 	display: flex;
