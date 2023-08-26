@@ -10,6 +10,14 @@
   (hunchentoot:handle-static-file
    (merge-pathnames #P"code/leibowitz/web/style.css" (user-homedir-pathname))))
 
+(defun %parse-post-body-to-list (data)
+  (with-input-from-string (s data)
+    (loop for line = (read-line s nil 'eof)
+          until (eq line 'eof)
+          collect  (remove-if (lambda (elem)
+                                (eql elem #\Return))
+                              line))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Top-level pages
 
@@ -136,13 +144,7 @@
 ;; Editing data
 
 (leibowitz-route (edit-datum lib ("/datum" :method :post)) (id)
-  (let ((data (hunchentoot:post-parameter "tags")))
-    (let ((tags (with-input-from-string (s data)
-                  (loop for line = (read-line s nil 'eof)
-                        until (eq line 'eof)
-                        collect  (remove-if (lambda (elem)
-                                              (eql elem #\Return))
-                                            line)))))
-      (add-datum-tags lib id tags :replace T)
-      (hunchentoot:redirect
-       (format NIL "/datum?id=~A" (hunchentoot:url-encode id))))))
+  (let ((tags (%parse-post-body-to-list (hunchentoot:post-parameter "tags"))))
+    (add-datum-tags lib id tags :replace T)
+    (hunchentoot:redirect
+     (format NIL "/datum?id=~A" (hunchentoot:url-encode id)))))
