@@ -95,8 +95,9 @@ remove all data associations, but not the data themselves."))
   (:documentation "Return a list of the tags associated with a datum where DATUM-OR-ID
 is a `datum', a string, or a pathname.  Returns NIL if there are no tags."))
 
-(defgeneric add-datum-tags (library datum-or-id tags)
-  (:documentation "Add one or more tags to a datum."))
+(defgeneric add-datum-tags (library datum-or-id tags &key replace)
+  (:documentation "Add one or more tags to a datum.  If REPLACE is T the list of tags
+replaces the existing ones rather than adding to them."))
 
 (defgeneric del-datum-tags (library datum-or-id tags &key cascade)
   (:documentation "Remove one or more tags from a datum.  If this leaves any tags

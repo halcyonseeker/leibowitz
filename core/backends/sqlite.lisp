@@ -172,7 +172,7 @@ end")))
 
 ;;; Reading and writing datum-tag relationships
 
-(defmethod add-datum-tags ((l sqlite-library) datum-or-id tags)
+(defmethod add-datum-tags ((l sqlite-library) datum-or-id tags &key (replace NIL))
   (check-type datum-or-id (or datum pathname string))
   (check-type tags list)
   (labels ((add-assoc (l name id)
@@ -181,6 +181,8 @@ end")))
                                 "(tag_name, datum_id) values (?, ?)")
                         name id)))
     (with-sqlite-tx (l)
+      (when replace
+        (%del-datum-tags-inner-transaction l datum-or-id (get-datum-tags l datum-or-id)))
       (loop for tag in tags
             for id = (%need-datum-id datum-or-id)
             for name = (%need-tag-name tag)

@@ -229,6 +229,18 @@
     (false (get-tag-data l "tag"))
     (is #'leibowitz.core::%datum-equal d (get-datum l (datum-id d)))))
 
+(define-library-test replace-datum-tags (l path)
+  (let ((d (make-instance 'datum :id path :collection (library-get-datum-collection l path))))
+    (add-datum l d)
+    (add-datum-tags l d '("tag"))
+    (let ((tags (get-datum-tags l d)))
+      (is #'equal 1 (length tags))
+      (is #'equal "tag" (tag-name (car tags))))
+    (add-datum-tags l d '("gat") :replace T)
+    (let ((tags (get-datum-tags l d)))
+      (is #'equal 1 (length tags))
+      (is #'equal "gat" (tag-name (car tags))))))
+
 ;; FIXME: right now there is no way to update the tag label after
 ;; creation; add-tag doesn't do anything if there's already a tag of
 ;; the same name in order to avoid clobbering the count, this would
