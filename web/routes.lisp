@@ -131,3 +131,18 @@
              :title "Tag View | Leibowitz Web"
              :sidebar (make-tag-view-sidebar lib name)
              :body (make-tag-view-page lib name)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Editing data
+
+(leibowitz-route (edit-datum lib ("/datum" :method :post)) (id)
+  (let ((data (hunchentoot:post-parameter "tags")))
+    (let ((tags (with-input-from-string (s data)
+                  (loop for line = (read-line s nil 'eof)
+                        until (eq line 'eof)
+                        collect  (remove-if (lambda (elem)
+                                              (eql elem #\Return))
+                                            line)))))
+      (add-datum-tags lib id tags :replace T)
+      (hunchentoot:redirect
+       (format NIL "/datum?id=~A" (hunchentoot:url-encode id))))))
