@@ -99,6 +99,7 @@ is a `datum', a string, or a pathname.  Returns NIL if there are no tags."))
   (:documentation "Add one or more tags to a datum.  If REPLACE is T the list of tags
 replaces the existing ones rather than adding to them."))
 
+;; FIXME: what about NIL?
 (defgeneric del-datum-tags (library datum-or-id tags &key cascade)
   (:documentation "Remove one or more tags from a datum.  If this leaves any tags
 orphaned they will be removed unless they're stored with a label.  If
