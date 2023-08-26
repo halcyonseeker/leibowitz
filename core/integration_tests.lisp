@@ -83,7 +83,7 @@
 ;; Collections API tests
 
 (define-test library-get-datum-collection-works-for-homedir
-  (let ((l (make-instance 'library)))
+  (let ((l (make-instance 'library :thumbnail-cache-dir #P"/tmp/")))
     (labels ((homedir ()
                (find-if (lambda (elem) (eql (type-of elem) 'collection-homedir))
                         (library-collections l))))
@@ -93,7 +93,7 @@
       (isnt #'eq (homedir) (library-get-datum-collection l "/hopefully/not/your/~")))))
 
 (define-test library-get-datum-collection-works-for-link/web
-  (let ((l (make-instance 'library)))
+  (let ((l (make-instance 'library :thumbnail-cache-dir #P"/tmp/")))
     (labels ((web ()
                (find-if (lambda (elem) (eql (type-of elem) 'collection-link/web))
                         (library-collections l))))
