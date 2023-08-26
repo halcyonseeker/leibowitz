@@ -112,9 +112,12 @@ any."))
 
 ;;; Reading and writing tag hierarchies
 
-(defgeneric add-tag-predicate (library iftag-or-name thentag-or-name)
-  (:documentation "Create a rule such that whenever the iftag is applied to a datum, the
-thantag will be as well."))
+(defgeneric add-tag-predicate (library iftag-or-name thentag-or-name &key retroactive)
+  (:documentation
+   "Create a rule such that whenever the iftag is applied to a datum,
+the thantag will be as well.  RETROACTIVE is T by default, meaning
+that all the data already with IFTAG will also get THENTAG unless you
+specify otherwise."))
 
 (defgeneric get-tag-predicates (library tag-or-name)
   (:documentation "Return a list of tags to be applied to a datum with TAG."))

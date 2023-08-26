@@ -245,7 +245,8 @@ transaction, hence this little helper function."
 
 ;;; Reading and writing tag hierarchies
 
-(defmethod add-tag-predicate ((l sqlite-library) iftag-or-name thentag-or-name)
+(defmethod add-tag-predicate ((l sqlite-library) iftag-or-name thentag-or-name
+                              &key (retroactive T))
   (check-type iftag-or-name (or tag string))
   (check-type thentag-or-name (or tag string))
   (let ((ifname (%need-tag-name iftag-or-name))
@@ -257,7 +258,14 @@ transaction, hence this little helper function."
         (add-tag l (make-instance 'tag :name thenname)))
       (sqlite-nq l (ccat "insert or ignore into tag_predicates (iftag, thentag)"
                          "values (?, ?)")
-                 ifname thenname))))
+                 ifname thenname)
+      (when retroactive
+        ;; Big O of deez nuts
+        (let ((predicates (%cascade-down-predicate-tree l iftag-or-name)))
+          (loop for tag being each hash-key of predicates
+                do (loop for datum in (get-tag-data l tag)
+                         do (%add-datum-tags-inner-transaction
+                             l datum (list thentag-or-name)))))))))
 
 (defmethod get-tag-predicates ((l sqlite-library) tag-or-name)
   (check-type tag-or-name (or tag string))

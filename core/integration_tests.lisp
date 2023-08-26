@@ -321,6 +321,16 @@
       (is #'= 1 (length predicands))
       (is #'equal "History" (tag-name (car predicands))))))
 
+(define-library-test add-predicate-to-a-tag-and-add-it-to-data-retroactively (l p)
+  (let ((d (add-datum l (make-instance 'datum :id p))))
+    (add-datum-tags l d '("Ganymede"))
+    (add-tag-predicate l "Ganymede" "Galilean Moons" :retroactive NIL)
+    (let ((tags (get-datum-tags l d)))
+      (is #'= 1 (length tags)))
+    (add-tag-predicate l "Ganymede" "Galilean Moons")
+    (let ((tags (get-datum-tags l d)))
+      (is #'= 2 (length tags)))))
+
 (define-library-test add-tag-predicate-implicitly-creates-nonexistent-tags (l)
   (add-tag-predicate l "Zoroastrianism" "People of The Book")
   (is #'equal "People of The Book" (tag-name (car (get-tag-predicates l "Zoroastrianism"))))
