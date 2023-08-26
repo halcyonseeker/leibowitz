@@ -172,7 +172,8 @@ end")))
 
 ;;; Reading and writing datum-tag relationships
 
-(defmethod add-datum-tags ((l sqlite-library) datum-or-id tags &key (replace NIL))
+(defun %add-datum-tags-inner-transaction (lib datum-or-id tags &key replace)
+  "Same deal as `%del-datum-tags-inner-transaction'."
   (check-type datum-or-id (or datum pathname string))
   (check-type tags list)
   (labels ((add-assoc (l name id)
@@ -180,15 +181,19 @@ end")))
              (sqlite-nq l (ccat "insert into tag_datum_junctions "
                                 "(tag_name, datum_id) values (?, ?)")
                         name id)))
-    (with-sqlite-tx (l)
-      (when replace
-        (%del-datum-tags-inner-transaction l datum-or-id (get-datum-tags l datum-or-id)))
-      (loop for tag in tags
-            for id = (%need-datum-id datum-or-id)
-            for name = (%need-tag-name tag)
-            for required-tags = (%cascade-down-predicate-tree l name)
-            do (loop for required-tag being each hash-key of required-tags
-                     do (add-assoc l required-tag id))))))
+    (when replace
+      (%del-datum-tags-inner-transaction
+       lib datum-or-id (get-datum-tags lib datum-or-id)))
+    (loop for tag in tags
+          for id = (%need-datum-id datum-or-id)
+          for name = (%need-tag-name tag)
+          for required-tags = (%cascade-down-predicate-tree lib name)
+          do (loop for required-tag being each hash-key of required-tags
+                   do (add-assoc lib required-tag id)))))
+
+(defmethod add-datum-tags ((l sqlite-library) datum-or-id tags &key (replace NIL))
+  (with-sqlite-tx (l)
+    (%add-datum-tags-inner-transaction l datum-or-id tags :replace replace)))
 
 (defmethod get-datum-tags ((l sqlite-library) datum-or-id)
   (check-type datum-or-id (or datum pathname string))
