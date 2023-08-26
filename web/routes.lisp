@@ -6,14 +6,14 @@
 ;; the dispatch table per hunchentoot's documentation.
 ;; FIXME: For prod we'll obviously need a proper way of finding static
 ;; resources.
-(leibowitz-route (stylesheet lib :uri "/style.css") ()
+(leibowitz-route (stylesheet lib "/style.css") ()
   (hunchentoot:handle-static-file
    (merge-pathnames #P"code/leibowitz/web/style.css" (user-homedir-pathname))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Top-level pages
 
-(leibowitz-route (index-page lib :uri "/") (limit offset)
+(leibowitz-route (index-page lib "/") (limit offset)
   (let ((limit (if limit (parse-integer limit) 50))
         (offset (if offset (parse-integer offset) 0)))
     (make-page lib
@@ -26,7 +26,7 @@
                                             :offset offset)
                :limit limit :offset offset)))
 
-(leibowitz-route (popular-page lib :uri "/popular") (limit offset)
+(leibowitz-route (popular-page lib "/popular") (limit offset)
   (let ((limit (if limit (parse-integer limit) 50))
         (offset (if offset (parse-integer offset) 0)))
     (make-page lib
@@ -39,7 +39,7 @@
                                             :offset offset)
                :limit limit :offset offset)))
 
-(leibowitz-route (timeline-page lib :uri "/timeline") (limit offset)
+(leibowitz-route (timeline-page lib "/timeline") (limit offset)
   (let ((limit (if limit (parse-integer limit) 50))
         (offset (if offset (parse-integer offset) 0)))
     (make-page lib
@@ -52,7 +52,7 @@
                                             :offset offset)
                :limit limit :offset offset)))
 
-(leibowitz-route (tags-page lib :uri "/tags") ()
+(leibowitz-route (tags-page lib "/tags") ()
   (make-page lib
              :here "/tags"
              :title "Tags | Leibowitz Web"
@@ -60,7 +60,7 @@
              :body (list-tags-as-html lib)))
 
 
-(leibowitz-route (tree-page lib :uri "/tree") (dir)
+(leibowitz-route (tree-page lib "/tree") (dir)
   (let ((dir (if dir dir (user-homedir-pathname))))
     (if (and (uiop:directory-exists-p dir)
              (uiop:absolute-pathname-p (pathname dir)))
@@ -75,7 +75,7 @@
           (setf (hunchentoot:return-code*) 404)
           (format NIL "Directory ~S does not exist" dir)))))
 
-(leibowitz-route (search-page lib :uri "/search") (q limit offset)
+(leibowitz-route (search-page lib "/search") (q limit offset)
     (let ((limit (if limit (parse-integer limit) 50))
           (offset (if offset (parse-integer offset) 0)))
       (make-page lib
@@ -90,7 +90,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Datum view machinery
 
-(leibowitz-route (datum-view lib :uri "/datum") (id)
+(leibowitz-route (datum-view lib "/datum") (id)
   ;; FIXME: get-datum should be changed to throw a condition when the
   ;; datum isn't found, returning NIL is in-band signaling.
   (let ((d (get-datum lib id)))
@@ -106,7 +106,7 @@
           (setf (hunchentoot:return-code*) 404)
           (format NIL "Datum with ID ~S not found" id)))))
 
-(leibowitz-route (datum-raw lib :uri "/raw") (id)
+(leibowitz-route (datum-raw lib "/raw") (id)
   (let ((d (get-datum lib id)))
     (setf (hunchentoot:content-type*) (datum-kind d))
     (injest-raw-datum d)))
@@ -114,7 +114,7 @@
 ;; FIXME: Temporary workaround to load a thumbnail from the library's
 ;; cache directory.  We really need to store static files in a set
 ;; place and use hunchentoot's static file handler instead!
-(leibowitz-route (datum-thumbnail lib :uri "/thumbnail") (path)
+(leibowitz-route (datum-thumbnail lib "/thumbnail") (path)
   (with-open-file (s path :element-type '(unsigned-byte 8))
     (let ((buf (make-array (file-length s) :element-type '(unsigned-byte 8))))
       (handler-case
@@ -126,7 +126,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tag view machinery
 
-(leibowitz-route (tag-view lib :uri "/tag") (name)
+(leibowitz-route (tag-view lib "/tag") (name)
   (make-page lib
              :title "Tag View | Leibowitz Web"
              :sidebar (make-tag-view-sidebar lib name)

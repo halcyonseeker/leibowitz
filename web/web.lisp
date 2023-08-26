@@ -2,15 +2,16 @@
 
 (in-package :leibowitz.web)
 
-(defclass webserver (hunchentoot:acceptor)
+(defclass webserver (easy-routes:easy-routes-acceptor)
   ((library
     :initarg :library
     :initform (error "You can't run a webserver without a library, dummy!")
     :accessor webserver-library
     :documentation "Back-link to the library instance this webserver has access to."))
-  (:documentation "Expand the hunchentoot acceptor implementation with
+  (:documentation
+   "Expand the easy-routes implementation of hunchentoot's acceptor with
 a back-link to a library and some custom methods that in theory allow
-us to run a bunch of servers on different ports.
+us to run a bunch of servers on different ports from the same lisp.
 
 Each http route in Leibowitz's web ui needs to have access to the
 underlying `library', however, because of how hunchentoot manages its
@@ -30,80 +31,81 @@ route handler access the corresponding library"))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; BEGIN QUESTIONABLE HACKS
 
-;; FIXME: trictly speaking, these work for a single webserver
-;; instance.  But what about multiple simultaneous webservers on
-;; different libraries; do these global variables break that?  And
-;; what about the JSON API that we might want separate from the web
-;; UI?
+;; FIXME: In theory I think these hacks allow us to run multiple
+;; webservers on multiple libraries on multiple ports from the same
+;; lisp, make sure this is actually the case!
 
-(defparameter *handler-alist* nil)
-(defparameter *dispatch-table* (list 'dispatch-handlers))
+(defmethod easy-routes::process-route
+    ((acceptor webserver) (route easy-routes:route) bindings)
+  "A specialization of `easy-routes::process-route' on our custom
+`webserver' acceptor.  This method is responsible for calling the
+endpoint handler method, which needs a library."
+  (easy-routes::call-with-decorators
+   (easy-routes::route-decorators route)
+   (lambda ()
+     (apply (easy-routes::route-symbol route)
+            (nconc (list (webserver-library acceptor))
+                   (loop for item in (slot-value route 'easy-routes::variables)
+                         collect (cdr (assoc item bindings
+                                             :test #'string=))))))))
 
-(defmethod hunchentoot:acceptor-dispatch-request ((acceptor webserver) request)
-  "An implementation of `hunchentoot:acceptor-dispatch-request' on the
-custom `webserver' acceptor.  When hunchentoot receives a HTTP
-request, it calls this method which calls the appropriate handler
-function with the library instance as an argument."
-  (loop for dispatcher in *dispatch-table*
-        for action = (funcall dispatcher request)
-        when action
-          return (funcall action (webserver-library acceptor))
-        finally (call-next-method)))
-
-(defun dispatch-handlers (request)
-  "This is used to initialize `*dispatch-table*' and returns the
-appropriate handler created with `leibowitz-route'.  It's copied
-almost verbatim from `hunchentoot:dispatch-easy-handlers'."
-  (loop for (uri acceptor-names handler host) in *handler-alist*
-        when (and (or (eq acceptor-names t)
-                      (find (hunchentoot:acceptor-name hunchentoot:*acceptor*)
-                            acceptor-names :test #'eq))
-                  (cond ((stringp uri)
-                         (and (or (null host)
-                                  (string= (or (hunchentoot:host request) "unknown")
-                                           host))
-                              ;; Support RE for matching host names as well (wildcards)?
-                              (string= (hunchentoot:script-name request) uri)))
-                        (t (funcall uri request))))
-          do (return handler)))
-
-(defmacro leibowitz-route (description lambda-list &body body)
-  "Cribbed almost verbatim from `hunchentoot:define-easy-handler' except
-that it creates handlers as methods of `library' rather than as normal
-functions, and that routes are stored in globals local to this
-package."
-  (when (atom description)
-    (setq description (list description)))
-  (destructuring-bind (name library &key uri host (acceptor-names t)
-                                      (default-parameter-type ''string)
-                                      (default-request-type :both))
-      description
-      (let ((name (read-from-string (format NIL "webserver-route-~A" name))))
-        `(progn
-           ,@(when uri
-               (list
-                (alexandria:once-only (uri host acceptor-names)
-                                      `(progn
-                                         (setq *handler-alist*
-                                               (delete-if (lambda (list)
-                                                            (and (or (and (equal ,uri (first list))
-                                                                          ,(if host
-                                                                               `(string= ,host (fourth list))))
-                                                                     (eq ',name (third list)))
-                                                                 (or (eq ,acceptor-names t)
-                                                                     (eq (second list) t)
-                                                                     (intersection ,acceptor-names
-                                                                                   (second list)))))
-                                                          *handler-alist*))
-                                         (push (list ,uri ,acceptor-names ',name ,host)
-                                               *handler-alist*)))))
-           (defmethod ,name
-             ((,library library) &key ,@(loop for part in lambda-list
-                                              collect (hunchentoot::make-defun-parameter
-                                                       part
-                                                       default-parameter-type
-                                                       default-request-type)))
-             ,@body)))))
+(defmacro leibowitz-route ((name library template-and-options) params &body body)
+  "Cribbed almost verbatim from `easy-routes:defroute' except that it
+creates handlers as methods of `library' rather than as normal
+functions."
+  (let* ((template (if (listp template-and-options)
+                       (first template-and-options)
+                       template-and-options))
+         (variables (routes:template-variables
+                     (routes:parse-template template)))
+         (arglist (mapcar (alexandria:compose #'intern #'symbol-name)
+                          variables))
+         (method (or (and (listp template-and-options)
+                          (getf (rest template-and-options) :method))
+                     :get))
+         (acceptor-name (and (listp template-and-options)
+                             (getf (rest template-and-options) :acceptor-name)))
+         (decorators (and (listp template-and-options)
+                          (getf (rest template-and-options) :decorators))))
+    (multiple-value-bind (body declarations docstring)
+	(alexandria:parse-body body :documentation t)
+      (easy-routes::assoc-bind ((params nil)
+                                (get-params :&get)
+                                (post-params :&post)
+                                (path-params :&path))
+          (easy-routes::lambda-list-split '(:&get :&post :&path) params)
+	`(let ((%route (make-instance 'easy-routes:route
+                                      :symbol ',name
+                                      :template ',(routes:parse-template template)
+                                      :variables ',variables
+                                      :required-method ',method
+                                      :decorators ',decorators)))
+           ,(if acceptor-name
+		`(let ((easy-routes::%routes-and-mapper
+                         (ensure-acceptor-routes-and-mapper ',acceptor-name)))
+                   (setf (gethash ',name (getf easy-routes::%routes-and-mapper :routes))
+                         %route))
+		`(setf (gethash ',name easy-routes::*routes*) %route))
+           (easy-routes::connect-routes ',acceptor-name)
+           (defmethod ,name ((,library library) ,@arglist)
+             ,@(when docstring
+		 (list docstring))
+	     (let (,@(loop for param in params
+                           collect
+                           (hunchentoot::make-defun-parameter param ''string :both))
+                   ,@(loop for param in get-params
+                           collect
+                           (hunchentoot::make-defun-parameter param ''string :get))
+                   ,@(loop for param in post-params
+                           collect
+                           (hunchentoot::make-defun-parameter param ''string :post))
+                   ,@(loop for param in path-params
+                           collect
+                           (destructuring-bind (parameter-name parameter-type) param
+                             `(,parameter-name (hunchentoot::convert-parameter
+                                                ,parameter-name ,parameter-type)))))
+	       ,@declarations
+               ,@body)))))))
 
 ;;; END QUESTIONABLE HACKS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
