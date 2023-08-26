@@ -159,8 +159,9 @@ listing.  Key arguments are passed unmodified to that method."
     `(:section :id "tag-editor"
       (:details
        (:summary "Edit Tags")
-       (:form :method "put" :action "/datum"
-              (:textarea :placeholder "No tags yet, enter each on a new line"
+       (:form :method "post"
+              (:textarea :name "tags"
+                         :placeholder "No tags yet, enter each on a new line"
                          ,(with-output-to-string (s)
                             (loop for tag in (get-datum-tags lib datum)
                                   do (format s "~A~%" (tag-name tag)))))
