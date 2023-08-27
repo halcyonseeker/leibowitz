@@ -173,7 +173,7 @@ listing.  Key arguments are passed unmodified to that method."
   (check-type lib library)
   (check-type tag-name string)
   `((:section
-     (:h2 "Predicates")
+     (:h2 "Sub Tags")
      (:ul ,@(loop for tag in (get-tag-predicates lib tag-name)
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
                                                    (hunchentoot:url-encode (tag-name tag)))
@@ -181,7 +181,7 @@ listing.  Key arguments are passed unmodified to that method."
                                 (:span :class "tag-count"
                                        ,(format nil "(~a)" (tag-count tag)))))))
     (:section
-     (:h2 "Predicands")
+     (:h2 "Super Tags")
      (:ul ,@(loop for tag in (get-tag-predicands lib tag-name)
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
                                                    (hunchentoot:url-encode (tag-name tag)))
