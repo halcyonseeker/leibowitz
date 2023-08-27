@@ -331,6 +331,24 @@
     (let ((tags (get-datum-tags l d)))
       (is #'= 2 (length tags)))))
 
+(define-library-test replace-tag-predicates (l p)
+  (let ((d (add-datum l (make-instance 'datum :id p))))
+    (add-datum-tags l d '("Ganymede"))
+    (add-tag-predicate l "Ganymede" '("Galilean Moons" "Jovian System" "oops"))
+    (let ((tags (get-datum-tags l d)))
+      (is #'= 4 (length tags)))
+    (let ((subtags (get-tag-predicates l "Ganymede")))
+      (is #'= 3 (length subtags)))
+    (add-tag-predicate l "Ganymede" '("Galilean Moons" "Jovian System") :replace T)
+    ;; FIXME: here we see that the :replace behavior doesn't work
+    ;; retroactively, we'll need to give del-tag-predicate an option
+    ;; for that too and test that behavior here
+    (let ((tags (get-datum-tags l d)))
+      (is #'= 4 (length tags)))
+    (let ((subtags (get-tag-predicates l "Ganymede")))
+      (format T "                    SUBTAGS: (2) ~S~%" subtags)
+      (is #'= 2 (length subtags)))))
+
 (define-library-test add-tag-predicate-implicitly-creates-nonexistent-tags (l)
   (add-tag-predicate l "Zoroastrianism" "People of The Book")
   (is #'equal "People of The Book" (tag-name (car (get-tag-predicates l "Zoroastrianism"))))

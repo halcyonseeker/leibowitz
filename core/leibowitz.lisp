@@ -112,12 +112,14 @@ any."))
 
 ;;; Reading and writing tag hierarchies
 
-(defgeneric add-tag-predicate (library iftag-or-name thentag-or-name &key retroactive)
+(defgeneric add-tag-predicate (library iftag-or-name thentags-or-names
+                               &key retroactive replace)
   (:documentation
    "Create a rule such that whenever the iftag is applied to a datum,
-the thantag will be as well.  RETROACTIVE is T by default, meaning
-that all the data already with IFTAG will also get THENTAG unless you
-specify otherwise."))
+then each tag in thantags will be as well.  RETROACTIVE is T by
+default, meaning that all the data already with IFTAG will also get
+THENTAG unless you specify otherwise.  If REPLACE is T, then the list
+of thentags replaces the existing subtags rather than adding to them."))
 
 (defgeneric get-tag-predicates (library tag-or-name)
   (:documentation "Return a list of tags to be applied to a datum with TAG."))
