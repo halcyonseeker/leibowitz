@@ -194,6 +194,10 @@ recently modified to the least recently modified."))
     :documentation "A dump of textual terms to be used for full-text search."))
   (:documentation "The core unit of taggable data."))
 
+(defmethod print-object ((datum datum) stream)
+  (print-unreadable-object (datum stream :type T)
+    (format stream "~A" (datum-id datum))))
+
 (defmethod initialize-instance :after
     ((d datum) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
@@ -387,6 +391,10 @@ or a UTF-8 string."))
     :initform 0
     :documentation "The number of data with this tag"))
   (:documentation ""))
+
+(defmethod print-object ((tag tag) stream)
+  (print-unreadable-object (tag stream :type T)
+    (format stream "~A" (tag-name tag))))
 
 (defgeneric tag-print-long-report (library tag)
   (:method ((l library) (tag tag))

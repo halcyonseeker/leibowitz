@@ -34,6 +34,10 @@ lines with really long SQL queries."
     :documentation "The handle through which database queries are made."))
   (:documentation "A library backend to store the ontology in a SQLite database."))
 
+(defmethod print-object ((sqlite-library sqlite-library) stream)
+  (print-unreadable-object (sqlite-library stream :type T)
+    (format stream "~A" (slot-value sqlite-library 'db-path))))
+
 (defmethod initialize-instance :after
     ((l sqlite-library) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
