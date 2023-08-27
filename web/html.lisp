@@ -196,7 +196,20 @@ listing.  Key arguments are passed unmodified to that method."
   (check-type lib library)
   (check-type tag-name string)
   (let ((tag (get-tag lib tag-name)))
-    `((:section (:h2 ,tag-name)
+    `((:section
+       :id "tag-editor"
+       (:details
+        (:summary "Also Apply These Tags")
+        (:form :method "post"
+               (:textarea
+                :name "predicates"
+                :placeholder "No predicate tags yet, enter each on a new line"
+                ,(with-output-to-string (s)
+                   (loop for tag in (get-tag-predicates lib tag-name)
+                         do (format s "~A~%" (tag-name tag)))))
+               (:input :type "submit" :value "Save Tag Predicates"))))
+      (:hr)
+      (:section (:h2 ,tag-name)
                 (:span :class "tag-count"
                        ,(format NIL "(~A)" (tag-count tag)))
                 (:span :class "tag-desc"

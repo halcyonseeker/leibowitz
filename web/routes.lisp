@@ -136,9 +136,16 @@
 
 (leibowitz-route (tag-view lib "/tag") (name)
   (make-page lib
-             :title "Tag View | Leibowitz Web"
+             :title (format NIL "~A | Leibowitz Web" name)
              :sidebar (make-tag-view-sidebar lib name)
              :body (make-tag-view-page lib name)))
+
+(leibowitz-route (edit-tag lib ("/tag" :method :post)) (name)
+  (let ((predicates (%parse-post-body-to-list
+                     (hunchentoot:post-parameter "predicates"))))
+    (add-tag-predicate lib name predicates :replace T)
+    (hunchentoot:redirect
+     (format NIL "/tag?name=~A" (hunchentoot:url-encode name)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Editing data
