@@ -55,6 +55,9 @@ Bugs, tasks, and fixmes
 * Improve search by allow the user to search in different fields
   instead of a homogeneous dump.  Also include tags in datum search
   terms.
+* I haven't been using prepared statements, so this is extremely
+  vulnerable to accidental SQL injections and makes searching for some
+  text strings impossible.  Fix this!  It should be pretty easy.
 
 Notes
 -----
