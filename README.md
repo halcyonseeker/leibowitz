@@ -61,12 +61,6 @@ Bugs, tasks, and fixmes
 
 Notes
 -----
-* For thumbnailing in the prototype, consider using an implementation
-  of the freedesktop thumbnail dbus protocol (because that's a thing
-  apparently???) like <https://docs.xfce.org/xfce/tumbler/start>.  I'd
-  rather not depend on dbus and instead write a library with a simple
-  API that wraps up ffmpeg and imagemagick, maybe with OS-specific
-  logic for querying themes and pulling icons as a fallback.
 * Good UI: <https://github.com/philomena-dev/philomena> for example in
   <https://derpibooru.org/>.  Leibowitz could integrate with a tagged
   forum like Tumblr or Dreamwidth/Livejournal where each datum is a
