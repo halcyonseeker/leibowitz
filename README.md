@@ -53,13 +53,13 @@ Roadmap to 0.1 version; minimum viable product
       this is extremely vulnerable to SQL injections and makes
       searching for some text strings impossible.
 - [ ] Sometimes doing a full-text search yields an error `Code
-     CORRUPT: database disk image is malformed.` with the offending
-     stanza being `select data.* from search left join data on data.id
-     = search.id where search match ? order by rank`.  Connecting to
-     the database and running `pragma integrity_check` yields okay.
-     Some light stackoverflowing indicated this might be a result
-     damaged indexes, which would make sense considering it only (so
-     far) shows up when doing full-text search.
+      CORRUPT: database disk image is malformed.` with the offending
+      stanza being `select data.* from search left join data on
+      data.id = search.id where search match ? order by rank`.
+      Connecting to the database and running `pragma integrity_check`
+      yields okay.  Some light stackoverflowing indicated this might
+      be a result damaged indexes, which would make sense considering
+      it only (so far) shows up when doing full-text search.
 
 ### Web
 
