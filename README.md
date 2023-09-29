@@ -121,6 +121,16 @@ Roadmap to 0.1 version; minimum viable product
     - [ ] Advanced search options, requires change to core full-text
           search schema.
 
+Future Work
+-----------
+- Implement collections for gallery-dl, man, etc.
+- Add support for file and collection specific metadata fields,
+  probably implemented as a special kind of tags.
+- Add a native GUI.
+- Add full support for saving URLs, including saving magnets and
+  archiving HTTP docs.  These files should have special options in all
+  frontends.
+
 Notes
 -----
 * Good UI: <https://github.com/philomena-dev/philomena> for example in
