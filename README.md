@@ -67,20 +67,19 @@ Roadmap to 0.1 version; minimum viable product
       easy to get this thing to crash.
 - [ ] Expose the full API functionality in the web frontend:
   - [ ] Editing data entries:
-    - [ ] Adding tags
-    - [ ] Removing tags
+    - [X] Adding tags
+    - [X] Removing tags
     - [ ] Moving/renaming
     - [ ] Uploading/importing from URL
     - [ ] Manually reindexing files and directories
     - [ ] Deleting
-    - [ ] Editing metadata
   - [ ] Editing tag entries:
     - [ ] Adding data
     - [ ] Removing data
     - [ ] Renaming tags
     - [ ] Editing tag description
-    - [ ] Adding parents
-    - [ ] Removing parents
+    - [X] Adding parents
+    - [X] Removing parents
     - [ ] Adding children
     - [ ] Removing children
   - [ ] Search and listing:
