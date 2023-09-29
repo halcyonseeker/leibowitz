@@ -35,29 +35,92 @@ build it as an executable with `make` or hack on it from a REPL with
 Leibowitz to be easy to build, install, and use for people who don't
 know Common Lisp, but it's still a fair long ways off from that goal.
 
-Bugs, tasks, and fixmes
------------------------
-* Sometimes doing a full-text search yields an error `Code CORRUPT:
-  database disk image is malformed.` with the offending stanza being
-  `select data.* from search left join data on data.id = search.id
-  where search match ? order by rank`.  Connecting to the database and
-  running `pragma integrity_check` yields okay.  Some light
-  stackoverflowing indicated this might be a result damaged indexes,
-  which would make sense considering it only (so far) shows up when
-  doing full-text search.
-* The cli needs a way to normalize paths before passing them to the
-  library; CL is absolutely clueless when it comes to resolving unix
-  path notation.
-* Add more error handling to the web UI!  Right now it is insanely
-  easy to get this thing to crash.
-* Make indexing and thumbnail generation operations run in parallel,
-  they're way too slow right now.
-* Improve search by allow the user to search in different fields
-  instead of a homogeneous dump.  Also include tags in datum search
-  terms.
-* I haven't been using prepared statements, so this is extremely
-  vulnerable to accidental SQL injections and makes searching for some
-  text strings impossible.  Fix this!  It should be pretty easy.
+Roadmap to 0.1 version; minimum viable product
+----------------------------------------------
+
+### Core
+
+- [ ] Fix predicate/predicand bug where tags are being automatically
+      applied where they shouldn't be.  This *might* be a usage error
+      in web, which itself would indicate that my API is probably too
+      unintuitive and in need of revision.
+- [ ] Improve full text search to index different fields (path, title,
+      body, tags, tag descriptions) separately so that the user may
+      selectively search in them.
+- [ ] Optimize the indexer method and make it run multiple workers in
+      parallel, right now it's very slow.
+- [ ] The SQLite backend hasn't been using prepared statements, so
+      this is extremely vulnerable to SQL injections and makes
+      searching for some text strings impossible.
+- [ ] Sometimes doing a full-text search yields an error `Code
+     CORRUPT: database disk image is malformed.` with the offending
+     stanza being `select data.* from search left join data on data.id
+     = search.id where search match ? order by rank`.  Connecting to
+     the database and running `pragma integrity_check` yields okay.
+     Some light stackoverflowing indicated this might be a result
+     damaged indexes, which would make sense considering it only (so
+     far) shows up when doing full-text search.
+
+### Web
+
+- [ ] Add more error handling to the web UI!  Right now it is insanely
+      easy to get this thing to crash.
+- [ ] Expose the full API functionality in the web frontend:
+  - [ ] Editing data entries:
+    - [ ] Adding tags
+    - [ ] Removing tags
+    - [ ] Moving/renaming
+    - [ ] Uploading/importing from URL
+    - [ ] Manually reindexing files and directories
+    - [ ] Deleting
+    - [ ] Editing metadata
+  - [ ] Editing tag entries:
+    - [ ] Adding data
+    - [ ] Removing data
+    - [ ] Renaming tags
+    - [ ] Editing tag description
+    - [ ] Adding parents
+    - [ ] Removing parents
+    - [ ] Adding children
+    - [ ] Removing children
+  - [ ] Search and listing:
+    - [ ] Support changing the sort order and criterion for all data
+          listings
+    - [ ] Support filtering by tag for all data listings
+    - [ ] Advanced search options, requires change to core full-text
+          search schema.
+
+### CLI
+
+- [ ] The cli needs a way to normalize paths before passing them to
+      the library; CL is absolutely clueless when it comes to
+      resolving unix path notation.
+- [ ] Expose the full API functionality in the CLI interface:
+  - [ ] Editing data entries:
+    - [ ] Adding tags
+    - [ ] Removing tags
+    - [ ] Moving/renaming
+    - [ ] Uploading/importing from URL
+    - [ ] Manually reindexing files and directories
+    - [ ] Deleting
+    - [ ] Editing metadata
+    - [ ] Viewing data summaries
+  - [ ] Editing tag entries:
+    - [ ] Adding data
+    - [ ] Removing data
+    - [ ] Renaming tags
+    - [ ] Editing tag description
+    - [ ] Adding parents
+    - [ ] Removing parents
+    - [ ] Adding children
+    - [ ] Removing children
+    - [ ] Viewing tag summaries
+  - [ ] Search and listing:
+    - [ ] Support changing the sort order and criterion for all data
+          listings
+    - [ ] Support filtering by tag for all data listings
+    - [ ] Advanced search options, requires change to core full-text
+          search schema.
 
 Notes
 -----
