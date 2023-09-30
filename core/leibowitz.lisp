@@ -49,6 +49,9 @@
   (:documentation "Return the collection instance applicable to id.  This should be used
 to populate the :collection slot when instantiating a datum."))
 
+(defgeneric library-print-info (library)
+  (:documentation "Print information about this library."))
+
 ;;; Library metadata
 
 (defgeneric library-data-quantity (library)

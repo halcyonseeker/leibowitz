@@ -95,6 +95,10 @@ end")))
 (defmethod library-data-quantity ((l sqlite-library))
   (sqlite-row l "select count(*) from data"))
 
+(defmethod library-print-info ((l sqlite-library))
+  (format T "SQLite Library on ~A with ~A data indexed~%"
+          (namestring (slot-value l 'db-path)) (library-data-quantity l)))
+
 ;;; Reading and writing data
 
 ;; FIXME: calling on a five mb git repo is monstrously slow...

@@ -5,6 +5,7 @@
   (:export #:library
            #:library-thumbnail-cache-dir
            #:library-collections
+           #:library-print-info
            #:library-data-quantity
            #:library-get-datum-collection)
   (:export #:index
