@@ -64,12 +64,6 @@
                    :long-name "markdown-documentation"
                    :key :markdown-documentation))))
 
-;; FIXME: Normalize the paths!  Are they relative?  Resolve them to
-;; absolute.  Do they end in "/", including just "/"?  Make sure there
-;; aren't any "//" when we concatenate them.  Do they not end in "/"?
-;; We need a slash to access .leibowitz/.  Do they start with a "~"?
-;; Resolve them to user-homedir-pathname.  What about something
-;; bizarre like "~/../../mnt/some-disk"?
 (defun cli-handler (cmd)
   (when (clingon:getopt cmd :help)
     (clingon:print-usage-and-exit cmd *standard-output*))
@@ -81,6 +75,7 @@
     (uiop:quit 0))
   (let ((root (clingon:getopt cmd :root)))
     (when root
+      (setf root (truename root))
       (setf *base-directory* root)
       (setf *data-directory* (merge-pathnames ".leibowitz/" root))
       (setf *cache-directory* (merge-pathnames ".leibowitz/cache/" root))))
