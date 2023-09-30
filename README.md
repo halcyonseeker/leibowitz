@@ -49,9 +49,6 @@ Roadmap to 0.1 version; minimum viable product
       selectively search in them.
 - [ ] Optimize the indexer method and make it run multiple workers in
       parallel, right now it's very slow.
-- [ ] The SQLite backend hasn't been using prepared statements, so
-      this is extremely vulnerable to SQL injections and makes
-      searching for some text strings impossible.
 - [ ] Sometimes doing a full-text search yields an error `Code
       CORRUPT: database disk image is malformed.` with the offending
       stanza being `select data.* from search left join data on

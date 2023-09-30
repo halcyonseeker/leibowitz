@@ -318,6 +318,10 @@ transaction, hence this little helper function."
 ;; searching for text.
 
 ;; FIXME: add support for tag filtering
+;; FIXME: the search terms must follow FTS's search syntax and we will
+;; receive an error if they contain certain stray characters.  This
+;; may be fixed by double-quoting the entire string, but then we lose
+;; the search syntax.  Figure out a policy here!
 (defmethod query ((l sqlite-library) terms &key (limit NIL) (offset NIL))
   (check-type terms string)
   (check-type offset (or null integer))
@@ -329,6 +333,8 @@ transaction, hence this little helper function."
                               "left join data on data.id = search.id"
                               "where search match ? order by rank"
                               (if (and limit offset)
+                                  ;; We know that the limit and offset
+                                  ;; are integers, so this is fine.
                                   (format NIL "limit ~A offset ~A" limit offset)
                                   ""))
                     terms)
