@@ -11,6 +11,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Globals set at runtime
 
+(defvar *data-directory*)
+(defvar *cache-directory*)
+(defvar *base-directory*)
 (defvar *library*)
 (defvar *webserver*)
 
@@ -18,6 +21,9 @@
 ;;; Entrypoints
 
 (defun main ()
+  (setf *base-directory* (user-homedir-pathname))
+  (setf *data-directory* (uiop:xdg-data-home "leibowitz/"))
+  (setf *cache-directory* (uiop:xdg-cache-home "leibowitz/"))
   ;; FIXME: clingon catches all condition and prints them to stderr.
   ;; They're often not very informative, figure out a way to bypass
   ;; this and handle them here, printing more friendly error messages
@@ -55,9 +61,14 @@
                    :flag
                    :description "Print markdown usage docs to standard-output."
                    :long-name "markdown-documentation"
-                   :key :markdown-documentation)
-                  )))
+                   :key :markdown-documentation))))
 
+;; FIXME: Normalize the paths!  Are they relative?  Resolve them to
+;; absolute.  Do they end in "/", including just "/"?  Make sure there
+;; aren't any "//" when we concatenate them.  Do they not end in "/"?
+;; We need a slash to access .leibowitz/.  Do they start with a "~"?
+;; Resolve them to user-homedir-pathname.  What about something
+;; bizarre like "~/../../mnt/some-disk"?
 (defun cli-handler (cmd)
   (when (clingon:getopt cmd :help)
     (clingon:print-usage-and-exit cmd *standard-output*))
@@ -68,24 +79,16 @@
     (clingon:print-documentation :markdown (cli-definition) T)
     (uiop:quit 0))
   (let ((root (clingon:getopt cmd :root)))
-    (setf *library*
-          (if root
-              ;; FIXME: Normalize the path!  Is it relative?  Resolve it to
-              ;; absolute.  Does it end in /, including just "/"?  Make sure
-              ;; there aren't any "//" when we concatenate it.  Does it not
-              ;; end in /?  We need a slash to access .leibowitz/.  Does it
-              ;; start with a ~?  Resolve it to user-homedir-pathname.  What
-              ;; about something bizarre like ~/../../mnt/some-disk?
-              (make-instance 'sqlite-library
-                             :db-path (format NIL "~A/.leibowitz/ontology.db" root)
-                             :thumbnail-cache-dir (pathname (format NIL "~A/.leibowitz/thumbnails/" root))
-                             :homedir root)
-              (make-instance 'sqlite-library
-                             :db-path (merge-pathnames "leibowitz/ontology.db"
-                                                       (uiop:xdg-data-home))
-                             :thumbnail-cache-dir (merge-pathnames "leibowitz/thumbnails/"
-                                                                   (uiop:xdg-data-home))
-                             :homedir (user-homedir-pathname))))))
+    (when root
+      (setf *base-directory* root)
+      (setf *data-directory* (merge-pathnames ".leibowitz/" root))
+      (setf *cache-directory* (merge-pathnames ".leibowitz/cache/" root))))
+  (setf *library*
+        (make-instance
+         'sqlite-library
+         :db-path (merge-pathnames "ontology.db" *data-directory*)
+         :thumbnail-cache-dir (merge-pathnames "thumbnails/" *cache-directory*)
+         :homedir *base-directory*)))
 
 (defun handle-toplevel-args (cmd)
   "By default clingon doesn't call the handler function for the
