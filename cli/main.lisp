@@ -39,6 +39,7 @@
    :description "A lispy object-storage layer for unix file systems."
    :handler #'cli-handler
    :sub-commands (list (cli-subcommand/help-definition)
+                       (cli-subcommand/info-definition)
                        (cli-subcommand/index-definition)
                        (cli-subcommand/web-definition)
                        (cli-subcommand/find-definition)
@@ -128,6 +129,24 @@ argument."
               (error "No such subcommand")))
         (clingon:print-usage-and-exit (clingon:command-parent cmd)
                                       *standard-output*))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: info
+
+(defun cli-subcommand/info-definition ()
+  (clingon:make-command
+   :name "info"
+   :description "Print information and statistics about the dataset."
+   :usage ""
+   :handler #'cli-subcommand/info-handler
+   :options NIL))
+
+(defun cli-subcommand/info-handler (cmd)
+  (handle-toplevel-args cmd)
+  (format T "Base directory:  ~A~%" (namestring *base-directory*))
+  (format T "Data directory:  ~A~%" (namestring *data-directory*))
+  (format T "Cache directory: ~A~%" (namestring *cache-directory*))
+  (library-print-info *library*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: index
