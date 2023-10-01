@@ -48,6 +48,7 @@
                        (cli-subcommand/tags-definition)
                        (cli-subcommand/ls-definition)
                        (cli-subcommand/show-tag-definition)
+                       (cli-subcommand/ls-tag-definition)
                        )
    :options (list (clingon:make-option
                    :filepath
@@ -315,3 +316,19 @@ argument."
   (handle-toplevel-args cmd)
   (loop for tag in (clingon:command-arguments cmd)
         do (tag-print-long-report *library* (get-tag *library* tag))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: ls-tags
+
+(defun cli-subcommand/ls-tag-definition ()
+  (clingon:make-command
+   :name "ls-tags"
+   :description "List all tags."
+   :usage ""
+   :handler #'cli-subcommand/ls-tag-handler))
+
+(defun cli-subcommand/ls-tag-handler (cmd)
+  (handle-toplevel-args cmd)
+  (loop for tag in (list-tags *library*)
+        do (format T "(~A data) ~A: ~S~%"
+                   (tag-count tag) (tag-name tag) (tag-label tag))))
