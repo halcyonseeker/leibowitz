@@ -88,12 +88,12 @@ Roadmap to 0.1 version; minimum viable product
 
 ### CLI
 
-- [ ] The cli needs a way to normalize paths before passing them to
+- [X] The cli needs a way to normalize paths before passing them to
       the library; CL is absolutely clueless when it comes to
       resolving unix path notation.
 - [ ] Expose the full API functionality in the CLI interface:
   - [ ] Editing data entries:
-    - [ ] Adding tags
+    - [X] Adding tags
     - [ ] Removing tags
     - [ ] Moving/renaming
     - [ ] Uploading/importing from URL
@@ -102,7 +102,7 @@ Roadmap to 0.1 version; minimum viable product
     - [ ] Editing metadata
     - [ ] Viewing data summaries
   - [ ] Editing tag entries:
-    - [ ] Adding data
+    - [X] Adding data
     - [ ] Removing data
     - [ ] Renaming tags
     - [ ] Editing tag description
