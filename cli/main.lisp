@@ -226,4 +226,4 @@ argument."
   (handle-toplevel-args cmd)
   (loop for p in (clingon:command-arguments cmd)
         do (datum-print-long-report
-            *library* (get-datum *library* p))))
+            *library* (get-datum *library* (truename p)))))
