@@ -44,6 +44,7 @@
                        (cli-subcommand/web-definition)
                        (cli-subcommand/find-definition)
                        (cli-subcommand/show-definition)
+                       (cli-subcommand/tag-definition)
                        (cli-subcommand/tags-definition)
                        )
    :options (list (clingon:make-option
@@ -228,6 +229,28 @@ argument."
   (loop for p in (clingon:command-arguments cmd)
         do (datum-print-long-report
             *library* (get-datum *library* (truename p)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: tag
+
+(defun cli-subcommand/tag-definition ()
+  (clingon:make-command
+   :name "tag"
+   :description "Apply a tag to one or more data."
+   :usage "[tag] [data ids...]"
+   :handler #'cli-subcommand/tag-handler))
+
+;;; FIXME: this will spit errors when working with URLS, but honestly
+;;; I'm not so sure that URLs should be supported as data ids along
+;;; with file names.  Perhaps "source url" could instead be a metadata
+;;; tag for files in bookmark or torrent collections...
+(defun cli-subcommand/tag-handler (cmd)
+  (handle-toplevel-args cmd)
+  (let ((tag (car (clingon:command-arguments cmd)))
+        (data (mapcar #'truename (cdr (clingon:command-arguments cmd)))))
+    (loop for d in data
+          do (format T "Adding tag ~S to datum ~S~%" tag d)
+             (add-datum-tags *library* d (list tag)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: tags
