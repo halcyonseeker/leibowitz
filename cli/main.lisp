@@ -46,6 +46,7 @@
                        (cli-subcommand/show-definition)
                        (cli-subcommand/tag-definition)
                        (cli-subcommand/tags-definition)
+                       (cli-subcommand/ls-definition)
                        )
    :options (list (clingon:make-option
                    :filepath
@@ -268,3 +269,33 @@ argument."
         (tags (cdr (clingon:command-arguments cmd))))
     (format T "Adding tags ~S to datum ~S~%" tags id)
     (add-datum-tags *library* id tags)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: ls
+
+;; FIXME: Given that leibowitz is ostensibly an enhanced filesystem,
+;; it makes sense that we should have this functionality in the core.
+;; Also fix /tree handler in routes.lisp.
+
+(defun cli-subcommand/ls-definition ()
+  (clingon:make-command
+   :name "ls"
+   :description "List indexed data."
+   :usage "[directory]"
+   :handler #'cli-subcommand/ls-handler))
+
+;; FIXME: this function is very slow, we should record the number of
+;; tags a datum has rather than fetching them all!
+;; FIXME: this output is bland, ugly, uninformative, and doesn't scale
+;; with terminal size.
+(defun cli-subcommand/ls-handler (cmd)
+  (handle-toplevel-args cmd)
+  (let* ((dir (car (clingon:command-arguments cmd))))
+    (loop for path in (reverse (uiop:directory-files
+                                (truename
+                                 (if dir dir (uiop:getcwd)))))
+          for datum = (get-datum *library* path)
+          when datum
+            do (format T "(~A tags) ~A~%"
+                       (length (get-datum-tags *library* datum))
+                       (path:basename (datum-id datum))))))
