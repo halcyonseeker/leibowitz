@@ -47,6 +47,7 @@
                        (cli-subcommand/tag-definition)
                        (cli-subcommand/tags-definition)
                        (cli-subcommand/ls-definition)
+                       (cli-subcommand/show-tag-definition)
                        )
    :options (list (clingon:make-option
                    :filepath
@@ -299,3 +300,18 @@ argument."
             do (format T "(~A tags) ~A~%"
                        (length (get-datum-tags *library* datum))
                        (path:basename (datum-id datum))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: show-tag
+
+(defun cli-subcommand/show-tag-definition ()
+  (clingon:make-command
+   :name "show-tag"
+   :description "Show information about a tag."
+   :usage "[tag names....]"
+   :handler #'cli-subcommand/show-tag-handler))
+
+(defun cli-subcommand/show-tag-handler (cmd)
+  (handle-toplevel-args cmd)
+  (loop for tag in (clingon:command-arguments cmd)
+        do (tag-print-long-report *library* (get-tag *library* tag))))
