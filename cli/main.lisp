@@ -44,6 +44,7 @@
                        (cli-subcommand/web-definition)
                        (cli-subcommand/find-definition)
                        (cli-subcommand/show-definition)
+                       (cli-subcommand/tags-definition)
                        )
    :options (list (clingon:make-option
                    :filepath
@@ -227,3 +228,20 @@ argument."
   (loop for p in (clingon:command-arguments cmd)
         do (datum-print-long-report
             *library* (get-datum *library* (truename p)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: tags
+
+(defun cli-subcommand/tags-definition ()
+  (clingon:make-command
+   :name "tags"
+   :description "Apply one or more tags to a datum."
+   :usage "[datum id] [tags...]"
+   :handler #'cli-subcommand/tags-handler))
+
+(defun cli-subcommand/tags-handler (cmd)
+  (handle-toplevel-args cmd)
+  (let ((id (truename (car (clingon:command-arguments cmd))))
+        (tags (cdr (clingon:command-arguments cmd))))
+    (format T "Adding tag ~S to datum ~S~%" tag id)
+    (add-datum-tags *library* id tags)))
