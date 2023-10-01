@@ -200,6 +200,8 @@ end")))
                    do (add-assoc lib required-tag id)))))
 
 (defmethod add-datum-tags ((l sqlite-library) datum-or-id tags &key (replace NIL))
+  (unless (get-datum l (%need-datum-id datum-or-id))
+    (error 'datum-not-indexed :lib l :id (%need-datum-id datum-or-id)))
   (with-sqlite-tx (l)
     (%add-datum-tags-inner-transaction l datum-or-id tags :replace replace)))
 

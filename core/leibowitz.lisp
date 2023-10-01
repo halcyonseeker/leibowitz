@@ -100,7 +100,8 @@ is a `datum', a string, or a pathname.  Returns NIL if there are no tags."))
 
 (defgeneric add-datum-tags (library datum-or-id tags &key replace)
   (:documentation "Add one or more tags to a datum.  If REPLACE is T the list of tags
-replaces the existing ones rather than adding to them."))
+replaces the existing ones rather than adding to them.  An error of type
+`datum-not-indexed' is signaled if the supplied one isn't present."))
 
 ;; FIXME: what about NIL?
 (defgeneric del-datum-tags (library datum-or-id tags &key cascade)
@@ -440,6 +441,16 @@ in a hypothetical collection managing a gallery-dl archive."))
   (:documentation "An optional and not-yet fully realized `library' companion that
 manages external sources of data and makes sure the library is kept up
 to date."))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Library errors
+
+(define-condition datum-not-indexed (error)
+  ((id :initarg :id)
+   (lib :initarg :lib))
+  (:report (lambda (c s)
+             (with-slots (id lib) c
+               (format s "Datum with id ~S not present in ~S~%" id lib)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Internal utilities for testing and writing backends

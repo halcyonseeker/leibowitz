@@ -241,6 +241,10 @@
       (is #'equal 1 (length tags))
       (is #'equal "gat" (tag-name (car tags))))))
 
+(define-library-test cannot-add-tags-to-nonexistent-datum (l)
+  (fail (add-datum-tags l "no datum with this id" '("asdf"))
+        'datum-not-indexed))
+
 ;; FIXME: right now there is no way to update the tag label after
 ;; creation; add-tag doesn't do anything if there's already a tag of
 ;; the same name in order to avoid clobbering the count, this would
@@ -292,14 +296,14 @@
   (let ((tag (make-instance 'tag :name "tag" :label "hi")))
     (add-tag l tag)
     (is #'= 0 (tag-count (get-tag l "tag")))
-    (let ((d (make-instance 'datum :id path)))
+    (let ((d (add-datum l (make-instance 'datum :id path))))
       (add-datum-tags l d '("tag"))
       (is #'= 1 (tag-count (get-tag l "tag")))
       (del-datum l d)
       (is #'= 0 (tag-count (get-tag l "tag"))))))
 
 (define-library-test duplicate-tag-junctions-are-impossible (l path)
-  (let ((d (make-instance 'datum :id path)))
+  (let ((d (add-datum l (make-instance 'datum :id path))))
     (add-datum-tags l d '("tag"))
     (add-datum-tags l d '("tag"))
     (is #'= 1 (length (get-datum-tags l d)))))
@@ -397,7 +401,7 @@
 
 (define-library-test cycles-in-tag-hierarchy-are-detected (l path)
   ;; This will timeout if it fails
-  (let ((d (make-instance 'datum :id path)))
+  (let ((d (add-datum l (make-instance 'datum :id path))))
     (add-tag-predicate l "first" "second")
     (add-tag-predicate l "second" "third")
     (add-tag-predicate l "third" "first")
