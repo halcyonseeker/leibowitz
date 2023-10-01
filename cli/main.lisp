@@ -266,5 +266,5 @@ argument."
   (handle-toplevel-args cmd)
   (let ((id (truename (car (clingon:command-arguments cmd))))
         (tags (cdr (clingon:command-arguments cmd))))
-    (format T "Adding tag ~S to datum ~S~%" tag id)
+    (format T "Adding tags ~S to datum ~S~%" tags id)
     (add-datum-tags *library* id tags)))
