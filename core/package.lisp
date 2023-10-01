@@ -53,7 +53,8 @@
   (:export #:tag
            #:tag-name
            #:tag-label
-           #:tag-count)
+           #:tag-count
+           #:tag-print-long-report)
   ;; Mutually-exclusive kinds of data
   (:export #:collection
            #:collection-applicable-p
