@@ -110,7 +110,7 @@ Roadmap to 0.1 version; minimum viable product
     - [ ] Removing parents
     - [ ] Adding children
     - [ ] Removing children
-    - [ ] Viewing tag summaries
+    - [X] Viewing tag summaries
   - [ ] Search and listing:
     - [ ] Support changing the sort order and criterion for all data
           listings
