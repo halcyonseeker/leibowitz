@@ -18,6 +18,20 @@
 (defvar *webserver*)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Make me type less
+
+(defmacro defsubcmd (name (cmd) (&rest definition) &body handler)
+  `(progn
+     (defun ,(read-from-string (format NIL "~A/definition" name)) ()
+       (clingon:make-command
+        :name ,(string-downcase (format NIL "~A" name))
+        :handler (quote ,(read-from-string (format NIL "~A/handler" name)))
+        ,@definition))
+     (defun ,(read-from-string (format NIL "~A/handler" name)) (,cmd)
+       (handle-toplevel-args ,cmd)
+       ,@handler)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entrypoints
 
 (defun main ()
@@ -104,16 +118,9 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: help
 
-(defun help/definition ()
-  (clingon:make-command
-   :name "help"
-   :description "Another way to print help info."
-   :usage "[subcommand]"
-   :handler #'help/handler
-   :options NIL))
-
-(defun help/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd help (cmd)
+    (:description "Another way to print help info."
+     :usage "[subcommand]")
   (let ((args (clingon:command-arguments cmd)))
     (if args
         (let ((subcmd-to-print (find-if (lambda (cmd)
@@ -133,16 +140,9 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: info
 
-(defun info/definition ()
-  (clingon:make-command
-   :name "info"
-   :description "Print information and statistics about the dataset."
-   :usage ""
-   :handler #'info/handler
-   :options NIL))
-
-(defun info/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd info (cmd)
+    (:description "Print information and statistics about the dataset."
+     :usage "")
   (format T "Base directory:  ~A~%" (namestring *base-directory*))
   (format T "Data directory:  ~A~%" (namestring *data-directory*))
   (format T "Cache directory: ~A~%" (namestring *cache-directory*))
@@ -151,16 +151,9 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: index
 
-(defun index/definition ()
-  (clingon:make-command
-   :name "index"
-   :description "Index a file, directory, or url into leibowitz."
-   :usage "[options] [arguments ...]"
-   :handler #'index/handler
-   :options NIL))
-
-(defun index/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd index (cmd)
+    (:description "Index a file, directory, or url into leibowitz."
+     :usage "[options] [arguments ...]")
   (let* ((args (clingon:command-arguments cmd))
          (root (clingon:getopt cmd :root))
          (jobs (if args args (if root (list root) (error "Idk what to index bro")))))
@@ -173,23 +166,17 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: web
 
-(defun web/definition ()
-  (clingon:make-command
-   :name "web"
-   :description "Display a web UI."
-   :usage "[-p port]"
-   :handler #'web/handler
-   :options (list (clingon:make-option
-                   :integer
-                   :description "Specify a port on which to run the web UI."
-                   :short-name #\p
-                   :long-name "port"
-                   :env-vars '("LEIBOWITZ_WEB_PORT")
-                   :initial-value 5000
-                   :key :port))))
-
-(defun web/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd web (cmd)
+    (:description "Display a web UI."
+     :usage "[-p port]"
+     :options (list (clingon:make-option
+                     :integer
+                     :description "Specify a port on which to run the web UI."
+                     :short-name #\p
+                     :long-name "port"
+                     :env-vars '("LEIBOWITZ_WEB_PORT")
+                     :initial-value 5000
+                     :key :port)))
   (let ((port (clingon:getopt cmd :port)))
     (format T "Running webserver on localhost:~A...~%" port)
     (setf *webserver* (make-instance 'webserver :port port :library *library*))
@@ -201,18 +188,12 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: find
 
-(defun find/definition ()
-  (clingon:make-command
-   :name "find"
-   :description "Search your data."
-   :usage "[query terms...]"
-   :handler #'find/handler
-   ;; FIXME: once query supports it, here will go options to filter by
-   ;; tags and other attributes
-   ))
-
-(defun find/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd find (cmd)
+    (:description "Search your data."
+     :usage "[query terms...]"
+     ;; FIXME: once query supports it, here will go options to filter by
+     ;; tags and other attributes
+     )
   (let ((terms (format NIL "~{~A~^ ~}" (clingon:command-arguments cmd))))
     (loop for d in (query *library* terms)
           do (format T "~A~%" (datum-id d)))))
@@ -220,15 +201,9 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: show
 
-(defun show/definition ()
-  (clingon:make-command
-   :name "show"
-   :description "Print summaries of data."
-   :usage "[data ids...]"
-   :handler #'show/handler))
-
-(defun show/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd show (cmd)
+    (:description "Print summaries of data."
+     :usage "[data ids...]")
   (loop for p in (clingon:command-arguments cmd)
         do (datum-print-long-report
             *library* (get-datum *library* (truename p)))))
@@ -236,19 +211,13 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: tag
 
-(defun tag/definition ()
-  (clingon:make-command
-   :name "tag"
-   :description "Apply a tag to one or more data."
-   :usage "[tag] [data ids...]"
-   :handler #'tag/handler))
-
-;;; FIXME: this will spit errors when working with URLS, but honestly
-;;; I'm not so sure that URLs should be supported as data ids along
-;;; with file names.  Perhaps "source url" could instead be a metadata
-;;; tag for files in bookmark or torrent collections...
-(defun tag/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd tag (cmd)
+    (:description "Apply a tag to one or more data."
+     :usage "[tag] [data ids...]")
+  ;; FIXME: this will spit errors when working with URLS, but honestly
+  ;; I'm not so sure that URLs should be supported as data ids along
+  ;; with file names.  Perhaps "source url" could instead be a
+  ;; metadata tag for files in bookmark or torrent collections...
   (let ((tag (car (clingon:command-arguments cmd)))
         (data (mapcar #'truename (cdr (clingon:command-arguments cmd)))))
     (loop for d in data
@@ -258,15 +227,9 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: tags
 
-(defun tags/definition ()
-  (clingon:make-command
-   :name "tags"
-   :description "Apply one or more tags to a datum."
-   :usage "[datum id] [tags...]"
-   :handler #'tags/handler))
-
-(defun tags/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd tags (cmd)
+    (:description "Apply one or more tags to a datum."
+     :usage "[datum id] [tags...]")
   (let ((id (truename (car (clingon:command-arguments cmd))))
         (tags (cdr (clingon:command-arguments cmd))))
     (format T "Adding tags ~S to datum ~S~%" tags id)
@@ -279,19 +242,13 @@ argument."
 ;; it makes sense that we should have this functionality in the core.
 ;; Also fix /tree handler in routes.lisp.
 
-(defun ls/definition ()
-  (clingon:make-command
-   :name "ls"
-   :description "List indexed data."
-   :usage "[directory]"
-   :handler #'ls/handler))
-
-;; FIXME: this function is very slow, we should record the number of
-;; tags a datum has rather than fetching them all!
-;; FIXME: this output is bland, ugly, uninformative, and doesn't scale
-;; with terminal size.
-(defun ls/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd ls (cmd)
+    (:description "List indexed data."
+     :usage "[directory]")
+  ;; FIXME: this function is very slow, we should record the number of
+  ;; tags a datum has rather than fetching them all!
+  ;; FIXME: this output is bland, ugly, uninformative, and doesn't
+  ;; scale with terminal size.
   (let* ((dir (car (clingon:command-arguments cmd))))
     (loop for path in (reverse (uiop:directory-files
                                 (truename
@@ -305,30 +262,18 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: show-tag
 
-(defun show-tag/definition ()
-  (clingon:make-command
-   :name "show-tag"
-   :description "Show information about a tag."
-   :usage "[tag names....]"
-   :handler #'show-tag/handler))
-
-(defun show-tag/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd show-tag (cmd)
+    (:description "Show information about a tag."
+     :usage "[tag names....]")
   (loop for tag in (clingon:command-arguments cmd)
         do (tag-print-long-report *library* (get-tag *library* tag))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: ls-tags
 
-(defun ls-tag/definition ()
-  (clingon:make-command
-   :name "ls-tags"
-   :description "List all tags."
-   :usage ""
-   :handler #'ls-tag/handler))
-
-(defun ls-tag/handler (cmd)
-  (handle-toplevel-args cmd)
+(defsubcmd ls-tag (cmd)
+    (:description "List all tags."
+     :usage "")
   (loop for tag in (list-tags *library*)
         do (format T "(~A data) ~A: ~S~%"
                    (tag-count tag) (tag-name tag) (tag-label tag))))
