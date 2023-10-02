@@ -28,27 +28,27 @@
   ;; They're often not very informative, figure out a way to bypass
   ;; this and handle them here, printing more friendly error messages
   ;; or stack traces as appropriate.
-  (clingon:run (cli-definition)))
+  (clingon:run (toplevel/definition)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Top-level command-line
 
-(defun cli-definition ()
+(defun toplevel/definition ()
   (clingon:make-command
    :name "leibowitz"
    :description "A lispy object-storage layer for unix file systems."
-   :handler #'cli-handler
-   :sub-commands (list (cli-subcommand/help-definition)
-                       (cli-subcommand/info-definition)
-                       (cli-subcommand/index-definition)
-                       (cli-subcommand/web-definition)
-                       (cli-subcommand/find-definition)
-                       (cli-subcommand/show-definition)
-                       (cli-subcommand/tag-definition)
-                       (cli-subcommand/tags-definition)
-                       (cli-subcommand/ls-definition)
-                       (cli-subcommand/show-tag-definition)
-                       (cli-subcommand/ls-tag-definition)
+   :handler #'toplevel/handler
+   :sub-commands (list (help/definition)
+                       (info/definition)
+                       (index/definition)
+                       (web/definition)
+                       (find/definition)
+                       (show/definition)
+                       (tag/definition)
+                       (tags/definition)
+                       (ls/definition)
+                       (show-tag/definition)
+                       (ls-tag/definition)
                        )
    :options (list (clingon:make-option
                    :filepath
@@ -69,14 +69,14 @@
                    :long-name "markdown-documentation"
                    :key :markdown-documentation))))
 
-(defun cli-handler (cmd)
+(defun toplevel/handler (cmd)
   (when (clingon:getopt cmd :help)
     (clingon:print-usage-and-exit cmd *standard-output*))
   (when (clingon:getopt cmd :zsh-completions)
-    (clingon:print-documentation :zsh-completions (cli-definition) *standard-output*)
+    (clingon:print-documentation :zsh-completions (toplevel/definition) *standard-output*)
     (uiop:quit 0))
   (when (clingon:getopt cmd :markdown-documentation)
-    (clingon:print-documentation :markdown (cli-definition) T)
+    (clingon:print-documentation :markdown (toplevel/definition) T)
     (uiop:quit 0))
   (let ((root (clingon:getopt cmd :root)))
     (when root
@@ -104,15 +104,15 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: help
 
-(defun cli-subcommand/help-definition ()
+(defun help/definition ()
   (clingon:make-command
    :name "help"
    :description "Another way to print help info."
    :usage "[subcommand]"
-   :handler #'cli-subcommand/help-handler
+   :handler #'help/handler
    :options NIL))
 
-(defun cli-subcommand/help-handler (cmd)
+(defun help/handler (cmd)
   (handle-toplevel-args cmd)
   (let ((args (clingon:command-arguments cmd)))
     (if args
@@ -133,15 +133,15 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: info
 
-(defun cli-subcommand/info-definition ()
+(defun info/definition ()
   (clingon:make-command
    :name "info"
    :description "Print information and statistics about the dataset."
    :usage ""
-   :handler #'cli-subcommand/info-handler
+   :handler #'info/handler
    :options NIL))
 
-(defun cli-subcommand/info-handler (cmd)
+(defun info/handler (cmd)
   (handle-toplevel-args cmd)
   (format T "Base directory:  ~A~%" (namestring *base-directory*))
   (format T "Data directory:  ~A~%" (namestring *data-directory*))
@@ -151,15 +151,15 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: index
 
-(defun cli-subcommand/index-definition ()
+(defun index/definition ()
   (clingon:make-command
    :name "index"
    :description "Index a file, directory, or url into leibowitz."
    :usage "[options] [arguments ...]"
-   :handler #'cli-subcommand/index-handler
+   :handler #'index/handler
    :options NIL))
 
-(defun cli-subcommand/index-handler (cmd)
+(defun index/handler (cmd)
   (handle-toplevel-args cmd)
   (let* ((args (clingon:command-arguments cmd))
          (root (clingon:getopt cmd :root))
@@ -173,12 +173,12 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: web
 
-(defun cli-subcommand/web-definition ()
+(defun web/definition ()
   (clingon:make-command
    :name "web"
    :description "Display a web UI."
    :usage "[-p port]"
-   :handler #'cli-subcommand/web-handler
+   :handler #'web/handler
    :options (list (clingon:make-option
                    :integer
                    :description "Specify a port on which to run the web UI."
@@ -188,7 +188,7 @@ argument."
                    :initial-value 5000
                    :key :port))))
 
-(defun cli-subcommand/web-handler (cmd)
+(defun web/handler (cmd)
   (handle-toplevel-args cmd)
   (let ((port (clingon:getopt cmd :port)))
     (format T "Running webserver on localhost:~A...~%" port)
@@ -201,17 +201,17 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: find
 
-(defun cli-subcommand/find-definition ()
+(defun find/definition ()
   (clingon:make-command
    :name "find"
    :description "Search your data."
    :usage "[query terms...]"
-   :handler #'cli-subcommand/find-handler
+   :handler #'find/handler
    ;; FIXME: once query supports it, here will go options to filter by
    ;; tags and other attributes
    ))
 
-(defun cli-subcommand/find-handler (cmd)
+(defun find/handler (cmd)
   (handle-toplevel-args cmd)
   (let ((terms (format NIL "~{~A~^ ~}" (clingon:command-arguments cmd))))
     (loop for d in (query *library* terms)
@@ -220,14 +220,14 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: show
 
-(defun cli-subcommand/show-definition ()
+(defun show/definition ()
   (clingon:make-command
    :name "show"
    :description "Print summaries of data."
    :usage "[data ids...]"
-   :handler #'cli-subcommand/show-handler))
+   :handler #'show/handler))
 
-(defun cli-subcommand/show-handler (cmd)
+(defun show/handler (cmd)
   (handle-toplevel-args cmd)
   (loop for p in (clingon:command-arguments cmd)
         do (datum-print-long-report
@@ -236,18 +236,18 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: tag
 
-(defun cli-subcommand/tag-definition ()
+(defun tag/definition ()
   (clingon:make-command
    :name "tag"
    :description "Apply a tag to one or more data."
    :usage "[tag] [data ids...]"
-   :handler #'cli-subcommand/tag-handler))
+   :handler #'tag/handler))
 
 ;;; FIXME: this will spit errors when working with URLS, but honestly
 ;;; I'm not so sure that URLs should be supported as data ids along
 ;;; with file names.  Perhaps "source url" could instead be a metadata
 ;;; tag for files in bookmark or torrent collections...
-(defun cli-subcommand/tag-handler (cmd)
+(defun tag/handler (cmd)
   (handle-toplevel-args cmd)
   (let ((tag (car (clingon:command-arguments cmd)))
         (data (mapcar #'truename (cdr (clingon:command-arguments cmd)))))
@@ -258,14 +258,14 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: tags
 
-(defun cli-subcommand/tags-definition ()
+(defun tags/definition ()
   (clingon:make-command
    :name "tags"
    :description "Apply one or more tags to a datum."
    :usage "[datum id] [tags...]"
-   :handler #'cli-subcommand/tags-handler))
+   :handler #'tags/handler))
 
-(defun cli-subcommand/tags-handler (cmd)
+(defun tags/handler (cmd)
   (handle-toplevel-args cmd)
   (let ((id (truename (car (clingon:command-arguments cmd))))
         (tags (cdr (clingon:command-arguments cmd))))
@@ -279,18 +279,18 @@ argument."
 ;; it makes sense that we should have this functionality in the core.
 ;; Also fix /tree handler in routes.lisp.
 
-(defun cli-subcommand/ls-definition ()
+(defun ls/definition ()
   (clingon:make-command
    :name "ls"
    :description "List indexed data."
    :usage "[directory]"
-   :handler #'cli-subcommand/ls-handler))
+   :handler #'ls/handler))
 
 ;; FIXME: this function is very slow, we should record the number of
 ;; tags a datum has rather than fetching them all!
 ;; FIXME: this output is bland, ugly, uninformative, and doesn't scale
 ;; with terminal size.
-(defun cli-subcommand/ls-handler (cmd)
+(defun ls/handler (cmd)
   (handle-toplevel-args cmd)
   (let* ((dir (car (clingon:command-arguments cmd))))
     (loop for path in (reverse (uiop:directory-files
@@ -305,14 +305,14 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: show-tag
 
-(defun cli-subcommand/show-tag-definition ()
+(defun show-tag/definition ()
   (clingon:make-command
    :name "show-tag"
    :description "Show information about a tag."
    :usage "[tag names....]"
-   :handler #'cli-subcommand/show-tag-handler))
+   :handler #'show-tag/handler))
 
-(defun cli-subcommand/show-tag-handler (cmd)
+(defun show-tag/handler (cmd)
   (handle-toplevel-args cmd)
   (loop for tag in (clingon:command-arguments cmd)
         do (tag-print-long-report *library* (get-tag *library* tag))))
@@ -320,14 +320,14 @@ argument."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: ls-tags
 
-(defun cli-subcommand/ls-tag-definition ()
+(defun ls-tag/definition ()
   (clingon:make-command
    :name "ls-tags"
    :description "List all tags."
    :usage ""
-   :handler #'cli-subcommand/ls-tag-handler))
+   :handler #'ls-tag/handler))
 
-(defun cli-subcommand/ls-tag-handler (cmd)
+(defun ls-tag/handler (cmd)
   (handle-toplevel-args cmd)
   (loop for tag in (list-tags *library*)
         do (format T "(~A data) ~A: ~S~%"
