@@ -14,5 +14,9 @@
   :in-order-to ((asdf:test-op (asdf:test-op "leibowitz/tests"))))
 
 (asdf:defsystem "leibowitz/tests"
-  :depends-on (#:leibowitz.core/tests)
-  :perform (asdf:test-op (op c) (asdf:test-system :leibowitz.core/tests)))
+  :depends-on (#:parachute
+               #:leibowitz)
+  :components ((:module "tests" :components ((:file "package")
+                                             (:file "core")
+                                             (:file "cli"))))
+  :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test :leibowitz/tests)))

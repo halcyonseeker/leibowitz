@@ -1,9 +1,6 @@
 ;; integration_tests.lisp — Uniformly test every library backend.
 
-(defpackage :leibowitz.core/tests
-  (:use #:cl #:leibowitz.core #:parachute))
-
-(in-package :leibowitz.core/tests)
+(in-package :leibowitz/tests)
 
 (defmacro define-library-test (name (library &rest tmpfiles) &body body)
   (let ((path (gensym))
