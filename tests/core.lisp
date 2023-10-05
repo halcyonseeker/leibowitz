@@ -2,11 +2,13 @@
 
 (in-package :leibowitz/tests)
 
+(define-test core)
+
 (defmacro define-library-test (name (library &rest tmpfiles) &body body)
   (let ((path (gensym))
         (home (gensym)))
     `(progn
-       (define-test ,name :time-limit 2)
+       (define-test ,name :time-limit 2 :parent core)
        (define-test ,(read-from-string (format NIL "sqlite-library-~A" name))
          :parent ,name
          (let* ((,home (ensure-directories-exist
@@ -37,7 +39,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Backend-specific tests
 
-(define-test create-sqlite-library
+(define-test create-sqlite-library :parent core
   (let* ((path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_testing_sqlite_db"))
          (lbry (make-instance 'sqlite-library :db-path path
                                               :thumbnail-cache-dir "")))
@@ -52,7 +54,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Lower-level datum and library behavior
 
-(define-test datum-is-reinitialized-by-mime-type-major-part-only
+(define-test datum-is-reinitialized-by-mime-type-major-part-only :parent core
   (with-tmp-files (path)
     (with-open-file (s path :direction :output :if-exists :supersede)
       (format s "hi :3~%"))
@@ -61,7 +63,7 @@
       (is #'equal "text/plain" (datum-kind d))
       (is #'equal (format NIL "hi :3~%") (datum-terms d)))))
 
-(define-test datum-is-reinitialized-by-mime-type-full
+(define-test datum-is-reinitialized-by-mime-type-full :parent core
   (with-tmp-files (path)
     (with-open-file (s path :direction :output :if-exists :supersede)
       (format s "<!DOCTYPE html>~%<html><head></head><body>hi :^3</body></html>"))
@@ -70,7 +72,7 @@
       (is #'equal "text/html" (datum-kind d))
       (is #'equal "hi :^3" (datum-terms d)))))
 
-(define-test datum-is-reinitialized-by-url-scheme-in-id
+(define-test datum-is-reinitialized-by-url-scheme-in-id :parent core
   (let ((d (make-instance 'datum :id "https://thepiratebay.org")))
     (of-type datum-link/web d)
     (is #'equal "link/web" (datum-kind d))
@@ -79,7 +81,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Collections API tests
 
-(define-test library-get-datum-collection-works-for-homedir
+(define-test library-get-datum-collection-works-for-homedir :parent core
   (let ((l (make-instance 'library :thumbnail-cache-dir #P"/tmp/")))
     (labels ((homedir ()
                (find-if (lambda (elem) (eql (type-of elem) 'collection-homedir))
@@ -89,7 +91,7 @@
                           l (merge-pathnames (user-homedir-pathname) "sub")))
       (isnt #'eq (homedir) (library-get-datum-collection l "/hopefully/not/your/~")))))
 
-(define-test library-get-datum-collection-works-for-link/web
+(define-test library-get-datum-collection-works-for-link/web :parent core
   (let ((l (make-instance 'library :thumbnail-cache-dir #P"/tmp/")))
     (labels ((web ()
                (find-if (lambda (elem) (eql (type-of elem) 'collection-link/web))
