@@ -127,6 +127,14 @@ Future Work
 - Add full support for saving URLs, including saving magnets and
   archiving HTTP docs.  These files should have special options in all
   frontends.
+- Integrate with the [Internet Archive's
+  API](https://archive.org/developers/index-apis.html) to view
+  historical snapshots of webpages the user has saved onto their
+  computer, either as a monolithic html file, a full site archive via,
+  eg, `wget -np -rkEpD example.com example.com/somewhere`, or a
+  .webloc or .url file.  Could also integrate with web archive
+  collections like gallery-dl to link to historical versions of the
+  archived document, though that's less useful I think.
 
 Notes
 -----
