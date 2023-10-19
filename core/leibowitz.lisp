@@ -66,7 +66,7 @@ directory tree."))
 (defgeneric add-datum (library datum)
   (:documentation "Given a datum, add it to the library then return it."))
 
-(defgeneric get-datam (library id)
+(defgeneric get-datum (library id)
   (:documentation "Given a datum id, return an instance retrieved from the library or
 NIL if it is not found.  ID may be either a string or a pathname."))
 
