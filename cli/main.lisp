@@ -205,8 +205,10 @@ argument."
     (:description "Print summaries of data."
      :usage "[data ids...]")
   (loop for p in (clingon:command-arguments cmd)
-        do (datum-print-long-report
-            *library* (get-datum *library* (truename p)))))
+        for d = (get-datum *library* (truename p))
+        do (if d
+               (datum-print-long-report *library* d)
+               (format *error-output* "~A not indexed.~%" (truename p)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: tag
