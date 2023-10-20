@@ -52,6 +52,14 @@ to populate the :collection slot when instantiating a datum."))
 (defgeneric library-print-info (library)
   (:documentation "Print information about this library."))
 
+(defgeneric library-datum-mv (library old-datum-or-id new-datum-or-id &key overwrite)
+  (:documentation "Move or rename a datum, preserving its thumbnail, metadata, and tag
+elationships.  Generally this will be used where OLD exists on disk
+and NEW doesn't, however it also works for the inverse in the case
+where the user moved the file on disk and doesn't want to use
+metadata.  If both exist, an error is issued unless :overwrite is T.
+If neither exist or they're the same, an error is issued."))
+
 ;;; Library metadata
 
 (defgeneric library-data-quantity (library)

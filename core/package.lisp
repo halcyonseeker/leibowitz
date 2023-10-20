@@ -7,7 +7,8 @@
            #:library-collections
            #:library-print-info
            #:library-data-quantity
-           #:library-get-datum-collection)
+           #:library-get-datum-collection
+           #:library-datum-mv)
   (:export #:index
            #:injest-raw-datum
            #:add-datum

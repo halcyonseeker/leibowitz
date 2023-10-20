@@ -90,6 +90,9 @@ end
 create trigger if not exists data_update_fts after update on data begin
   insert into search (search, id, terms) values ('delete', old.id, old.terms);
   insert into search (id, terms) values (new.id, new.terms);
+end" "
+create trigger if not exists update_junction_on_datum_rename after update on data begin
+  update tag_datum_junctions set datum_id = new.id where datum_id = old.id;
 end")))
 
 (defmethod library-data-quantity ((l sqlite-library))
@@ -98,6 +101,36 @@ end")))
 (defmethod library-print-info ((l sqlite-library))
   (format T "SQLite Library on ~A with ~A data indexed~%"
           (namestring (slot-value l 'db-path)) (library-data-quantity l)))
+
+(defmethod library-datum-mv ((l sqlite-library) old-datum-or-id new-datum-or-id
+                             &key (overwrite NIL))
+  (check-type old-datum-or-id (or string pathname datum))
+  (check-type new-datum-or-id (or string pathname datum))
+  (let* ((old (%need-datum-id old-datum-or-id))
+         (new (%need-datum-id new-datum-or-id))
+         (oldth (merge-pathnames old (library-thumbnail-cache-dir l)))
+         (newth (merge-pathnames new (library-thumbnail-cache-dir l))))
+    (when (equal old new)
+      (error "Attempted to rename datum ~S to itself." old))
+    (when (not (get-datum l old))
+      (error "Datum ~S not indexed." old))
+    (when (and (get-datum l old) (probe-file old))
+      (when (or (get-datum l new) (probe-file new))
+        (unless overwrite
+          (error "File ~S already exists, pass :overwrite to rename ~S anyway."
+                 new old))))
+    ;; Okay if old doesn't exist on disk as long as it does in db.
+    (if (probe-file old)
+        (rename-file old new)
+        (unless (get-datum l old)
+          (error "File ~S exists on neither disk nor in the db." old)))
+    (when (probe-file oldth)
+      (rename-file oldth newth))
+    ;; Triggers do the hard lifting of keeping everything up to date.
+    (with-sqlite-tx (l)
+      (%del-datum-inner-transaction l new)
+      (sqlite-nq l "update data set id = ? where id = ?" new old))
+    (namestring new)))
 
 ;;; Reading and writing data
 
