@@ -135,16 +135,19 @@ end")))
                               :collection (library-get-datum-collection l id))
         NIL)))
 
+(defun %del-datum-inner-transaction (lib id)
+  (loop for tag in (get-datum-tags lib id)
+        do (sqlite-nq lib (ccat "delete from tags where name = ? and "
+                              "count = 0 and label is null")
+                      (tag-name tag)))
+  (sqlite-nq lib "delete from data where id = ?" id)
+  (sqlite-nq lib "delete from tag_datum_junctions where datum_id = ?" id))
+
 (defmethod del-datum ((l sqlite-library) datum-or-id)
   (check-type datum-or-id (or datum string pathname))
   (let ((id (%need-datum-id datum-or-id)))
     (with-sqlite-tx (l)
-      (loop for tag in (get-datum-tags l id)
-            do (sqlite-nq l (ccat "delete from tags where name = ? and "
-                                  "count = 0 and label is null")
-                          (tag-name tag)))
-      (sqlite-nq l "delete from data where id = ?" id)
-      (sqlite-nq l "delete from tag_datum_junctions where datum_id = ?" id))))
+      (%del-datum-inner-transaction l id))))
 
 ;;; Reading and writing tags
 
