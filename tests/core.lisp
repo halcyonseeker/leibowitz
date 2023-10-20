@@ -466,3 +466,55 @@
       (datum-id (car (list-data l :offset 0 :limit 1))))
   (is #'equal (datum-id (get-datum l p6))
       (datum-id (car (list-data l :offset 5 :limit 1)))))
+
+;;; Working with files on disk
+
+;; FIXME: verify that search terms changed!
+
+(define-library-test library-datum-mv-where-old-exists-new-doesnt (l oldp newp)
+  (add-datum l (make-instance 'datum :id oldp))
+  (delete-file newp)
+  (add-datum-tags l oldp '("deez nuts"))
+  (library-datum-mv l oldp newp)
+  (false (get-datum l oldp))
+  (false (get-datum-tags l oldp))
+  (is #'equal (namestring newp) (datum-id (get-datum l newp)))
+  (is #'equal "deez nuts" (tag-name (car (get-datum-tags l newp)))))
+
+(define-library-test library-datum-mv-where-new-exists (l oldp newp)
+  (add-datum l (make-instance 'datum :id oldp))
+  (delete-file oldp)
+  (delete-file newp)
+  (add-datum-tags l oldp '("таг"))
+  (is #'equal (namestring newp) (library-datum-mv l oldp newp))
+  (false (get-datum l oldp))
+  (is #'equal "таг" (tag-name (car (get-datum-tags l newp)))))
+
+;; FIXME we should get a friendly-error here
+(define-library-test library-datum-mv-where-both-exist-no-overwrite (l oldp newp)
+  (add-datum l (make-instance 'datum :id oldp))
+  (fail (library-datum-mv l oldp newp))
+  (true (probe-file oldp))
+  (true (probe-file newp))
+  (add-datum l (make-instance 'datum :id newp))
+  (delete-file newp)
+  (fail (library-datum-mv l oldp newp))
+  (true (probe-file oldp)))
+
+(define-library-test library-datum-mv-where-both-exist-overwrite (l oldp newp)
+  (add-datum l (make-instance 'datum :id oldp))
+  (add-datum l (make-instance 'datum :id newp))
+  (is #'equal (namestring newp) (library-datum-mv l oldp newp :overwrite T))
+  (false (probe-file oldp))
+  (true (probe-file newp))
+  (false (get-datum l oldp))
+  (true (get-datum l newp)))
+
+(define-library-test library-datum-mv-where-neither-exist (l)
+  ;; FIXME we should get a friendly-error here
+  (fail (library-datum-mv l "no such datum" "also no such datum")))
+
+(define-library-test library-datum-mv-where-theyre-the-same (l p)
+  ;; FIXME we should get a friendly-error here
+  (fail (library-datum-mv l p p))
+  (true (probe-file p)))
