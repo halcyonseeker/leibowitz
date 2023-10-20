@@ -24,9 +24,9 @@
            (unwind-protect (progn ,@body)
              (sqlite:disconnect (slot-value ,library 'leibowitz.core::handle))
              ,@(loop for var in tmpfiles
-                     collect `(delete-file ,var))
+                     collect `(ignore-errors (delete-file ,var)))
              (uiop:delete-directory-tree ,home :validate T)
-             (delete-file ,path)))))))
+             (ignore-errors (delete-file ,path))))))))
 
 (defmacro with-tmp-files ((&rest tmpfiles) &body body)
   `(let (,@(loop for var in tmpfiles
