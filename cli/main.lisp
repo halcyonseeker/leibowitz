@@ -160,7 +160,7 @@ argument."
     (loop for job in jobs
           do (format T "Indexing ~A..." job)
              (finish-output)
-             (index *library* job)
+             (index *library* (truename job))
              (format T "done~%"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
