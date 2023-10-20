@@ -6,7 +6,7 @@
   ((root
     :type pathname
     :initarg :root
-    :initform (user-homedir-pathname)
+    :initform (truename (user-homedir-pathname))
     :accessor collection-homedir-root)
    (includes
     :type list
@@ -21,6 +21,10 @@
     :accessor collection-homedir-excludes
     :documentation ""))
   (:documentation ""))
+
+(defmethod print-object ((c collection-homedir) stream)
+  (print-unreadable-object (c stream :type T)
+    (format stream "~A" (collection-homedir-root c))))
 
 (defmethod collection-applicable-p ((c collection-homedir) id)
   (check-type id (or string pathname))
