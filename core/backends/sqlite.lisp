@@ -121,7 +121,10 @@ end")))
                  new old))))
     ;; Okay if old doesn't exist on disk as long as it does in db.
     (if (probe-file old)
-        (rename-file old new)
+        (progn (rename-file old new)
+               ;; The user probably passed a relative path for new,
+               ;; and we want the absolute for all ids.
+               (setf new (namestring (truename new))))
         (unless (get-datum l old)
           (error "File ~S exists on neither disk nor in the db." old)))
     (when (probe-file oldth)
