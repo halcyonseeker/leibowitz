@@ -89,6 +89,12 @@
       (is #'eq (homedir) (library-get-datum-collection l (user-homedir-pathname)))
       (is #'eq (homedir) (library-get-datum-collection
                           l (merge-pathnames (user-homedir-pathname) "sub")))
+      ;; FIXME: this additional test case was added after manual
+      ;; testing on FreeBSD failed weirdly as a result of the fact
+      ;; that it symlinks /home to /usr/home.  We should write a
+      ;; proper test case where homedir's root slot has a symlink.
+      (is #'eq (homedir) (library-get-datum-collection
+                          l (merge-pathnames (truename (user-homedir-pathname)) "sub")))
       (isnt #'eq (homedir) (library-get-datum-collection l "/hopefully/not/your/~")))))
 
 (define-test library-get-datum-collection-works-for-link/web :parent core

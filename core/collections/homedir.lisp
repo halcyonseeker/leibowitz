@@ -6,7 +6,7 @@
   ((root
     :type pathname
     :initarg :root
-    :initform (truename (user-homedir-pathname))
+    :initform (user-homedir-pathname)
     :accessor collection-homedir-root)
    (includes
     :type list
@@ -28,9 +28,16 @@
 
 (defmethod collection-applicable-p ((c collection-homedir) id)
   (check-type id (or string pathname))
-  (if (eql 0 (search (namestring (collection-homedir-root c)) (namestring id)))
-      c
-      NIL))
+  (let ((root (namestring (collection-homedir-root c)))
+        ;; Handle the case where some part of our root path is a
+        ;; symlink, like how FreeBSD links /home to /usr/home
+        (root-without-symlinks (namestring (truename (collection-homedir-root c))))
+        ;; If the file exists on disk, resolve symlinks
+        (id (namestring (if (probe-file id) (truename id) id))))
+    (if (or (eql 0 (search root id))
+            (eql 0 (search root-without-symlinks id)))
+        c
+        NIL)))
 
 (defmethod collection-index ((l library) (c collection-homedir) id)
   (check-type id (or string pathname))
