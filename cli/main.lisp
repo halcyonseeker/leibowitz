@@ -4,7 +4,12 @@
   (:use #:cl
         #:leibowitz.core
         #:leibowitz.web)
-  (:export #:main))
+  (:export #:main)
+  (:export #:*data-directory*
+           #:*cache-directory*
+           #:*base-directory*
+           #:*library*
+           #:*webserver*))
 
 (in-package :leibowitz.cli)
 
@@ -34,7 +39,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entrypoints
 
-(defun main ()
+(defun main (&key (test-harness-p NIL) (test-argv NIL))
   (setf *base-directory* (user-homedir-pathname))
   (setf *data-directory* (uiop:xdg-data-home "leibowitz/"))
   (setf *cache-directory* (uiop:xdg-cache-home "leibowitz/"))
@@ -42,7 +47,10 @@
   ;; They're often not very informative, figure out a way to bypass
   ;; this and handle them here, printing more friendly error messages
   ;; or stack traces as appropriate.
-  (clingon:run (toplevel/definition)))
+  (if test-harness-p
+      (let ((cmd (clingon:parse-command-line (toplevel/definition) test-argv)))
+        (funcall (clingon:command-handler cmd) cmd))
+      (clingon:run (toplevel/definition))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Top-level command-line
