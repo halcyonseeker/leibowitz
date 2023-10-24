@@ -104,6 +104,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: mv
 
+(define-cli-test mv-simple-case-absolute-paths (run)
+  (with-tmp-files (src)
+    (let* ((src (namestring src))
+           (dst (format NIl "~A_renamed" src)))
+      (run "index" src)
+      (run "mv" src dst)
+      (true (get-datum *library* dst))
+      (false (get-datum *library* src)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: cp
 
