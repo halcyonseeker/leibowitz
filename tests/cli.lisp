@@ -40,7 +40,6 @@
   (is #'equal (merge-pathnames ".leibowitz/cache/") *cache-directory*)
   (is #'equal *default-pathname-defaults* *base-directory*)
   (of-type 'library *library*)
-  (format T "~S~%" *webserver*)
   (false *webserver*))
 
 (define-cli-test help-and-return-error-on-no-subcommand ()
