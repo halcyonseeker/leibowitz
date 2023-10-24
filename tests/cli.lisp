@@ -19,11 +19,34 @@
              (ensure-directories-exist
               (pathname
                (format NIL "/tmp/leibowitz_cli_test_cwd-tmp~36R/"
-                       (random (expt 36 8)))))))
+                       (random (expt 36 8))))))
+           (home (user-homedir-pathname))
+           (config (uiop:xdg-config-home))
+           (cache (uiop:xdg-cache-home))
+           (data (uiop:xdg-data-home)))
        (labels ((,main (&rest cli)
-                  (leibowitz.cli:main :test-harness-p T :test-argv cli)))
+                  (leibowitz.cli:main :test-harness-p T :test-argv cli))
+                (setenv (key val)
+                  (nix:setenv key (namestring val))))
+         ;; Set this process's copy of $HOME to the new value of
+         ;; `*default-pathname-defaults*' for the duration of each
+         ;; test case.  $XDG_CONFIG_HOME, $XDG_CACHE_HOME, and
+         ;; $XDG_DATA_HOME are set as well to the appropriate
+         ;; subdirectories thereof.  This fools the likes of
+         ;; `user-homedir-pathname' and `uiop:xdg-*-home' into
+         ;; thinking that we're running as normal in the user's home
+         ;; directory for the duration of these tests, allowing us to
+         ;; screw around without stepping on the their toes.
+         (setenv "HOME" *default-pathname-defaults*)
+         (setenv "XDG_CONFIG_HOME" (merge-pathnames ".config/"))
+         (setenv "XDG_CACHE_HOME" (merge-pathnames ".cache/"))
+         (setenv "XDG_DATA_HOME" (merge-pathnames ".local/share/"))
          (unwind-protect
               ,@body
+           (setenv "HOME" home)
+           (setenv "XDG_CONFIG_HOME" config)
+           (setenv "XDG_CACHE_HOME" cache)
+           (setenv "XDG_DATA_HOME" data)
            (uiop:delete-directory-tree *default-pathname-defaults* :validate T))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
