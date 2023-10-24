@@ -68,7 +68,8 @@
   ;; Library curator API
   (:export #:curator)
   ;; Error conditions
-  (:export #:datum-not-indexed)
+  (:export #:friendly-error
+           #:datum-not-indexed)
   ;; SQLite library backend
   (:export #:sqlite-library
            #:sqlite-nq

@@ -451,16 +451,6 @@ manages external sources of data and makes sure the library is kept up
 to date."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Library errors
-
-(define-condition datum-not-indexed (error)
-  ((id :initarg :id)
-   (lib :initarg :lib))
-  (:report (lambda (c s)
-             (with-slots (id lib) c
-               (format s "Datum with id ~S not present in ~S~%" id lib)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Internal utilities for testing and writing backends
 
 (defgeneric %datum-equal (d1 d2)

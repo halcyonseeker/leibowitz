@@ -10,6 +10,7 @@
   :serial t
   :components ((:file "package")
                (:file "leibowitz")
+               (:file "conditions")
                (:module "backends" :components ((:file "sqlite")))
                (:module "curators" :components (#+linux(:file "fs_inotify")))
                (:module "datatypes" :components ((:file "text")
