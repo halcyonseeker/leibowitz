@@ -17,9 +17,9 @@
   (with-input-from-string (s data)
     (loop for line = (read-line s nil 'eof)
           until (eq line 'eof)
-          collect  (remove-if (lambda (elem)
-                                (eql elem #\Return))
-                              line))))
+          for tag = (string-trim '(#\Space #\Return) line)
+          unless (= 0 (length tag))
+            collect tag)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Top-level pages
