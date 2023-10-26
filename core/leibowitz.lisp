@@ -45,9 +45,12 @@
 (defgeneric library-get-datum-collection (library id)
   (:method ((l library) id)
     (check-type id (or string pathname))
-    (find-if (lambda (c) (collection-applicable-p c id)) (library-collections l)))
-  (:documentation "Return the collection instance applicable to id.  This should be used
-to populate the :collection slot when instantiating a datum."))
+    (let ((col (find-if (lambda (c) (collection-applicable-p c id))
+                        (library-collections l))))
+      (if col col (error 'no-applicable-collection :id id))))
+  (:documentation "Find the collection instance which manages ID.  If none can be found,
+raise an error of type `no-applicable-collection'.  This should be
+used to populate the :collection slot when instantiating a datum."))
 
 (defgeneric library-print-info (library)
   (:documentation "Print information about this library."))

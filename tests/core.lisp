@@ -87,7 +87,8 @@
       ;; proper test case where homedir's root slot has a symlink.
       (is #'eq (homedir) (library-get-datum-collection
                           l (merge-pathnames (truename (user-homedir-pathname)) "sub")))
-      (isnt #'eq (homedir) (library-get-datum-collection l "/hopefully/not/your/~")))))
+      (fail (library-get-datum-collection l "/hopefully/not/your/~")
+          'no-applicable-collection))))
 
 (define-test library-get-datum-collection-works-for-link/web :parent core
   (let ((l (make-instance 'library :thumbnail-cache-dir #P"/tmp/")))
@@ -96,9 +97,12 @@
                         (library-collections l))))
       (is #'eq (web) (library-get-datum-collection l "https://dreamwidth.org"))
       (is #'eq (web) (library-get-datum-collection l "http://alt.suicide.holiday"))
-      (isnt #'eq (web) (library-get-datum-collection l "ftp://yourmomsnudes.zip"))
-      (isnt #'eq (web) (library-get-datum-collection l ".sbclrc"))
-      (isnt #'eq (web) (library-get-datum-collection l #p".sbclrc")))))
+      (fail (library-get-datum-collection l "ftp://yourmomsnudes.zip")
+          'no-applicable-collection)
+      (fail (library-get-datum-collection l ".sbclrc")
+          'no-applicable-collection)
+      (fail (library-get-datum-collection l #p".sbclrc")
+          'no-applicable-collection))))
 
 ;; homedir-specific methods
 

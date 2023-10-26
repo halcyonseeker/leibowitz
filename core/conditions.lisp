@@ -19,3 +19,11 @@ most technically useful way possible."))
   (:report (lambda (c s)
              (with-slots (id lib) c
                (format s "Datum with id ~S not present in ~S~%" id lib)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Unfriendly errors
+
+(define-condition no-applicable-collection (error)
+  ((id :initarg :id))
+  (:report (lambda (c s)
+             (with-slots (id) c (format s "No collection found for datum ~S" id)))))
