@@ -335,7 +335,7 @@ consist of a list containing at least one section tag."))
                     (:a :href ,(format NIL "/raw?id=~A" (hunchentoot:url-encode (datum-id d)))
                         "View Raw")))
         ,(%collection-html-sidebar-section-for-datum l (datum-collection d) d)
-        (:section (:h2 "Tags")
+        (:section (:h2 ,(format NIL " Tags (~A)" (datum-num-tags l d)))
                   (:ul ,@(loop for tag in (get-datum-tags l d)
                                collect `(:li (:a :href ,(format NIL "/tag?name=~A"
                                                                 (hunchentoot:url-encode
