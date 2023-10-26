@@ -20,6 +20,29 @@ most technically useful way possible."))
              (with-slots (id lib) c
                (format s "Datum with id ~S not present in ~S~%" id lib)))))
 
+(define-condition datum-already-exists (friendly-error)
+  ((d :initarg :d))
+  (:report (lambda (c s)
+             (with-slots (d) c (format s "Datum ~S already exists" d)))))
+
+(define-condition cannot-mv-or-cp-to-itself (friendly-error)
+  ((d :initarg :d))
+  (:report (lambda (c s)
+             (with-slots (d) c (format s "Cannot copy or rename ~S to itself" d)))))
+
+(define-condition no-such-datum-in-disk-or-db (friendly-error)
+  ((id :initarg :id)
+   (lib :initarg :lib))
+  (:report (lambda (c s)
+             (with-slots (id lib) c
+               (format s "Datum with ~S does not exist on disk or in ~S" id lib)))))
+
+(define-condition datum-is-orphaned (friendly-error)
+  ((id :initarg :id))
+  (:report (lambda (c s)
+             (with-slots (id) c
+               (format s "Underlying file for ~S has been moved or deleted!" id)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Unfriendly errors
 

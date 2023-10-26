@@ -102,6 +102,9 @@ end")))
   (format T "SQLite Library on ~A with ~A data indexed~%"
           (namestring (slot-value l 'db-path)) (library-data-quantity l)))
 
+;;; FIXME: Handle non-file data, they don't have entries on disk.  Or
+;;; maybe just tear the link stuff out altogether, there's probably a
+;;; better way of doing that...
 (defmethod library-datum-mv ((l sqlite-library) old-datum-or-id new-datum-or-id
                              &key (overwrite NIL))
   (check-type old-datum-or-id (or string pathname datum))
@@ -110,23 +113,22 @@ end")))
          (new (%need-datum-id new-datum-or-id))
          (oldth (merge-pathnames old (library-thumbnail-cache-dir l)))
          (newth (merge-pathnames new (library-thumbnail-cache-dir l))))
-    (when (equal old new)
-      (error "Attempted to rename datum ~S to itself." old))
-    (when (not (get-datum l old))
-      (error "Datum ~S not indexed." old))
-    (when (and (get-datum l old) (probe-file old))
-      (when (or (get-datum l new) (probe-file new))
-        (unless overwrite
-          (error "File ~S already exists, pass :overwrite to rename ~S anyway."
-                 new old))))
-    ;; Okay if old doesn't exist on disk as long as it does in db.
-    (if (probe-file old)
-        (progn (rename-file old new)
-               ;; The user probably passed a relative path for new,
-               ;; and we want the absolute for all ids.
-               (setf new (namestring (truename new))))
-        (unless (get-datum l old)
-          (error "File ~S exists on neither disk nor in the db." old)))
+    (when (equal old new) (error 'cannot-mv-or-cp-to-itself :d new))
+    (unless (get-datum l old) (error 'datum-not-indexed :lib l :id old))
+    (when (and (or (get-datum l new) (probe-file new))
+               (not overwrite))
+      (error 'datum-already-exists :d new))
+    (when (and (not (probe-file old))
+               (not (probe-file new)))
+      (error 'datum-is-orphaned :id old))
+    ;; It's okay if old doesn't exist on disk as long as the entry is
+    ;; still in the DB; the user might have moved it and want to
+    ;; update the ID.
+    (when (probe-file old)
+      (rename-file old new)
+      ;; The user probably passed a relative path for new, and we want
+      ;; the absolute for all ids.
+      (setf new (namestring (truename new))))
     (when (probe-file oldth)
       (rename-file oldth newth))
     ;; Triggers do the hard lifting of keeping everything up to date.

@@ -70,6 +70,10 @@
   ;; Error conditions
   (:export #:friendly-error
            #:datum-not-indexed
+           #:datum-already-exists
+           #:cannot-mv-or-cp-to-itself
+           #:no-such-datum-in-disk-or-db
+           #:datum-is-orphaned
            #:no-applicable-collection)
   ;; SQLite library backend
   (:export #:sqlite-library
