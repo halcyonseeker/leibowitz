@@ -6,9 +6,9 @@
 ;; the dispatch table per hunchentoot's documentation.
 ;; FIXME: For prod we'll obviously need a proper way of finding static
 ;; resources.
-(leibowitz-route (stylesheet lib "/style.css") ()
+(leibowitz-route (stylesheet lib "/static/style.css") ()
   (hunchentoot:handle-static-file
-   (merge-pathnames #P"code/leibowitz/web/style.css" (user-homedir-pathname))))
+   (merge-pathnames #P"code/leibowitz/web/static/style.css" (user-homedir-pathname))))
 
 (defun %parse-post-body-to-list (data)
   (with-input-from-string (s data)

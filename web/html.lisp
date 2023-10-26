@@ -12,7 +12,7 @@
        (:head (:title ,title)
               (:meta :http-equiv "Content-Type"
                      :content "text/html;charset=utf-8")
-              (:link :rel "stylesheet" :href "/style.css" :media "screen"))
+              (:link :rel "stylesheet" :href "/static/style.css" :media "screen"))
        (:body (:div :id "header-and-navbar-container"
                     (:header :id "header" ,@(if header header `((:h1 ,title))))
                     (:nav :id "navbar" :class "ui"
