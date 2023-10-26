@@ -362,7 +362,7 @@ consist of a list of sections."))
                                              (thumbnailer:get-thumbnail
                                               (datum-id d) (datum-kind d)))))))
                   (thumbnailer:unsupported-file-type ()))
-               (:div (:small ,(cl-who:escape-string (datum-id d)))))))
+               (:div (:small ,(cl-who:escape-string (datum-title d)))))))
   (:documentation "Return a cl-who XHTML structure displaying a thumbnail preview of
 this datum that links to the full detail page."))
 

@@ -189,13 +189,12 @@ ul.path-breadcrumbs a:visited {
 
 #sidebar-and-content-container .tile {
 	width: 150px;
-	height: 150px;
+	height: 160px;
 	padding: 10px;
 	margin: 5px;
 	text-align: center;
-	background-color: #009797;
-	border: 2px solid black;
-	overflow: hidden;           /* Just for testing */
+	border: 2px solid var(--fg);
+	overflow-wrap: anywhere;
 }
 
 #sidebar-and-content-container .tile img {
