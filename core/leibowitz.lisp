@@ -68,6 +68,9 @@ If neither exist or they're the same, an error is issued."))
 (defgeneric library-data-quantity (library)
   (:documentation "Return the number of data stored in this library."))
 
+(defgeneric datum-num-tags (library datum)
+  (:documentation "Return the number of tags associated with this datum."))
+
 ;;; Reading and writing data
 
 (defgeneric index (library path)

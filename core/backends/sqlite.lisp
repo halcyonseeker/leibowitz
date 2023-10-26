@@ -102,6 +102,10 @@ end")))
   (format T "SQLite Library on ~A with ~A data indexed~%"
           (namestring (slot-value l 'db-path)) (library-data-quantity l)))
 
+(defmethod datum-num-tags ((l sqlite-library) (d datum))
+  (sqlite-row l "select count(*) from tag_datum_junctions where datum_id = ? "
+              (datum-id d)))
+
 ;;; FIXME: Handle non-file data, they don't have entries on disk.  Or
 ;;; maybe just tear the link stuff out altogether, there's probably a
 ;;; better way of doing that...
