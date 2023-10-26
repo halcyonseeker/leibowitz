@@ -9,6 +9,9 @@
 (leibowitz-route (stylesheet lib "/static/style.css") ()
   (hunchentoot:handle-static-file
    (merge-pathnames #P"code/leibowitz/web/static/style.css" (user-homedir-pathname))))
+(leibowitz-route (script lib "/static/fluff.js") ()
+  (hunchentoot:handle-static-file
+   (merge-pathnames #P"code/leibowitz/web/static/fluff.js" (user-homedir-pathname))))
 
 (defun %parse-post-body-to-list (data)
   (with-input-from-string (s data)
@@ -151,7 +154,13 @@
 ;; Editing data
 
 (leibowitz-route (edit-datum lib ("/datum" :method :post)) (id)
-  (let ((tags (%parse-post-body-to-list (hunchentoot:post-parameter "tags"))))
+  (let ((tags (%parse-post-body-to-list (hunchentoot:post-parameter "tags")))
+        (ajax (hunchentoot:post-parameter "ajax")))
     (add-datum-tags lib id tags :replace T)
-    (hunchentoot:redirect
-     (format NIL "/datum?id=~A" (hunchentoot:url-encode id)))))
+    (if ajax
+        (let ((datum (get-datum lib id)))
+          ;; FIXME: handle the NIL case or a datum-not-indexed
+          ;; condition, just like datum-view!
+          (html-snippet (datum-html-sidebar lib datum)))
+        (hunchentoot:redirect
+         (format NIL "/datum?id=~A" (hunchentoot:url-encode id))))))

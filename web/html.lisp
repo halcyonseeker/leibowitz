@@ -2,6 +2,11 @@
 
 (in-package :leibowitz.web)
 
+(defun html-snippet (snippet)
+  (eval
+   `(cl-who:with-html-output-to-string (*standard-output* nil :prologue NIL :indent t)
+      ,@snippet)))
+
 (defun make-page (lib &key here sidebar title body limit offset header)
   (eval
    `(cl-who:with-html-output-to-string (*standard-output* nil :prologue t :indent t)
@@ -50,7 +55,8 @@
                            "Project Home")
                        "//"
                        (:a :href "mailto:~thalia/leibowitz@lists.sr.ht"
-                           "Report a Bug")))))))
+                           "Report a Bug")))
+              (:script :src "/static/fluff.js")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -160,12 +166,13 @@ listing.  Key arguments are passed unmodified to that method."
       (:details
        (:summary "Edit Tags")
        (:form :method "post"
-              (:textarea :name "tags"
+              (:textarea :id "tag-editor-textarea"
+                         :name "tags"
                          :placeholder "No tags yet, enter each on a new line"
                          ,(with-output-to-string (s)
                             (loop for tag in (get-datum-tags lib datum)
                                   do (format s "~A~%" (tag-name tag)))))
-              (:input :type "submit" :value "Save Tags"))))
+              (:input :id "tag-editor-submit" :type "submit" :value "Save Tags"))))
     `(:hr))
    (datum-html-report lib datum)))
 
