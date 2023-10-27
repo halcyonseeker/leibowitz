@@ -138,6 +138,8 @@
 ;; Tag view machinery
 
 (leibowitz-route (tag-view lib "/tag") (name)
+  ;; FIXME: handle NIL or no-such-tag condition here, html generators
+  ;; shouldn't have to do error handling!
   (make-page lib
              :title (format NIL "~A | Leibowitz Web" name)
              :sidebar (make-tag-view-sidebar lib name)
@@ -145,10 +147,15 @@
 
 (leibowitz-route (edit-tag lib ("/tag" :method :post)) (name)
   (let ((predicates (%parse-post-body-to-list
-                     (hunchentoot:post-parameter "predicates"))))
+                     (hunchentoot:post-parameter "tags")))
+        (ajax (hunchentoot:post-parameter "ajax")))
     (add-tag-predicate lib name predicates :replace T)
-    (hunchentoot:redirect
-     (format NIL "/tag?name=~A" (hunchentoot:url-encode name)))))
+    (if ajax
+        ;; FIXME: handle NIL case or a no-such-tag condition, just
+        ;; like tag-view!
+        (html-snippet (make-tag-view-sidebar lib name))
+        (hunchentoot:redirect
+         (format NIL "/tag?name=~A" (hunchentoot:url-encode name))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Editing data

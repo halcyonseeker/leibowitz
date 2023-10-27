@@ -208,13 +208,15 @@ listing.  Key arguments are passed unmodified to that method."
        (:details
         (:summary "Also Apply These Tags")
         (:form :method "post"
-               (:textarea
-                :name "predicates"
-                :placeholder "No predicate tags yet, enter each on a new line"
+               (:textarea :id "tag-editor-textarea"
+                          :name "tags"
+                          :placeholder "None yet, enter each on a new line"
                 ,(with-output-to-string (s)
                    (loop for tag in (get-tag-predicates lib tag-name)
                          do (format s "~A~%" (tag-name tag)))))
-               (:input :type "submit" :value "Save Tag Predicates"))))
+               (:input :id "tag-editor-submit"
+                       :type "submit"
+                       :value "Save Parent Tags"))))
       (:hr)
       (:section (:h2 ,tag-name)
                 (:span :class "tag-count"
