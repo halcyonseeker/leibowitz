@@ -98,6 +98,16 @@ end")))
 (defmethod library-data-quantity ((l sqlite-library))
   (sqlite-row l "select count(*) from data"))
 
+;;; FIXME: get this into one statement so that we can sort by count
+;;; and group by the major part.  This is apparently Very Hard in SQL.
+;;; FIXME: is it worth writing tests for this?
+(defmethod library-all-file-types ((l sqlite-library))
+  (loop for type in (sqlite-rows l "select distinct type from data")
+        collect (cons (car type)
+                      (sqlite-row
+                       l "select count(*) from data where type = ?"
+                       (car type)))))
+
 (defmethod library-print-info ((l sqlite-library))
   (format T "SQLite Library on ~A with ~A data indexed~%"
           (namestring (slot-value l 'db-path)) (library-data-quantity l)))

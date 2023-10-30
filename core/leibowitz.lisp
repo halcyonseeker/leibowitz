@@ -68,6 +68,10 @@ If neither exist or they're the same, an error is issued."))
 (defgeneric library-data-quantity (library)
   (:documentation "Return the number of data stored in this library."))
 
+(defgeneric library-all-file-types (library)
+  (:documentation "Return a list of cons cells where the car is each unique file type in
+the library and where the cdrs is the quantity of data with that type."))
+
 (defgeneric datum-num-tags (library datum)
   (:documentation "Return the number of tags associated with this datum."))
 

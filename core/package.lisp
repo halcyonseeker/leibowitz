@@ -7,6 +7,7 @@
            #:library-collections
            #:library-print-info
            #:library-data-quantity
+           #:library-all-file-types
            #:library-get-datum-collection
            #:library-datum-mv)
   (:export #:index
