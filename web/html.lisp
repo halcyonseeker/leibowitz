@@ -161,20 +161,40 @@ listing.  Key arguments are passed unmodified to that method."
   (incf (datum-accesses datum))
   (add-datum lib datum)
   (nconc
+   (datum-html-report lib datum)
    (list
-    `(:section :id "tag-editor"
-      (:details
-       (:summary "Edit Tags")
-       (:form :method "post"
-              (:textarea :id "tag-editor-textarea"
-                         :name "tags"
-                         :placeholder "No tags yet, enter each on a new line"
-                         ,(with-output-to-string (s)
-                            (loop for tag in (get-datum-tags lib datum)
-                                  do (format s "~A~%" (tag-name tag)))))
-              (:input :id "tag-editor-submit" :type "submit" :value "Save Tags"))))
-    `(:hr))
-   (datum-html-report lib datum)))
+    `(:section
+      (:h2 "Edit Metadata")
+      (:div :id "editor-widgets-container"
+            (:div :id "editor-widget-left"
+                  (:fieldset
+                   (:legend "Edit Tags")
+                   (:form :method "post"
+                          (:textarea
+                           :id "tag-editor-textarea"
+                           :name "tags"
+                           :placeholder "No tags yet, enter each on a new line"
+                           ,(with-output-to-string (s)
+                              (loop for tag in (get-datum-tags lib datum)
+                                    do (format s "~A~%" (tag-name tag)))))
+                          (:button :id "tag-editor-submit" "Save Tags"))))
+            ;;; FIXME: wire these up!
+            (:div :id "editor-widget-right"
+                  (:fieldset
+                   (:legend "Move or Rename")
+                   (:form :method "put"
+                          (:input :name "new-name" :value ,(datum-id datum))
+                          (:button "Move")))
+                  (:fieldset
+                   (:legend "Copy")
+                   (:form :method "patch"
+                          (:input :name "new-name" :value ,(datum-id datum))
+                          (:button "Copy")))
+                  (:fieldset
+                   (:legend "Delete")
+                   (:form :method "delete"
+                          (:button ,(format NIL "Permanently Delete ~A"
+                                            (datum-title datum)))))))))))
 
 (defun make-tag-view-sidebar (lib tag-name)
   (check-type lib library)

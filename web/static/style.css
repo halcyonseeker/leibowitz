@@ -209,11 +209,6 @@ ul.path-breadcrumbs a:visited {
 /*  \___\___/|_| |_|\__\___|_| |_|\__| |_|  \___/|_|  |_| |_| |_|___/ */
 /**********************************************************************/
 
-#sidebar-and-content-container #content #tag-editor textarea {
-	width: 100%;
-	resize: vertical;
-}
-
 #sidebar-and-content-container #content .form-row {
 	display: table-row;
 }
@@ -225,4 +220,52 @@ ul.path-breadcrumbs a:visited {
 
 #sidebar-and-content-container #sidebar .sidebar-form {
 	display: block;
+}
+
+/***********************************************************************
+ * Metadata editor widget */
+
+#editor-widgets-container {
+	display: flex;
+}
+
+#editor-widgets-container #editor-widget-left {
+	flex: 40%;
+	margin-right: 0.5em;
+}
+
+#editor-widgets-container #editor-widget-right {
+	flex: 60%;
+	margin-left: 0.5em;
+}
+
+#editor-widgets-container textarea {
+	width: 98%;
+	margin-bottom: 0.5em;
+}
+
+#editor-widgets-container #tag-editor-textarea {
+	height: 14.3em;
+	resize: vertical;
+}
+
+#editor-widgets-container input {
+	width: 98%;
+	margin-bottom: 0.5em;
+	padding: 0.25em;
+}
+
+@media(max-width: 660px) {
+	#editor-widgets-container {
+		flex-direction: column;
+	}
+	#editor-widgets-container #editor-widget-left {
+		margin-right: 0em;
+	}
+	#editor-widgets-container #editor-widget-right {
+		margin-left: 0em;
+	}
+	#editor-widgets-container textarea {
+		height: 10em;
+	}
 }
