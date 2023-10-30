@@ -200,6 +200,19 @@ listing.  Key arguments are passed unmodified to that method."
   (check-type lib library)
   (check-type tag-name string)
   `((:section
+     (:h2 "About")
+     ;; FIXME: rename this CSS class, it should be something generic
+     ;; like sidebar-metadata-{key,var}
+     ,(let ((tag (get-tag lib tag-name)))
+        `(:ul (:li (:span :class "datum-metadata-key"
+                          "Count")
+                   (:span :class "datum-metadata-var"
+                          ,(format NIL "~A" (tag-count tag))))
+              (:li (:span :class "datum-metadata-key"
+                          "Label")
+                   (:span :class "datum-metadata-var"
+                          ,(cl-who:escape-string (tag-label tag)))))))
+    (:section
      (:h2 "Automatically Adds")
      (:ul ,@(loop for tag in (get-tag-predicates lib tag-name)
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
@@ -222,27 +235,20 @@ listing.  Key arguments are passed unmodified to that method."
 (defun make-tag-view-page (lib tag-name)
   (check-type lib library)
   (check-type tag-name string)
-  (let ((tag (get-tag lib tag-name)))
-    `((:section
-       :id "tag-editor"
-       (:details
-        (:summary "Also Apply These Tags")
-        (:form :method "post"
-               (:textarea :id "tag-editor-textarea"
-                          :name "tags"
-                          :placeholder "None yet, enter each on a new line"
-                ,(with-output-to-string (s)
-                   (loop for tag in (get-tag-predicates lib tag-name)
-                         do (format s "~A~%" (tag-name tag)))))
-               (:input :id "tag-editor-submit"
-                       :type "submit"
-                       :value "Save Parent Tags"))))
-      (:hr)
-      (:section (:h2 ,tag-name)
-                (:span :class "tag-count"
-                       ,(format NIL "(~A)" (tag-count tag)))
-                (:span :class "tag-desc"
-                       ,(tag-label tag)))
-      (:section :id "tiles"
-                ,@(loop for datum in (get-tag-data lib tag-name)
-                        collect (datum-html-preview lib datum))))))
+  `((:section
+     :id "tag-editor"
+     (:details
+      (:summary "Also Apply These Tags")
+      (:form :method "post"
+             (:textarea :id "tag-editor-textarea"
+                        :name "tags"
+                        :placeholder "None yet, enter each on a new line"
+                        ,(with-output-to-string (s)
+                           (loop for tag in (get-tag-predicates lib tag-name)
+                                 do (format s "~A~%" (tag-name tag)))))
+             (:input :id "tag-editor-submit"
+                     :type "submit"
+                     :value "Save Parent Tags"))))
+    (:section :id "tiles"
+              ,@(loop for datum in (get-tag-data lib tag-name)
+                      collect (datum-html-preview lib datum)))))
