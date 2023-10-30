@@ -183,12 +183,12 @@ listing.  Key arguments are passed unmodified to that method."
                   (:fieldset
                    (:legend "Move or Rename")
                    (:form :method "put"
-                          (:input :name "new-name" :value ,(datum-id datum))
+                          (:input :type "text" :name "new-name" :value ,(datum-id datum))
                           (:button "Move")))
                   (:fieldset
                    (:legend "Copy")
                    (:form :method "patch"
-                          (:input :name "new-name" :value ,(datum-id datum))
+                          (:input :type "text" :name "new-name" :value ,(datum-id datum))
                           (:button "Copy")))
                   (:fieldset
                    (:legend "Delete")

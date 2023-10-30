@@ -249,7 +249,7 @@ ul.path-breadcrumbs a:visited {
 	resize: vertical;
 }
 
-#editor-widgets-container input {
+#editor-widgets-container input[type=text] {
 	width: 98%;
 	margin-bottom: 0.5em;
 	padding: 0.25em;
