@@ -201,16 +201,14 @@ listing.  Key arguments are passed unmodified to that method."
   (check-type tag-name string)
   `((:section
      (:h2 "About")
-     ;; FIXME: rename this CSS class, it should be something generic
-     ;; like sidebar-metadata-{key,var}
      ,(let ((tag (get-tag lib tag-name)))
-        `(:ul (:li (:span :class "datum-metadata-key"
+        `(:ul (:li (:span :class "sidebar-metadata-key"
                           "Count")
-                   (:span :class "datum-metadata-var"
+                   (:span :class "sidebar-metadata-var"
                           ,(format NIL "~A" (tag-count tag))))
-              (:li (:span :class "datum-metadata-key"
+              (:li (:span :class "sidebar-metadata-key"
                           "Label")
-                   (:span :class "datum-metadata-var"
+                   (:span :class "sidebar-metadata-var"
                           ,(cl-who:escape-string (tag-label tag)))))))
     (:section
      (:h2 "Automatically Adds")

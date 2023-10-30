@@ -129,12 +129,12 @@ ul.path-breadcrumbs a:visited {
 #content img {
 	max-width: 100%;
 }
-.datum-metadata-key {
+.sidebar-metadata-key {
 	font-size: small;
 	font-weight: bold;
 	color: var(--fg);
 }
-.datum-metadata-var {
+.sidebar-metadata-var {
 	font-size: small;
 	color: var(--fg);
 }

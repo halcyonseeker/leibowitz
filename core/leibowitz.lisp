@@ -312,25 +312,25 @@ consist of a list containing at least one section tag."))
                    :format '(:short-weekday ", " :short-month " " (:day 2) " "
                              (:year 4) " " (:hour 2) ":" (:min 2)))))
          `(:section (:h2 "About")
-                    (:ul (:li (:span :class "datum-metadata-key"
+                    (:ul (:li (:span :class "sidebar-metadata-key"
                                      "Accesses")
-                              (:span :class "datum-metadata-var"
+                              (:span :class "sidebar-metadata-var"
                                      ,(format NIL "~A" (datum-accesses d))))
-                         (:li (:span :class "datum-metadata-key"
+                         (:li (:span :class "sidebar-metadata-key"
                                      "Mime Type")
-                              (:span :class "datum-metadata-var"
+                              (:span :class "sidebar-metadata-var"
                                      ,(datum-kind d)))
-                         (:li (:span :class "datum-metadata-key"
+                         (:li (:span :class "sidebar-metadata-key"
                                      "Collection")
-                              (:span :class "datum-metadata-var"
+                              (:span :class "sidebar-metadata-var"
                                      ,(format NIL "~A" (type-of (datum-collection d)))))
-                         (:li (:span :class "datum-metadata-key"
+                         (:li (:span :class "sidebar-metadata-key"
                                      "Birth")
-                              (:span :class "datum-metadata-var"
+                              (:span :class "sidebar-metadata-var"
                                      ,(timefmt (datum-birth d))))
-                         (:li (:span :class "datum-metadata-key"
+                         (:li (:span :class "sidebar-metadata-key"
                                      "Modified")
-                              (:span :class "datum-metadata-var"
+                              (:span :class "sidebar-metadata-var"
                                      ,(timefmt (datum-modified d)))))
                     (:a :href ,(format NIL "/raw?id=~A" (hunchentoot:url-encode (datum-id d)))
                         "View Raw")))
