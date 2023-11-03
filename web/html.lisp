@@ -200,23 +200,22 @@ listing.  Key arguments are passed unmodified to that method."
                           (:button ,(format NIL "Permanently Delete ~A"
                                             (datum-title datum)))))))))))
 
-(defun make-tag-view-sidebar (lib tag-name)
+(defun make-tag-view-sidebar (lib tag)
+  (check-type tag tag)
   (check-type lib library)
-  (check-type tag-name string)
   `((:section
      (:h2 "About")
-     ,(let ((tag (get-tag lib tag-name)))
-        `(:ul (:li (:span :class "sidebar-metadata-key"
-                          "Count")
-                   (:span :class "sidebar-metadata-var"
-                          ,(format NIL "~A" (tag-count tag))))
-              (:li (:span :class "sidebar-metadata-key"
-                          "Label")
-                   (:span :class "sidebar-metadata-var"
-                          ,(cl-who:escape-string (tag-label tag)))))))
+     (:ul (:li (:span :class "sidebar-metadata-key"
+                      "Count")
+               (:span :class "sidebar-metadata-var"
+                      ,(format NIL "~A" (tag-count tag))))
+          (:li (:span :class "sidebar-metadata-key"
+                      "Label")
+               (:span :class "sidebar-metadata-var"
+                      ,(cl-who:escape-string (tag-label tag))))))
     (:section
      (:h2 "Automatically Adds")
-     (:ul ,@(loop for tag in (get-tag-predicates lib tag-name)
+     (:ul ,@(loop for tag in (get-tag-predicates lib tag)
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
                                                    (hunchentoot:url-encode (tag-name tag)))
                                     ,(tag-name tag))
@@ -224,7 +223,7 @@ listing.  Key arguments are passed unmodified to that method."
                                        ,(format nil "(~a)" (tag-count tag)))))))
     (:section
      (:h2 "Automatically Added By")
-     (:ul ,@(loop for tag in (get-tag-predicands lib tag-name)
+     (:ul ,@(loop for tag in (get-tag-predicands lib tag)
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
                                                    (hunchentoot:url-encode (tag-name tag)))
                                     ,(tag-name tag))
@@ -234,58 +233,57 @@ listing.  Key arguments are passed unmodified to that method."
      (:h2 "Related tags")
      (:p "I'll need to figure out something clever here :p"))))
 
-(defun make-tag-view-page (lib tag-name)
+(defun make-tag-view-page (lib tag)
   (check-type lib library)
-  (check-type tag-name string)
-  (let ((tag (get-tag lib tag-name)))
-    `((:section :id "tiles"
-                ,@(loop for datum in (get-tag-data lib tag-name)
-                        collect (datum-html-preview lib datum)))
-      (:section
-       (:h2 "Edit Tag")
-       (:div :id "editor-widgets-container"
-             (:div :id "editor-widget-left"
-                   (:fieldset
-                    (:legend "Also Apply These Tags")
-                    (:form :method "post"
-                           (:textarea
-                            :id "tag-editor-textarea"
-                            :name "tags"
-                            :placeholder "None yet, enter each on a new line"
-                            ,(with-output-to-string (s)
-                               (loop for tag in (get-tag-predicates lib tag-name)
-                                     do (format s "~A~%" (tag-name tag)))))
-                           (:button :id "tag-editor-submit" "Save Parent Tags"))))
+  (check-type tag tag)
+  `((:section :id "tiles"
+              ,@(loop for datum in (get-tag-data lib tag)
+                      collect (datum-html-preview lib datum)))
+    (:section
+     (:h2 "Edit Tag")
+     (:div :id "editor-widgets-container"
+           (:div :id "editor-widget-left"
+                 (:fieldset
+                  (:legend "Also Apply These Tags")
+                  (:form :method "post"
+                         (:textarea
+                          :id "tag-editor-textarea"
+                          :name "tags"
+                          :placeholder "None yet, enter each on a new line"
+                          ,(with-output-to-string (s)
+                             (loop for tag in (get-tag-predicates lib tag)
+                                   do (format s "~A~%" (tag-name tag)))))
+                         (:button :id "tag-editor-submit" "Save Parent Tags"))))
              ;;; FIXME: wire these up!
-             (:div :id "editor-widget-right"
-                   (:fieldset
-                    (:legend "Edit Tag Description")
-                    (:form :method "post"
-                           (:textarea :id "description-editor-textarea"
-                                      :name "description"
-                                      :placeholder "Something about this tag"
-                                      ,(tag-label tag))
-                           (:button :id "description-editor-submit"
-                                    "Save Description")))
-                   (:fieldset
-                    (:legend "Rename Tag")
-                    (:form :method "put"
-                           (:input :type "text" :name "new-name" :value ,(tag-name tag))
-                           (:button "Rename")))
-                   (:fieldset
-                    (:legend "Delete Tag")
-                    (:form :method "delete"
-                           (:div :class "form-row"
-                                 (:input :type "checkbox"
-                                         :name "delete-children"
-                                         :id "delete-children")
-                                 (:label :for "delete-children"
-                                         "Also delete child tags."))
-                           (:div :class "form-row"
-                                 (:input :type "checkbox"
-                                         :name "delete-data"
-                                         :id "delete-data")
-                                 (:label :for "delete-data"
-                                         "Also delete this tag's data.")))
-                    (:button ,(format NIL "Permanently Delete ~A"
-                                      (tag-name tag))))))))))
+           (:div :id "editor-widget-right"
+                 (:fieldset
+                  (:legend "Edit Tag Description")
+                  (:form :method "post"
+                         (:textarea :id "description-editor-textarea"
+                                    :name "description"
+                                    :placeholder "Something about this tag"
+                                    ,(tag-label tag))
+                         (:button :id "description-editor-submit"
+                                  "Save Description")))
+                 (:fieldset
+                  (:legend "Rename Tag")
+                  (:form :method "put"
+                         (:input :type "text" :name "new-name" :value ,(tag-name tag))
+                         (:button "Rename")))
+                 (:fieldset
+                  (:legend "Delete Tag")
+                  (:form :method "delete"
+                         (:div :class "form-row"
+                               (:input :type "checkbox"
+                                       :name "delete-children"
+                                       :id "delete-children")
+                               (:label :for "delete-children"
+                                       "Also delete child tags."))
+                         (:div :class "form-row"
+                               (:input :type "checkbox"
+                                       :name "delete-data"
+                                       :id "delete-data")
+                               (:label :for "delete-data"
+                                       "Also delete this tag's data.")))
+                  (:button ,(format NIL "Permanently Delete ~A"
+                                    (tag-name tag)))))))))

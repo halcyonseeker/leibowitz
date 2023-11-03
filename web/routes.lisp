@@ -140,10 +140,16 @@
 (leibowitz-route (tag-view lib "/tag") (name)
   ;; FIXME: handle NIL or no-such-tag condition here, html generators
   ;; shouldn't have to do error handling!
-  (make-page lib
-             :title (format NIL "~A | Leibowitz Web" name)
-             :sidebar (make-tag-view-sidebar lib name)
-             :body (make-tag-view-page lib name)))
+  (let ((tag (get-tag lib name)))
+    (if tag
+        (make-page lib
+                   :title (format NIL "~A | Leibowitz Web" name)
+                   :sidebar (make-tag-view-sidebar lib tag)
+                   :body (make-tag-view-page lib tag))
+        (progn
+          ;; FIXME: standard 404 page...
+          (setf (hunchentoot:return-code*) 404)
+          (format NIL "Tag named ~S not found" name)))))
 
 (leibowitz-route (edit-tag lib ("/tag" :method :post)) (name)
   (let ((predicates (%parse-post-body-to-list
