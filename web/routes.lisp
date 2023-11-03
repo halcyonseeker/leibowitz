@@ -96,6 +96,49 @@
                  :limit limit :offset offset)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Uploading data
+
+;; FIXME wtf am I even doing with the datum-link?  Should I just
+;; stop supporting it altogether?
+
+(leibowitz-route (new-page lib "/new") ()
+  (make-page lib
+             :here "new"
+             :title "Upload a New Datum | Leibowitz Web"
+             :body `((:section :class "upload-form"
+                               (:form :method "post" :action "/new"
+                                      :enctype "multipart/form-data"
+                                      (:fieldset
+                                       (:legend "Upload A File")
+                                       (:input :type "file" :name "file")
+                                       (:button "Upload")))))))
+
+(leibowitz-route (new-datum lib ("/new" :method :post)) ()
+  (let ((file (hunchentoot:post-parameter "file")))
+    (if file
+      (let* ((temp (nth 0 file))
+             (name (nth 1 file))
+             ;; FIXME: Upload directory needs to be something
+             ;; user-configurable that makes sense in the context of
+             ;; collections.  As-is this breaks when the current working
+             ;; directory is not a subdirectory of library's :homedir
+             ;; initarg (passed to collection-homedir).  While we're on
+             ;; that topic, the collection API feels simultaneously
+             ;; half-baked (what's even doing??) and overengineered
+             ;; (whyyyy God are there so many things to keep track of)
+             (dest (merge-pathnames name)))
+        (if (probe-file dest)
+            ;; FIXME: create a conflict-resolution page that should also
+            ;; be used for copying and moving files.
+            (format NIL "You uploaded ~S, but ~S already exists!" name dest)
+            (progn
+              (uiop:copy-file temp dest)
+              (let ((datum (car (index lib dest))))
+                (hunchentoot:redirect (format NIL "/datum?id=~A"
+                                              (datum-id datum)))))))
+      (hunchentoot:redirect "/new"))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Datum view machinery
 
 (leibowitz-route (datum-view lib "/datum") (id)

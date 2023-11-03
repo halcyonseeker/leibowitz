@@ -247,3 +247,12 @@ ul.path-breadcrumbs a:visited {
 		height: 10em;
 	}
 }
+
+/***********************************************************************
+ * Upload Widget */
+
+.upload-form input {
+	padding: 0.25em 0.25em 0.25em 0.0em;
+	margin-bottom: 0.5em;
+	width: 99%;
+}
