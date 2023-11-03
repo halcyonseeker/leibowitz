@@ -357,6 +357,8 @@ consist of a list of sections."))
     `(:div :class "tile"
            (:a :href ,(format NIL "/datum?id=~A"
                               (hunchentoot:url-encode (datum-id d)))
+               :title ,(let ((nt (datum-num-tags l d)))
+                         (format NIL "~A; ~A tag~P" (datum-kind d) nt nt))
                ,(handler-case
                     `(:img :src ,(let ((thumbnailer:*thumbnail-cache-dir*
                                          (library-thumbnail-cache-dir l)))
