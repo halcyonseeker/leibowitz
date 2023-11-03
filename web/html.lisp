@@ -77,7 +77,11 @@
                                 (:span :class "tag-count"
                                        ,(format nil "(~a)" (tag-count tag)))))))
     (:section
-     (:h2 "File Types"))))
+     (:h2 "File Types")
+     (:ul ,@(loop for type in (library-all-file-types lib)
+                  collect `(:li (:a :href "/fixme/implement/search/filters"
+                                    ,(car type))
+                                (:small ,(format NIL "(~A)" (cdr type)))))))))
 
 (defun list-data-as-html (lib &rest options &key &allow-other-keys)
   "Beautify the output of `leibowitz.core:list-data' as a HTML datum
