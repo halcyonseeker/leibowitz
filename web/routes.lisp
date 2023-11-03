@@ -81,10 +81,7 @@
                    :header (make-tree-breadcrumbs dir)
                    :sidebar (make-tree-sidebar)
                    :body (list-contents-of-directory dir))
-        ;; FIXME: make a template for expected errors
-        (progn
-          (setf (hunchentoot:return-code*) 404)
-          (format NIL "Directory ~S does not exist" dir)))))
+        (return-404 lib (format NIL "Directory ~S does not exist" dir)))))
 
 (leibowitz-route (search-page lib "/search") (q limit offset)
     (let ((limit (if limit (parse-integer limit) 50))
@@ -112,15 +109,16 @@
                              (:small ,id))
                    :sidebar (datum-html-sidebar lib d)
                    :body (make-datum-view-page lib d))
-        ;; FIXME: maybe make a template page for expected errors
-        (progn
-          (setf (hunchentoot:return-code*) 404)
-          (format NIL "Datum with ID ~S not found" id)))))
+        (return-404 lib (format NIL "Datum with ID ~S not found" id)))))
+
 
 (leibowitz-route (datum-raw lib "/raw") (id)
   (let ((d (get-datum lib id)))
-    (setf (hunchentoot:content-type*) (datum-kind d))
-    (injest-raw-datum d)))
+    (if d
+        (progn
+          (setf (hunchentoot:content-type*) (datum-kind d))
+          (injest-raw-datum d))
+        (return-404 lib (format NIL "Datum with ID ~S not found" id)))))
 
 ;; FIXME: Temporary workaround to load a thumbnail from the library's
 ;; cache directory.  We really need to store static files in a set
@@ -146,10 +144,7 @@
                    :title (format NIL "~A | Leibowitz Web" name)
                    :sidebar (make-tag-view-sidebar lib tag)
                    :body (make-tag-view-page lib tag))
-        (progn
-          ;; FIXME: standard 404 page...
-          (setf (hunchentoot:return-code*) 404)
-          (format NIL "Tag named ~S not found" name)))))
+        (return-404 lib (format NIL "Tag named ~S not found" name)))))
 
 (leibowitz-route (edit-tag lib ("/tag" :method :post)) (name)
   (let ((predicates (%parse-post-body-to-list

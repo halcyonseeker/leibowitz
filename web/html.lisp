@@ -58,6 +58,12 @@
                            "Report a Bug")))
               (:script :src "/static/fluff.js")))))
 
+(defun return-404 (lib &optional msg)
+  (setf (hunchentoot:return-code*) 404)
+  (make-page lib :here ""
+                 :title "404 Not Found | Leibowitz Web"
+                 :body `((:section (:p ,msg)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun make-datum-listing-sidebar (lib)
