@@ -195,6 +195,7 @@ ul.path-breadcrumbs a:visited {
 	text-align: center;
 	border: 2px solid var(--fg);
 	overflow-wrap: anywhere;
+	overflow: hidden;
 }
 
 #sidebar-and-content-container .tile img {
