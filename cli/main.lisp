@@ -68,6 +68,7 @@
                        (show/definition)
                        (tag/definition)
                        (tags/definition)
+                       (mv/definition)
                        (ls/definition)
                        (show-tag/definition)
                        (ls-tag/definition)
@@ -244,6 +245,32 @@ argument."
         (tags (cdr (clingon:command-arguments cmd))))
     (format T "Adding tags ~S to datum ~S~%" tags id)
     (add-datum-tags *library* id tags)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: mv
+
+(defsubcmd mv (cmd)
+    (:description "Move or rename a datum, keeping metadata and tags intact."
+     :usage "[old] [new]"
+     :options (list (clingon:make-option
+                     :boolean
+                     :short-name #\f
+                     :long-name "force"
+                     :key :force
+                     :description "Overwrite existing files.")))
+  (let ((src (car (clingon:command-arguments cmd)))
+        (dst (cadr (clingon:command-arguments cmd))))
+    (when (probe-file src) (setf src (truename src)))
+    (when (probe-file dst) (setf dst (truename dst)))
+    (format T "Moving ~A to ~A~%" src dst)
+    (format T "Overwrite? ~S~%" (clingon:getopt cmd :force))
+    (handler-case
+        (library-datum-mv *library* src dst
+                          :overwrite (clingon:getopt cmd :force))
+      (datum-already-exists ()
+        (format *error-output*
+                "File ~S already exists on disk or in db, pass -f to overwrite.~%"
+                dst)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: ls
