@@ -265,8 +265,7 @@ argument."
     (format T "Moving ~A to ~A~%" src dst)
     (format T "Overwrite? ~S~%" (clingon:getopt cmd :force))
     (handler-case
-        (library-datum-mv *library* src dst
-                          :overwrite (clingon:getopt cmd :force))
+        (move-datum *library* src dst :overwrite (clingon:getopt cmd :force))
       (datum-already-exists ()
         (format *error-output*
                 "File ~S already exists on disk or in db, pass -f to overwrite.~%"

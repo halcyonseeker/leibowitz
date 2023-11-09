@@ -116,41 +116,6 @@ end")))
   (sqlite-row l "select count(*) from tag_datum_junctions where datum_id = ? "
               (datum-id d)))
 
-;;; FIXME: Handle non-file data, they don't have entries on disk.  Or
-;;; maybe just tear the link stuff out altogether, there's probably a
-;;; better way of doing that...
-(defmethod library-datum-mv ((l sqlite-library) old-datum-or-id new-datum-or-id
-                             &key (overwrite NIL))
-  (check-type old-datum-or-id (or string pathname datum))
-  (check-type new-datum-or-id (or string pathname datum))
-  (let* ((old (%need-datum-id old-datum-or-id))
-         (new (%need-datum-id new-datum-or-id))
-         (oldth (merge-pathnames old (library-thumbnail-cache-dir l)))
-         (newth (merge-pathnames new (library-thumbnail-cache-dir l))))
-    (when (equal old new) (error 'cannot-mv-or-cp-to-itself :d new))
-    (unless (get-datum l old) (error 'datum-not-indexed :lib l :id old))
-    (when (and (or (get-datum l new) (probe-file new))
-               (not overwrite))
-      (error 'datum-already-exists :d new))
-    (when (and (not (probe-file old))
-               (not (probe-file new)))
-      (error 'datum-is-orphaned :id old))
-    ;; It's okay if old doesn't exist on disk as long as the entry is
-    ;; still in the DB; the user might have moved it and want to
-    ;; update the ID.
-    (when (probe-file old)
-      (rename-file old new)
-      ;; The user probably passed a relative path for new, and we want
-      ;; the absolute for all ids.
-      (setf new (namestring (truename new))))
-    (when (probe-file oldth)
-      (rename-file oldth newth))
-    ;; Triggers do the hard lifting of keeping everything up to date.
-    (with-sqlite-tx (l)
-      (%del-datum-inner-transaction l new)
-      (sqlite-nq l "update data set id = ? where id = ?" new old))
-    (namestring new)))
-
 ;;; Reading and writing data
 
 ;; FIXME: calling on a five mb git repo is monstrously slow...
@@ -200,6 +165,41 @@ end")))
   (let ((id (%need-datum-id datum-or-id)))
     (with-sqlite-tx (l)
       (%del-datum-inner-transaction l id))))
+
+;;; FIXME: Handle non-file data, they don't have entries on disk.  Or
+;;; maybe just tear the link stuff out altogether, there's probably a
+;;; better way of doing that...
+(defmethod move-datum ((l sqlite-library) old-datum-or-id new-datum-or-id
+                             &key (overwrite NIL))
+  (check-type old-datum-or-id (or string pathname datum))
+  (check-type new-datum-or-id (or string pathname datum))
+  (let* ((old (%need-datum-id old-datum-or-id))
+         (new (%need-datum-id new-datum-or-id))
+         (oldth (merge-pathnames old (library-thumbnail-cache-dir l)))
+         (newth (merge-pathnames new (library-thumbnail-cache-dir l))))
+    (when (equal old new) (error 'cannot-mv-or-cp-to-itself :d new))
+    (unless (get-datum l old) (error 'datum-not-indexed :lib l :id old))
+    (when (and (or (get-datum l new) (probe-file new))
+               (not overwrite))
+      (error 'datum-already-exists :d new))
+    (when (and (not (probe-file old))
+               (not (probe-file new)))
+      (error 'datum-is-orphaned :id old))
+    ;; It's okay if old doesn't exist on disk as long as the entry is
+    ;; still in the DB; the user might have moved it and want to
+    ;; update the ID.
+    (when (probe-file old)
+      (rename-file old new)
+      ;; The user probably passed a relative path for new, and we want
+      ;; the absolute for all ids.
+      (setf new (namestring (truename new))))
+    (when (probe-file oldth)
+      (rename-file oldth newth))
+    ;; Triggers do the hard lifting of keeping everything up to date.
+    (with-sqlite-tx (l)
+      (%del-datum-inner-transaction l new)
+      (sqlite-nq l "update data set id = ? where id = ?" new old))
+    (namestring new)))
 
 ;;; Reading and writing tags
 

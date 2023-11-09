@@ -8,13 +8,13 @@
            #:library-print-info
            #:library-data-quantity
            #:library-all-file-types
-           #:library-get-datum-collection
-           #:library-datum-mv)
+           #:library-get-datum-collection)
   (:export #:index
            #:injest-raw-datum
            #:add-datum
            #:get-datum
            #:del-datum
+           #:move-datum
            #:add-tag
            #:get-tag
            #:del-tag
