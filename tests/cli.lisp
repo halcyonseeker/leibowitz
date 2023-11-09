@@ -118,6 +118,47 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: rm
 
+(define-cli-test remove-non-indexed-files-no-options (run)
+  (let ((f1 (namestring (mktmp (user-homedir-pathname))))
+        (f2 (namestring (mktmp (user-homedir-pathname)))))
+    (true (probe-file f1))
+    (true (probe-file f2))
+    (run "rm" f1 f2)
+    (false (probe-file f1))
+    (false (probe-file f2))))
+
+(define-cli-test remove-indexed-files-no-options (run)
+  (let ((f (namestring (mktmp (user-homedir-pathname)))))
+    (run "index" f)
+    (true (probe-file f))
+    (true (get-datum *library* f))
+    (run "rm" f)
+    (false (probe-file f))
+    (false (get-datum *library* f))))
+
+(define-cli-test remove-indexed-file-not-on-disk (run)
+  (let ((f (namestring (mktmp (user-homedir-pathname)))))
+    (run "index" f)
+    (delete-file f)
+    (run "rm" f)
+    (false (get-datum *library* f))))
+
+(define-cli-test attempt-to-remove-nonexistent-file (run)
+  (let ((f1 (namestring (mktmp (user-homedir-pathname))))
+        (f2 (namestring (mktmp (user-homedir-pathname)))))
+    (run "index" f1)
+    (run "index" f2)
+    (fail (run "rm" f1 f2 "hopefully/no/such/file/or/directory")
+        ;; FIXME: del-datum is idempotent and I prefer it that
+        ;; way.... but it also makes the most sense for it to throw this
+        ;; in order to remove the burden of error checking from the
+        ;; caller
+        'no-such-datum-in-disk-or-db)
+    (true (probe-file f1))
+    (true (probe-file f2))
+    (true (get-datum *library* f1))
+    (true (get-datum *library* f2))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: ls
 

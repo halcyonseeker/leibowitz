@@ -69,6 +69,7 @@
                        (tag/definition)
                        (tags/definition)
                        (mv/definition)
+                       (rm/definition)
                        (ls/definition)
                        (show-tag/definition)
                        (ls-tag/definition)
@@ -270,6 +271,42 @@ argument."
         (format *error-output*
                 "File ~S already exists on disk or in db, pass -f to overwrite.~%"
                 dst)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: rm
+
+(defsubcmd rm (cmd)
+    (:description "Remove a datum, including all tag and metadata associations."
+     :usage "[datum ids...]")
+  (let ((ids (loop for arg in (clingon:command-arguments cmd)
+                   collect (cond
+                             ;; If it exists on disk we act like rm(1)
+                             ;; regardless of whether it's in the
+                             ;; database.  FIXME: gate this behind a
+                             ;; flag?
+                             ((probe-file arg) (namestring (truename arg)))
+                             ;; The forgoing branch failed, so it's
+                             ;; not on disk.
+                             ((get-datum *library* arg) arg)
+                             ;; FIXME: `del-datum' should raise this
+                             ;; condition!  How to do so while
+                             ;; retaining idempotency?
+                             (t (error 'no-such-datum-in-disk-or-db
+                                       :lib *library* :id arg))))))
+    (loop for id in ids
+          do (format T "Removing ~A~%" id)
+             (del-datum *library* id)
+             ;; FIXME: `del-datum' doesn't do this, should it?
+             ;; `move-datum' and `copy-datum' do act on the disk, but
+             ;; should they?  Should we gate the behavior behind a
+             ;; keyword argument?  Should we still consider the idea
+             ;; that there will by subclasses of `datum' like
+             ;; `datum-link' whose ID isn't a path?  In any case,
+             ;; deleting/moving/copying files should go through the
+             ;; collections API, mediating disk access is what it's
+             ;; for!
+             (when (probe-file id)
+               (delete-file id)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: ls
