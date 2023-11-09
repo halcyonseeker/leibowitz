@@ -135,6 +135,29 @@ Future Work
   .webloc or .url file.  Could also integrate with web archive
   collections like gallery-dl to link to historical versions of the
   archived document, though that's less useful I think.
+- Automatically figure out the semantic similarities of tags and data.
+  - Tag similarities could potentially be computed by some combination
+    of:
+    - Good old Levenshtein distance to catch alternate spellings.
+    - Linguistic analysis, probably provided by a full-text search
+      engine.  I believe Xapian exposes some of these APIs.
+    - Statistical analysis of tags' data, a set of tags are probably
+      pretty similar if they share a majority of data
+    - Sibling tags in the hierarchy could be found by looking for tags
+      whose ancestor hierarchy is similar; ie statistical analysis of
+      subgraphs of the overall DAG.
+  - For data similarities the best general approach would probably be
+    to store vector embeddings of each datum and find the nearest
+    neighbors of each, probably using the [Hierarchical Navigable
+    Small World algorithm](https://arxiv.org/abs/1603.09320).  This
+    could also be applied to find semantically similar tags.
+  - For audio and image data we could probably use the same sorts of
+    algorithms used by the likes of Shazam and Yandex's reverse image
+    search to get semantic structure from non-textual data — I need to
+    read up on this more.
+- Could be interesting to supplement search with a local LLM, probably
+  Facebook's [Llama2](https://ai.meta.com/llama/), fed entirely by
+  your local corpus.
 
 Notes
 -----
