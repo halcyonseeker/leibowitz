@@ -201,6 +201,34 @@ end")))
       (sqlite-nq l "update data set id = ? where id = ?" new old))
     (namestring new)))
 
+(defmethod copy-datum ((l sqlite-library) old-datum-or-id new-datum-or-id
+                       &key (overwrite NIL))
+  (check-type old-datum-or-id (or string pathname datum))
+  (check-type new-datum-or-id (or string pathname datum))
+  (let* ((old (%need-datum-id old-datum-or-id))
+         (new (%need-datum-id new-datum-or-id))
+         (oldth (merge-pathnames old (library-thumbnail-cache-dir l)))
+         (newth (merge-pathnames new (library-thumbnail-cache-dir l))))
+    (when (equal old new) (error 'cannot-mv-or-cp-to-itself :d new))
+    (unless (get-datum l old) (error 'datum-not-indexed :lib l :id old))
+    (unless (probe-file old) (error 'datum-is-orphaned :lib l :id old))
+    (when (and (or (get-datum l new) (probe-file new))
+               (not overwrite))
+      (error 'datum-already-exists :d new))
+    (uiop:copy-file old new)
+    (uiop:copy-file oldth newth)
+    (with-sqlite-tx (l)
+      (let* ((new (namestring (truename new)))
+             (datum (get-datum l old))
+             (tags (get-datum-tags l datum)))
+        (setf (datum-id datum) new)
+        (add-datum l datum)
+        (if overwrite
+            (%add-datum-tags-inner-transaction l datum tags :replace T)
+            (%add-datum-tags-inner-transaction l datum tags))))
+    ;; FIXME: with-sqlite-tx clobbers return values
+    (get-datum l new)))
+
 ;;; Reading and writing tags
 
 (defmethod add-tag ((l sqlite-library) tag-or-name)

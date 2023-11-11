@@ -525,3 +525,45 @@
   (delete-file p)
   (fail (move-datum l p "no such datum")
       'datum-is-orphaned))
+
+(define-library-test copy-datum-where-old-exists-new-doesnt (l oldpath)
+  (let ((d0 (car (index l oldpath)))
+        (newpath (format NIL "~A_copy" oldpath)))
+    (add-datum-tags l d0 '("To the town of Agua Fria rode a stranger one fine day"))
+    (let ((d1 (copy-datum l oldpath newpath)))
+      (false (leibowitz.core::%datum-equal d0 d1))
+      (is #'equal newpath (datum-id d1))
+      (is #'equal "To the town of Agua Fria rode a stranger one fine day"
+          (tag-name (car (get-datum-tags l (datum-id d1))))))))
+
+(define-library-test copy-datum-where-both-exist (l oldp newp)
+  (index l oldp)
+  ;; new on disk, not in db
+  (fail (copy-datum l oldp newp) 'datum-already-exists)
+  (false (get-datum l newp))
+  ;; new in db, not on disk
+  (index l newp)
+  (delete-file newp)
+  (fail (copy-datum l oldp newp) 'datum-already-exists)
+  (false (probe-file newp))
+  ;; new on both, no overwrite
+  (let ((newp (format NIL "~A_copy" newp)))
+    (uiop:copy-file oldp newp)
+    (index l newp)
+    (fail (copy-datum l oldp newp) 'datum-already-exists)
+    (true (get-datum l newp))
+    ;; now on both, overwrite
+    (is #'equal (namestring newp) (datum-id (copy-datum l oldp newp :overwrite T)))))
+
+(define-library-test copy-datum-where-old-not-indexed (l oldp)
+  (fail (copy-datum l oldp (format NIL "~A_copy" oldp))
+      'datum-not-indexed))
+
+(define-library-test copy-datum-where-theyre-the-same (l p)
+  (fail (copy-datum l p p) 'cannot-mv-or-cp-to-itself))
+
+(define-library-test copy-datum-where-old-is-orphaned (l p)
+  (index l p)
+  (delete-file p)
+  (fail (copy-datum l p (format NIL "~A_copy" p))
+      'datum-is-orphaned))

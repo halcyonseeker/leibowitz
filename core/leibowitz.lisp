@@ -93,6 +93,13 @@ where the user moved the file on disk and doesn't want to use
 metadata.  If both exist, an error is issued unless :overwrite is T.
 If neither exist or they're the same, an error is issued."))
 
+(defgeneric copy-datum (library old-datum-or-id new-datum-or-id &key overwrite)
+  (:documentation "Copy one datum to another name, keeping the old version and preserving
+all metadata and thumbnails, returning the new datum.  If NEW exists,
+either in the database or on disk, an error will be issued unless
+:overwrite is T.  If OLD doesn't exist in both database and disk an
+error will be issued."))
+
 ;;; Reading and writing tags
 
 (defgeneric add-tag (library tag-or-name)

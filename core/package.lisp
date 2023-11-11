@@ -15,6 +15,7 @@
            #:get-datum
            #:del-datum
            #:move-datum
+           #:copy-datum
            #:add-tag
            #:get-tag
            #:del-tag
