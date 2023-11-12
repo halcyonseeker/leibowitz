@@ -144,24 +144,27 @@
 (leibowitz-route (datum-view lib "/datum") (id)
   ;; FIXME: get-datum should be changed to throw a condition when the
   ;; datum isn't found, returning NIL is in-band signaling.
-  (let ((d (get-datum lib id)))
-    (if d
-        (make-page lib
-                   :title (format NIL "~A | Leibowitz Web" (datum-title d))
-                   :header `((:h1 ,(datum-title d))
-                             (:small ,id))
-                   :sidebar (datum-html-sidebar lib d)
-                   :body (make-datum-view-page lib d))
-        (return-404 lib (format NIL "Datum with ID ~S not found" id)))))
-
+  (if id
+      (let ((d (get-datum lib id)))
+        (if d
+            (make-page lib
+                       :title (format NIL "~A | Leibowitz Web" (datum-title d))
+                       :header `((:h1 ,(datum-title d))
+                                 (:small ,id))
+                       :sidebar (datum-html-sidebar lib d)
+                       :body (make-datum-view-page lib d))
+            (return-404 lib (format NIL "Datum with ID ~S not found" id))))
+      (hunchentoot:redirect "/")))
 
 (leibowitz-route (datum-raw lib "/raw") (id)
-  (let ((d (get-datum lib id)))
-    (if d
-        (progn
-          (setf (hunchentoot:content-type*) (datum-kind d))
-          (injest-raw-datum d))
-        (return-404 lib (format NIL "Datum with ID ~S not found" id)))))
+  (if id
+      (let ((d (get-datum lib id)))
+        (if d
+            (progn
+              (setf (hunchentoot:content-type*) (datum-kind d))
+              (injest-raw-datum d))
+            (return-404 lib (format NIL "Datum with ID ~S not found" id))))
+      (hunchentoot:redirect "/")))
 
 ;; FIXME: Temporary workaround to load a thumbnail from the library's
 ;; cache directory.  We really need to store static files in a set
@@ -179,15 +182,15 @@
 ;; Tag view machinery
 
 (leibowitz-route (tag-view lib "/tag") (name)
-  ;; FIXME: handle NIL or no-such-tag condition here, html generators
-  ;; shouldn't have to do error handling!
-  (let ((tag (get-tag lib name)))
-    (if tag
-        (make-page lib
-                   :title (format NIL "~A | Leibowitz Web" name)
-                   :sidebar (make-tag-view-sidebar lib tag)
-                   :body (make-tag-view-page lib tag))
-        (return-404 lib (format NIL "Tag named ~S not found" name)))))
+  (if name
+      (let ((tag (get-tag lib name)))
+        (if tag
+            (make-page lib
+                       :title (format NIL "~A | Leibowitz Web" name)
+                       :sidebar (make-tag-view-sidebar lib tag)
+                       :body (make-tag-view-page lib tag))
+            (return-404 lib (format NIL "Tag named ~S not found" name))))
+      (hunchentoot:redirect "/tags")))
 
 (leibowitz-route (edit-tag lib ("/tag" :method :post)) (name)
   (let ((predicates (%parse-post-body-to-list
