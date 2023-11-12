@@ -131,7 +131,8 @@
   (fail (get-datum l "Captain Nemo" :error T) 'datum-not-indexed))
 
 (define-library-test delete-nonexistent-datum (l)
-  (del-datum l "some datum id"))
+  (del-datum l "some datum id")
+  (fail (del-datum l "no" :error T) 'datum-not-indexed))
 
 ;; FIXME: writing some tests for leibowitz.core::%datum-equal would be worthwhile
 

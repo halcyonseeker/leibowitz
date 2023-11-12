@@ -162,9 +162,10 @@ end")))
   (sqlite-nq lib "delete from data where id = ?" id)
   (sqlite-nq lib "delete from tag_datum_junctions where datum_id = ?" id))
 
-(defmethod del-datum ((l sqlite-library) datum-or-id)
+(defmethod del-datum ((l sqlite-library) datum-or-id &key (error NIL))
   (check-type datum-or-id (or datum string pathname))
   (let ((id (%need-datum-id datum-or-id)))
+    (when error (get-datum l id :error T))
     (with-sqlite-tx (l)
       (%del-datum-inner-transaction l id))))
 

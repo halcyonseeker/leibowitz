@@ -82,10 +82,11 @@ NIL if it is not found.  ID may be either a string or a pathname.  If
 :error is T, raise a condition of type `datum-not-indexed' rather than
 returning NIL."))
 
-(defgeneric del-datum (library datum-or-id)
+(defgeneric del-datum (library datum-or-id &key error)
   (:documentation "Given a datum or its id in the form of a string or a pathname, remove
 the corresponding entry from the library.  If the datum is not
-present, do nothing."))
+present, do nothing unless :error is T, in which case raise a
+`datum-not-indexed'"))
 
 (defgeneric move-datum (library old-datum-or-id new-datum-or-id &key overwrite)
   (:documentation "Move or rename a datum, preserving its thumbnail, metadata, and tag
