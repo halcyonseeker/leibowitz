@@ -67,10 +67,10 @@ Roadmap to 0.1 version; minimum viable product
   - [ ] Editing data entries:
     - [X] Adding tags
     - [X] Removing tags
-    - [ ] Moving/renaming
+    - [X] Moving/renaming
     - [X] Uploading/importing from URL
     - [ ] Manually reindexing files and directories
-    - [ ] Deleting
+    - [X] Deleting
   - [ ] Editing tag entries:
     - [ ] Removing data
     - [ ] Renaming tags
