@@ -115,8 +115,27 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: cp
 
+;;; FIXME: I'm really repeating myself here, the only thing I should
+;;; be testing is that -f does indeed pass :overwrite.
+
+(define-cli-test cp-simple-case-absolute-paths (run)
+  (let* ((src (namestring (mktmp (user-homedir-pathname))))
+         (dst (format NIL "~A_copy" src)))
+    (run "index" src)
+    (run "cp" src dst)
+    (true (get-datum *library* src))
+    (true (get-datum *library* dst))))
+
+(define-cli-test cp-relative-path-for-destination (run)
+  (let* ((src (namestring (mktmp (user-homedir-pathname)))))
+    (run "index" src)
+    (run "cp" src "hi")
+    (true (get-datum *library* (truename "hi")))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: rm
+
+;; FIXME So much repetition from the core tests!
 
 (define-cli-test remove-non-indexed-files-no-options (run)
   (let ((f1 (namestring (mktmp (user-homedir-pathname))))

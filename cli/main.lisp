@@ -69,6 +69,7 @@
                        (tag/definition)
                        (tags/definition)
                        (mv/definition)
+                       (cp/definition)
                        (rm/definition)
                        (ls/definition)
                        (show-tag/definition)
@@ -270,6 +271,30 @@ argument."
         (format *error-output*
                 "File ~S already exists on disk or in db, pass -f to overwrite.~%"
                 dst)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: cp
+
+(defsubcmd cp (cmd)
+    (:description "Copy a datum, duplicating its tags and metadata."
+     :usage "[old] [new]"
+     :options (list (clingon:make-option
+                     :flag
+                     :short-name #\f
+                     :long-name "force"
+                     :key :force
+                     :description "Overwrite new if it exists.")))
+    (let ((src (car (clingon:command-arguments cmd)))
+          (dst (cadr (clingon:command-arguments cmd))))
+      (when (probe-file src) (setf src (namestring (truename src))))
+      (when (probe-file dst) (setf dst (namestring (truename dst))))
+      (format T "Copying ~A to ~A~%" src dst)
+      (handler-case
+          (copy-datum *library* src dst :overwrite (clingon:getopt cmd :force))
+        (datum-already-exists ()
+          (format *error-output*
+                  "File ~S already exists on disk or in db, pass -f to overwrite.~%"
+                  dst)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: rm
