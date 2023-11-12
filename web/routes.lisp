@@ -14,12 +14,13 @@
    (merge-pathnames #P"code/leibowitz/web/static/fluff.js" (user-homedir-pathname))))
 
 (defun %parse-post-body-to-list (data)
-  (with-input-from-string (s data)
-    (loop for line = (read-line s nil 'eof)
-          until (eq line 'eof)
-          for tag = (string-trim '(#\Space #\Return) line)
-          unless (= 0 (length tag))
-            collect tag)))
+  (when data
+    (with-input-from-string (s data)
+      (loop for line = (read-line s nil 'eof)
+            until (eq line 'eof)
+            for tag = (string-trim '(#\Space #\Return) line)
+            unless (= 0 (length tag))
+              collect tag))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Top-level pages
@@ -208,13 +209,29 @@
 ;; Editing data
 
 (leibowitz-route (edit-datum lib ("/datum" :method :post)) (id)
-  (let ((tags (%parse-post-body-to-list (hunchentoot:post-parameter "tags")))
-        (ajax (hunchentoot:post-parameter "ajax")))
-    (add-datum-tags lib id tags :replace T)
-    (if ajax
-        (let ((datum (get-datum lib id)))
-          ;; FIXME: handle the NIL case or a datum-not-indexed
-          ;; condition, just like datum-view!
-          (html-snippet (datum-html-sidebar lib datum)))
-        (hunchentoot:redirect
-         (format NIL "/datum?id=~A" (hunchentoot:url-encode id))))))
+  (let ((move-to (hunchentoot:post-parameter "move-to"))
+        (copy-to (hunchentoot:post-parameter "copy-to"))
+        (delete  (hunchentoot:post-parameter "delete"))
+        (tags    (%parse-post-body-to-list (hunchentoot:post-parameter "tags")))
+        (ajax    (hunchentoot:post-parameter "ajax")))
+    ;; FIXME: some validation would be good, though this endpoint
+    ;; really should only be used internally
+    (handler-case
+        ;; FIXME: Add conflict resolution page to handle overwrites.
+        (cond (move-to
+               (move-datum lib id move-to :overwrite NIL)
+               (hunchentoot:redirect (format NIL "/datum?id=~A" (url move-to))))
+              (copy-to
+               (copy-datum lib id copy-to :overwrite NIL)
+               (hunchentoot:redirect (format NIL "/datum?id=~A" (url copy-to))))
+              (delete
+               (del-datum lib id)
+               (hunchentoot:redirect "/"))
+              (tags
+               (add-datum-tags lib id tags :replace T)
+               (if ajax
+                   (let ((datum (get-datum lib id :error T)))
+                     (html-snippet (datum-html-sidebar lib datum)))
+                   (hunchentoot:redirect (format NIL "/datum?id=~A" (url id))))))
+      (datum-not-indexed ()
+        (return-404 lib (format NIL "Datum with ID ~S not found" id))))))
