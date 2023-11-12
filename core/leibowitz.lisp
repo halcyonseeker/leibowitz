@@ -76,9 +76,11 @@ directory tree."))
 (defgeneric add-datum (library datum)
   (:documentation "Given a datum, add it to the library then return it."))
 
-(defgeneric get-datum (library id)
+(defgeneric get-datum (library id &key error)
   (:documentation "Given a datum id, return an instance retrieved from the library or
-NIL if it is not found.  ID may be either a string or a pathname."))
+NIL if it is not found.  ID may be either a string or a pathname.  If
+:error is T, raise a condition of type `datum-not-indexed' rather than
+returning NIL."))
 
 (defgeneric del-datum (library datum-or-id)
   (:documentation "Given a datum or its id in the form of a string or a pathname, remove

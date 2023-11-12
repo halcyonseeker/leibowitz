@@ -140,7 +140,7 @@ end")))
              (datum-modified d) (datum-terms d))
   d)
 
-(defmethod get-datum ((l sqlite-library) path-or-url)
+(defmethod get-datum ((l sqlite-library) path-or-url &key (error NIL))
   (check-type path-or-url (or string pathname))
   (multiple-value-bind
         (id accesses kind birth modified terms)
@@ -150,7 +150,9 @@ end")))
         (make-instance 'datum :id id :accesses accesses :kind kind :birth birth
                               :modified modified :terms terms
                               :collection (library-get-datum-collection l id))
-        NIL)))
+        (if error
+            (error 'datum-not-indexed :lib l :id id)
+            NIL))))
 
 (defun %del-datum-inner-transaction (lib id)
   (loop for tag in (get-datum-tags lib id)

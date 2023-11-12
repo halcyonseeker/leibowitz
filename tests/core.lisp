@@ -127,6 +127,9 @@
   (false (get-datum l "some nonexistent id"))
   (false (get-datum l #P"/this/time/a/pathname")))
 
+(define-library-test retrieve-nonexistent-datum-error (l)
+  (fail (get-datum l "Captain Nemo" :error T) 'datum-not-indexed))
+
 (define-library-test delete-nonexistent-datum (l)
   (del-datum l "some datum id"))
 
