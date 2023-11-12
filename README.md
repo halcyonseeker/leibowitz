@@ -57,6 +57,7 @@ Roadmap to 0.1 version; minimum viable product
       yields okay.  Some light stackoverflowing indicated this might
       be a result damaged indexes, which would make sense considering
       it only (so far) shows up when doing full-text search.
+- [ ] Record inodes so that the indexer can catch (some) moved files.
 
 ### Web
 
@@ -67,18 +68,15 @@ Roadmap to 0.1 version; minimum viable product
     - [X] Adding tags
     - [X] Removing tags
     - [ ] Moving/renaming
-    - [ ] Uploading/importing from URL
+    - [X] Uploading/importing from URL
     - [ ] Manually reindexing files and directories
     - [ ] Deleting
   - [ ] Editing tag entries:
-    - [ ] Adding data
     - [ ] Removing data
     - [ ] Renaming tags
     - [ ] Editing tag description
     - [X] Adding parents
     - [X] Removing parents
-    - [ ] Adding children
-    - [ ] Removing children
   - [ ] Search and listing:
     - [ ] Support changing the sort order and criterion for all data
           listings
@@ -94,16 +92,15 @@ Roadmap to 0.1 version; minimum viable product
 - [ ] Expose the full API functionality in the CLI interface:
   - [ ] Editing data entries:
     - [X] Adding tags
-    - [ ] Removing tags
-    - [ ] Moving/renaming
+    - [X] Removing tags
+    - [X] Moving/renaming
     - [ ] Uploading/importing from URL
-    - [ ] Manually reindexing files and directories
-    - [ ] Deleting
-    - [ ] Editing metadata
-    - [ ] Viewing data summaries
+    - [X] Manually reindexing files and directories
+    - [X] Deleting
+    - [X] Viewing data summaries
   - [ ] Editing tag entries:
     - [X] Adding data
-    - [ ] Removing data
+    - [X] Removing data
     - [ ] Renaming tags
     - [ ] Editing tag description
     - [ ] Adding parents
