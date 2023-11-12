@@ -77,6 +77,7 @@
            #:cannot-mv-or-cp-to-itself
            #:no-such-datum-in-disk-or-db
            #:datum-is-orphaned
+           #:no-such-tag
            #:no-applicable-collection)
   ;; SQLite library backend
   (:export #:sqlite-library

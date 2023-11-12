@@ -43,6 +43,12 @@ most technically useful way possible."))
              (with-slots (id) c
                (format s "Underlying file for ~S has been moved or deleted!" id)))))
 
+(define-condition no-such-tag (friendly-error)
+  ((name :initarg :name))
+  (:report (lambda (c s)
+             (with-slots (name) c
+               (format s "There is no tag named ~S" name)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Unfriendly errors
 
