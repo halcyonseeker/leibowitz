@@ -385,8 +385,11 @@ argument."
 (defsubcmd show-tag (cmd)
     (:description "Show information about a tag."
      :usage "[tag names....]")
-  (loop for tag in (clingon:command-arguments cmd)
-        do (tag-print-long-report *library* (get-tag *library* tag))))
+  (loop for name in (clingon:command-arguments cmd)
+        for tag = (get-tag *library* name)
+        do (if tag
+               (tag-print-long-report *library* tag)
+               (error 'no-such-tag :name name))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: ls-tags
