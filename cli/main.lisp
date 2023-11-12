@@ -254,17 +254,16 @@ argument."
     (:description "Move or rename a datum, keeping metadata and tags intact."
      :usage "[old] [new]"
      :options (list (clingon:make-option
-                     :boolean
+                     :flag
                      :short-name #\f
                      :long-name "force"
                      :key :force
                      :description "Overwrite existing files.")))
   (let ((src (car (clingon:command-arguments cmd)))
         (dst (cadr (clingon:command-arguments cmd))))
-    (when (probe-file src) (setf src (truename src)))
-    (when (probe-file dst) (setf dst (truename dst)))
+    (when (probe-file src) (setf src (namestring (truename src))))
+    (when (probe-file dst) (setf dst (namestring (truename dst))))
     (format T "Moving ~A to ~A~%" src dst)
-    (format T "Overwrite? ~S~%" (clingon:getopt cmd :force))
     (handler-case
         (move-datum *library* src dst :overwrite (clingon:getopt cmd :force))
       (datum-already-exists ()
