@@ -69,6 +69,7 @@
                        (tag/definition)
                        (tags/definition)
                        (untag/definition)
+                       (untags/definition)
                        (mv/definition)
                        (cp/definition)
                        (rm/definition)
@@ -266,11 +267,40 @@ argument."
         (data (loop for p in (cdr (clingon:command-arguments cmd))
                     collect (if (probe-file p)
                                 (truename p)
+                                ;; FIXME: this will fail if the
+                                ;; underlying file was moved
                                 (error 'datum-not-indexed :lib *library* :id p)))))
     (loop for d in data
           do (format T "Removing tag ~S from datum ~S~%" tag d)
              (del-datum-tags *library* d (list tag)
                              :cascade (clingon:getopt cmd :cascade)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: untags
+
+(defsubcmd untags (cmd)
+    (:description "Remove one or more tags from a datum."
+     :usage "[datum id] [tags...]"
+     :options (list (clingon:make-option
+                     :flag
+                     :short-name #\c
+                     :long-name "cascade"
+                     :key :cascade
+                     :description "Also remove tags from this datum that depend on the supplied tags.")))
+  (let ((id (car (clingon:command-arguments cmd)))
+        (tags (cdr (clingon:command-arguments cmd))))
+    (if (probe-file id)
+        (setf id (truename id))
+        ;; FIXME this wil fail if the underlying file is moved or
+        ;; deleted; all this error handling should go in the core
+        ;; where path resolution can be handled by an internal
+        ;; `truename' which attempts to resolve the ID even with a
+        ;; missing file.
+        (error 'datum-not-indexed :lib *library* :id id))
+    (format T "Removing tags ~S from datum ~S~%" tags id)
+    (del-datum-tags *library* id tags :cascade (clingon:getopt cmd :cascade))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: mv
 
