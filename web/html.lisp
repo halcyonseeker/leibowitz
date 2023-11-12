@@ -78,9 +78,10 @@
      ;; FIXME: add an argument to list-tags to return only the top N.
      (:ul ,@(loop for tag in (list-tags lib)
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
-                                                   (hunchentoot:url-encode
-                                                    (tag-name tag)))
-                                    ,(tag-name tag))
+                                                   (cl-who:escape-string
+                                                    (hunchentoot:url-encode
+                                                     (tag-name tag))))
+                                    ,(cl-who:escape-string (tag-name tag)))
                                 (:span :class "tag-count"
                                        ,(format nil "(~a)" (tag-count tag)))))))
     (:section
