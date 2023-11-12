@@ -110,3 +110,10 @@ functions."
 ;;; END QUESTIONABLE HACKS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun html (str)
+  (check-type str string)
+  (cl-who:escape-string str))
+
+(defun url (str)
+  (check-type str string)
+  (hunchentoot:url-encode str))
