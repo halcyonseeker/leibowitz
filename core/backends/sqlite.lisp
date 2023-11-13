@@ -255,14 +255,18 @@ end")))
         (make-instance 'tag :name name :label label :count count)
         NIL)))
 
+(defun %del-tag-inner-transaction (l name)
+  (check-type l sqlite-library)
+  (check-type name string)
+  (sqlite-nq l "delete from tags where name = ?" name)
+  (sqlite-nq l "delete from tag_datum_junctions where tag_name = ?" name)
+  (sqlite-nq l "delete from tag_predicates where iftag = ? or thentag = ?"
+             name name))
+
 (defmethod del-tag ((l sqlite-library) tag-or-name)
   (check-type tag-or-name (or datum string))
-  (let ((name (%need-tag-name tag-or-name)))
-    (with-sqlite-tx (l)
-      (sqlite-nq l "delete from tags where name = ?" name)
-      (sqlite-nq l "delete from tag_datum_junctions where tag_name = ?" name)
-      (sqlite-nq l "delete from tag_predicates where iftag = ? or thentag = ?"
-                 name name))))
+  (with-sqlite-tx (l)
+    (%del-tag-inner-transaction l (%need-tag-name tag-or-name))))
 
 ;;; Reading and writing datum-tag relationships
 
