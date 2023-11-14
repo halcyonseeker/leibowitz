@@ -75,6 +75,7 @@
                        (rm/definition)
                        (ls/definition)
                        (show-tag/definition)
+                       (rm-tag/definition)
                        (ls-tag/definition)
                        )
    :options (list (clingon:make-option
@@ -430,3 +431,21 @@ argument."
   (loop for tag in (list-tags *library*)
         do (format T "(~A data) ~A: ~S~%"
                    (tag-count tag) (tag-name tag) (tag-label tag))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: rm-tag
+
+(defsubcmd rm-tag (cmd)
+    (:description "Remove a tag, leaving associated data intact."
+     :usage "[tag names...]")
+  (let ((names (loop for arg in (clingon:command-arguments cmd)
+                     collect (if (get-tag *library* arg)
+                                 arg
+                                 ;; FIXME: `del-tag' should raise this
+                                 ;; condition!
+                                 (error 'no-such-tag :name arg)))))
+    (loop for name in names
+          for tag = (get-tag *library* name)
+          do (format T "Removing tag ~S, leaving ~A data intact~%"
+                     name (tag-count tag))
+             (del-tag *library* name))))

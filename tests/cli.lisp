@@ -195,3 +195,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: rm-tag
+
+(define-cli-test remove-tag (run)
+  (let ((path (namestring (mktmp (user-homedir-pathname)))))
+    (run "index" path)
+    (add-datum-tags *library* path '("some tag"))
+    (is #'= 1 (length (get-datum-tags *library* path)))
+    (true (get-tag *library* "some tag"))
+    (run "rm-tag" "some tag")
+    (false (get-tag *library* "some tag"))
+    (false (get-datum-tags *library* path))))
+
