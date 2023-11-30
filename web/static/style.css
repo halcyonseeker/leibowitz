@@ -196,6 +196,14 @@ ul.path-breadcrumbs a:visited {
 	padding: 5px;
 }
 
+.checkbox-label-container {
+	white-space: nowrap;
+}
+
+#sidebar-and-content-container #content #datum-listing-filter-form {
+	display: inline;
+}
+
 #sidebar-and-content-container #sidebar .sidebar-form {
 	display: block;
 }

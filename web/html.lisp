@@ -23,9 +23,7 @@
                     (:nav :id "navbar" :class "ui"
                           ;; Apply the "here" class to whichever link
                           ;; corresponds to the current page, if any
-                          ,@(loop for link in '((:a :href "/" "Recent")
-                                                (:a :href "/popular" "Popular")
-                                                (:a :href "/timeline" "Timeline")
+                          ,@(loop for link in '((:a :href "/" "All")
                                                 (:a :href "/tags" "Tags")
                                                 (:a :href "/tree" "Tree")
                                                 (:a :href "/search" "Search")
@@ -95,14 +93,18 @@
   "Beautify the output of `leibowitz.core:list-data' as a HTML datum
 listing.  Key arguments are passed unmodified to that method."
   (check-type lib library)
-  `((:section :id "tiles"
+  `(,@(make-datum-listing-filter-bar (getf options :sort-by)
+                                     (getf options :direction))
+    (:section :id "tiles"
               ,@(loop for datum in (apply #'list-data (nconc (list lib) options))
                       collect (datum-html-preview lib datum)))))
 
-(defun list-search-results-as-html (lib terms limit offset)
+(defun list-search-results-as-html (lib terms limit offset sort-by direction)
   (check-type lib library)
   (check-type terms string)
   `(,(make-search-page-search-box lib terms)
+    ,@(make-datum-listing-filter-bar sort-by direction)
+    (:small "FIXME: query should support the same kinds of filters as list-data!")
     (:section :id "tiles"
               ,@(loop for datum in (query lib terms :limit limit :offset offset)
                       collect (datum-html-preview lib datum)))))
@@ -302,3 +304,32 @@ listing.  Key arguments are passed unmodified to that method."
                                        "Also delete this tag's data.")))
                   (:button ,(format NIL "Permanently Delete ~A"
                                     (tag-name tag)))))))))
+
+(defun make-datum-listing-filter-bar (sort-by direction)
+  `((:nav :id "listing-filter-controls"
+          (:form :method "get" :id "datum-listing-filter-form"
+                 (:label :for "sort-by"
+                         "Sort by")
+                 (:select :name "sort-by"
+                          :id "sort-by"
+                          ,(if (eql sort-by :modified)
+                               `(:option :value "modified" :selected "" "Date Modified")
+                               `(:option :value "modified" "Date Modified"))
+                          ,(if (eql sort-by :birth)
+                               `(:option :value "birth" :selected "" "Date Created")
+                               `(:option :value "birth" "Date Created"))
+                          ,(if (eql sort-by :accesses)
+                               `(:option :value "accesses" :selected "" "Number of Views")
+                               `(:option :value "accesses" "Number of Views")))
+                 (:span :class "checkbox-label-container"
+                        ,(if (eql direction :descending)
+                             `(:input :type "radio" :name "direction" :value "descending" :checked "")
+                             `(:input :type "radio" :name "direction" :value "descending"))
+                        (:label :for "descending" "Descending"))
+                 (:span :class "checkbox-label-container"
+                        ,(if (eql direction :ascending)
+                             `(:input :type "radio" :name "direction" :value "ascending" :checked "")
+                             `(:input :type "radio" :name "direction" :value "ascending"))
+                        (:label :for "ascending" "Ascending"))
+                 (:input :type "submit" :value "Filter")))
+    (:small "FIXME: Also filter by tags and terms!")))

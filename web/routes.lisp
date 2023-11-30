@@ -25,41 +25,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Top-level pages
 
-(leibowitz-route (index-page lib "/") (limit offset)
+(leibowitz-route (index-page lib "/") (limit offset sort-by direction)
   (let ((limit (if limit (parse-integer limit) 50))
-        (offset (if offset (parse-integer offset) 0)))
+        (offset (if offset (parse-integer offset) 0))
+        (sort-by (if sort-by (intern (string-upcase sort-by) :keyword)
+                     :modified))
+        (direction (if direction (intern (string-upcase direction) :keyword)
+                       :descending)))
     (make-page lib
                :here "/"
-               :title "Recent | Leibowitz Web"
+               :title "All | Leibowitz Web"
                :sidebar (make-datum-listing-sidebar lib)
-               :body (list-data-as-html lib :sort-by :modified
-                                            :direction :descending
-                                            :limit limit
-                                            :offset offset)
-               :limit limit :offset offset)))
-
-(leibowitz-route (popular-page lib "/popular") (limit offset)
-  (let ((limit (if limit (parse-integer limit) 50))
-        (offset (if offset (parse-integer offset) 0)))
-    (make-page lib
-               :here "/popular"
-               :title "Popular | Leibowitz Web"
-               :sidebar (make-datum-listing-sidebar lib)
-               :body (list-data-as-html lib :sort-by :accesses
-                                            :direction :descending
-                                            :limit limit
-                                            :offset offset)
-               :limit limit :offset offset)))
-
-(leibowitz-route (timeline-page lib "/timeline") (limit offset)
-  (let ((limit (if limit (parse-integer limit) 50))
-        (offset (if offset (parse-integer offset) 0)))
-    (make-page lib
-               :here "/timeline"
-               :title "Timeline | Leibowitz Web"
-               :sidebar (make-datum-listing-sidebar lib)
-               :body (list-data-as-html lib :sort-by :birth
-                                            :direction :ascending
+               :body (list-data-as-html lib :sort-by sort-by
+                                            :direction direction
                                             :limit limit
                                             :offset offset)
                :limit limit :offset offset)))
@@ -84,15 +62,20 @@
                    :body (list-contents-of-directory dir))
         (return-404 lib (format NIL "Directory ~S does not exist" dir)))))
 
-(leibowitz-route (search-page lib "/search") (q limit offset)
+(leibowitz-route (search-page lib "/search") (q limit offset sort-by direction)
     (let ((limit (if limit (parse-integer limit) 50))
-          (offset (if offset (parse-integer offset) 0)))
+          (offset (if offset (parse-integer offset) 0))
+          (sort-by (if sort-by (intern (string-upcase sort-by) :keyword)
+                       :modified))
+          (direction (if direction (intern (string-upcase direction) :keyword)
+                         :descending)))
       (make-page lib
                  :here "/search"
                  :title "Search | Leibowitz Web"
                  :sidebar `((:section "Idk yet"))
                  :body (if q
-                           (list-search-results-as-html lib q limit offset)
+                           (list-search-results-as-html
+                            lib q limit offset sort-by direction)
                            `(,(make-search-page-search-box lib)))
                  :limit limit :offset offset)))
 
