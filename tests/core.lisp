@@ -438,6 +438,44 @@
   (fail (query l "tmp" :limit 2))
   (fail (query l "tmp" :offset 9)))
 
+(define-library-test query-test-sort-and-direction (l p1 p2)
+  (with-open-file (s p1 :direction :output :if-exists :supersede)
+    ;; This might vary by library backend, but I think it makes sense
+    ;; that most or all FTS engines would rank "hi hi" higher than
+    ;; "hi" for a search of "hi", since it matches more often.
+    (format s "hi hi >:3~%"))
+  (index l p1)
+  (sleep 1) ;; timestamps have a granularity of 1 second smdh
+  (with-open-file (s p2 :direction :output :if-exists :supersede)
+    (format s "hi :3~%"))
+  (index l p2)
+  ;; best match first
+  (destructuring-bind (d1 d2)
+      (query l "hi")
+    (is #'equal (namestring p1) (datum-id d1))  ; fail
+    (is #'equal (namestring p2) (datum-id d2))) ; fail
+  ;; worst match first
+  (destructuring-bind (d1 d2)
+      (query l "hi" :direction :descending)
+    (is #'equal (namestring p2) (datum-id d1))  ; fail
+    (is #'equal (namestring p1) (datum-id d2))) ; fail
+  ;; most recently modified first
+  (destructuring-bind (d1 d2)
+      (query l "hi" :sort-by :modified :direction :descending)
+    (true (>= (datum-modified d1) (datum-modified d2))))
+  ;; least recently modified first
+  (destructuring-bind (d1 d2)
+      (query l "hi" :sort-by :modified)
+    (true (<= (datum-modified d1) (datum-modified d2))))
+  ;; most recently created first
+  (destructuring-bind (d1 d2)
+      (query l "hi"  :sort-by :birth :direction :descending)
+    (true (>= (datum-birth d1) (datum-birth d2))))
+  ;; least recently created first
+  (destructuring-bind (d1 d2)
+      (query l "hi" :sort-by :birth)
+    (true (<= (datum-birth d1) (datum-birth d2)))))
+
 (define-library-test list-data-test-sort-and-direction (l p1 p2)
   (add-datum l (make-instance 'datum :id p1))
   (sleep 1) ;; timestamps have a granularity of 1 second smh

@@ -418,19 +418,25 @@ transaction, hence this little helper function."
 ;; receive an error if they contain certain stray characters.  This
 ;; may be fixed by double-quoting the entire string, but then we lose
 ;; the search syntax.  Figure out a policy here!
-(defmethod query ((l sqlite-library) terms &key (limit NIL) (offset NIL))
+(defmethod query ((l sqlite-library) terms &key (sort-by :rank) (direction :ascending)
+                                             (limit NIL) (offset NIL))
+  (assert (member sort-by '(:rank :modified :birth :accesses)))
+  (assert (member direction '(:descending :ascending)))
   (check-type terms string)
   (check-type offset (or null integer))
   (check-type limit (or null integer))
   (when (or offset limit) (assert (and offset limit)))
   (loop for row in (sqlite-rows
-                    l (format NIL "~A ~A ~A ~A"
-                              "select data.* from search"
-                              "left join data on data.id = search.id"
-                              "where search match ? order by rank"
+                    l (format NIL (ccat "select data.* from search "
+                                        "left join data on data.id = search.id "
+                                        "where search match ? order by ~A ~A ~A")
+                              (cond ((eql sort-by :rank) "rank")
+                                    ((eql sort-by :modified) "modified")
+                                    ((eql sort-by :birth) "birth")
+                                    ((eql sort-by :accesses) "accesses"))
+                              (cond ((eql direction :descending) "desc")
+                                    ((eql direction :ascending) "asc"))
                               (if (and limit offset)
-                                  ;; We know that the limit and offset
-                                  ;; are integers, so this is fine.
                                   (format NIL "limit ~A offset ~A" limit offset)
                                   ""))
                     terms)

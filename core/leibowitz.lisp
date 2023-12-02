@@ -166,10 +166,14 @@ thentag."))
 
 ;;; Searching and Listing
 
-(defgeneric query (library terms &key limit offset)
-  (:documentation "Return data that match the search terms.  :limit and :offset may be
-used for pagination and are set to NIL by default, returning all
-matching data."))
+(defgeneric query (library terms &key sort-by direction limit offset)
+  (:documentation "Return data that match the search terms.  :sort-by and :direction
+behave the same as for `list-data', except that the former also
+accepts a :rank value to order by how well the search matches, and
+that the latter defaults to :ascending in order to show the most
+relevant search matches by default.  :limit and :offset may be used
+for pagination and are set to NIL by default, returning all matching
+data."))
 
 (defgeneric list-tags (library)
   (:documentation "Return a list of the top :limit sorted in descending order by
