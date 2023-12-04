@@ -185,6 +185,26 @@ ul.path-breadcrumbs a:visited {
 }
 
 /***********************************************************************
+ * Content Cards */
+
+#sidebar-and-content-container .card {
+	width: 90%;
+	padding: 10px;
+	margin: 5px;
+	border: 2px solid var(--fg);
+	overflow-wrap: anywhere;
+	overflow: hidden;
+}
+
+#sidebar-and-content-container .card .card-data {
+	text-align: left;
+}
+
+#sidebar-and-content-container .card .card-data h2 {
+	font-size: large;
+}
+
+/***********************************************************************
  * Content Forms */
 
 #sidebar-and-content-container #content .form-row {

@@ -89,21 +89,23 @@
                                     ,(car type))
                                 (:small ,(format NIL "(~A)" (cdr type)))))))))
 
-(defun list-data-as-html (lib &rest options &key &allow-other-keys)
+(defun list-data-as-html (lib view &rest options &key &allow-other-keys)
   "Beautify the output of `leibowitz.core:list-data' as a HTML datum
 listing.  Key arguments are passed unmodified to that method."
   (check-type lib library)
-  `(,@(make-datum-listing-filter-bar (getf options :sort-by)
-                                     (getf options :direction))
-    (:section :id "tiles"
-              ,@(loop for datum in (apply #'list-data (nconc (list lib) options))
-                      collect (datum-html-preview lib datum)))))
+  (let ((data (loop for datum in (apply #'list-data (nconc (list lib) options))
+                    collect (datum-html-preview lib datum :view view))))
+    `(,@(make-datum-listing-filter-bar view
+                                       (getf options :sort-by)
+                                       (getf options :direction))
+      ,(cond ((eql view :tile) `(:section :id "tiles" ,@data))
+             ((eql view :card) `(:section :id "cards" ,@data))))))
 
-(defun list-search-results-as-html (lib terms limit offset sort-by direction)
+(defun list-search-results-as-html (lib terms limit offset sort-by direction view)
   (check-type lib library)
   (check-type terms string)
   `(,(make-search-page-search-box lib terms)
-    ,@(make-datum-listing-filter-bar sort-by direction)
+    ,@(make-datum-listing-filter-bar view sort-by direction)
     (:small "FIXME: query should support the same kinds of filters as list-data!")
     (:section :id "tiles"
               ,@(loop for datum in (query lib terms :limit limit :offset offset)
@@ -305,9 +307,19 @@ listing.  Key arguments are passed unmodified to that method."
                   (:button ,(format NIL "Permanently Delete ~A"
                                     (tag-name tag)))))))))
 
-(defun make-datum-listing-filter-bar (sort-by direction)
+(defun make-datum-listing-filter-bar (view sort-by direction)
   `((:nav :id "listing-filter-controls"
           (:form :method "get" :id "datum-listing-filter-form"
+                 (:labal :for "view"
+                         "View As")
+                 (:select :name "view"
+                          :id "view"
+                          ,(if (eql view :tile)
+                               `(:option :value "tile" :selected "" "Tiles")
+                               `(:option :value "tile" "Tiles"))
+                          ,(if (eql view :card)
+                               `(:option :value "card" :selected "" "Cards")
+                               `(:option :value "card" "Cards")))
                  (:label :for "sort-by"
                          "Sort by")
                  (:select :name "sort-by"

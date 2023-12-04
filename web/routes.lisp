@@ -25,21 +25,26 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Top-level pages
 
-(leibowitz-route (index-page lib "/") (limit offset sort-by direction)
+(leibowitz-route (index-page lib "/") (limit offset sort-by direction view)
+  ;; FIXME: `list-data' is the single-source-of-truth when it comes to
+  ;; validating its parameters; it would
   (let ((limit (if limit (parse-integer limit) 50))
         (offset (if offset (parse-integer offset) 0))
         (sort-by (if sort-by (intern (string-upcase sort-by) :keyword)
                      :modified))
         (direction (if direction (intern (string-upcase direction) :keyword)
-                       :descending)))
+                       :descending))
+        (view (if view (intern (string-upcase view) :keyword)
+                  :tile)))
     (make-page lib
                :here "/"
                :title "All | Leibowitz Web"
                :sidebar (make-datum-listing-sidebar lib)
-               :body (list-data-as-html lib :sort-by sort-by
-                                            :direction direction
-                                            :limit limit
-                                            :offset offset)
+               :body (list-data-as-html lib view
+                                        :sort-by sort-by
+                                        :direction direction
+                                        :limit limit
+                                        :offset offset)
                :limit limit :offset offset)))
 
 (leibowitz-route (tags-page lib "/tags") ()
@@ -62,20 +67,23 @@
                    :body (list-contents-of-directory dir))
         (return-404 lib (format NIL "Directory ~S does not exist" dir)))))
 
-(leibowitz-route (search-page lib "/search") (q limit offset sort-by direction)
+;; FIXME: parameter validations hould be in the core, just parse here
+(leibowitz-route (search-page lib "/search") (q limit offset sort-by direction view)
     (let ((limit (if limit (parse-integer limit) 50))
           (offset (if offset (parse-integer offset) 0))
           (sort-by (if sort-by (intern (string-upcase sort-by) :keyword)
                        :modified))
           (direction (if direction (intern (string-upcase direction) :keyword)
-                         :descending)))
+                         :descending))
+          (view (if view (intern (string-upcase view) :keyword)
+                    :tile)))
       (make-page lib
                  :here "/search"
                  :title "Search | Leibowitz Web"
                  :sidebar `((:section "Idk yet"))
                  :body (if q
                            (list-search-results-as-html
-                            lib q limit offset sort-by direction)
+                            lib q limit offset sort-by direction view)
                            `(,(make-search-page-search-box lib)))
                  :limit limit :offset offset)))
 

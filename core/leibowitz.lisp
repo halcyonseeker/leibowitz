@@ -365,24 +365,34 @@ consist of a list containing at least one section tag."))
 displayed in the sidebar.  Like `datum-html-report', this should
 consist of a list of sections."))
 
-;; FIXME: add a list layout
-(defgeneric datum-html-preview (library datum)
-  (:method ((l library) (d datum))
-    `(:div :class "tile"
-           (:a :href ,(format NIL "/datum?id=~A"
-                              (hunchentoot:url-encode (datum-id d)))
-               :title ,(let ((nt (datum-num-tags l d)))
-                         (format NIL "~A; ~A tag~P" (datum-kind d) nt nt))
-               ,(handler-case
-                    `(:img :src ,(let ((thumbnailer:*thumbnail-cache-dir*
-                                         (library-thumbnail-cache-dir l)))
-                                   (format NIL "/thumbnail?path=~A"
-                                           (hunchentoot:url-encode
-                                            (namestring
-                                             (thumbnailer:get-thumbnail
-                                              (datum-id d) (datum-kind d)))))))
-                  (thumbnailer:unsupported-file-type ()))
-               (:div (:small ,(cl-who:escape-string (datum-title d)))))))
+(defgeneric datum-html-preview (library datum &key view)
+  (:method ((l library) (d datum) &key (view :tile))
+    (ecase view
+      (:tile
+       `(:div :class "tile"
+              (:a :href ,(format NIL "/datum?id=~A"
+                                 (hunchentoot:url-encode (datum-id d)))
+                  :title ,(let ((nt (datum-num-tags l d)))
+                            (format NIL "~A; ~A tag~P" (datum-kind d) nt nt))
+                  ,(handler-case
+                       `(:img :src ,(let ((thumbnailer:*thumbnail-cache-dir*
+                                            (library-thumbnail-cache-dir l)))
+                                      (format NIL "/thumbnail?path=~A"
+                                              (hunchentoot:url-encode
+                                               (namestring
+                                                (thumbnailer:get-thumbnail
+                                                 (datum-id d) (datum-kind d)))))))
+                     (thumbnailer:unsupported-file-type ()))
+                  (:div (:small ,(cl-who:escape-string (datum-title d)))))))
+      (:card
+       `(:div :class "card"
+              (:div :class "card-view" ,@(datum-html-report l d))
+              (:hr)
+              (:div :class "card-data"
+                    (:h2 ,(cl-who:escape-string (datum-title d)))
+                    (:a :href ,(format NIL "/datum?id=~A"
+                                       (hunchentoot:url-encode (datum-id d)))
+                        (:small ,(cl-who:escape-string (datum-id d)))))))))
   (:documentation "Return a cl-who XHTML structure displaying a thumbnail preview of
 this datum that links to the full detail page."))
 
