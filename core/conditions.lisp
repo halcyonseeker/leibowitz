@@ -49,6 +49,11 @@ most technically useful way possible."))
              (with-slots (name) c
                (format s "There is no tag named ~S" name)))))
 
+(define-condition tag-already-exists (friendly-error)
+  ((name :initarg :name))
+  (:report (lambda (c s)
+             (with-slots (name) c (format s "Tag ~S already exists" name)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Unfriendly errors
 

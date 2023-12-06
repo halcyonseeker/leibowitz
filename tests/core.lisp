@@ -315,6 +315,68 @@
     (add-datum-tags l d '("tag"))
     (is #'= 1 (length (get-datum-tags l d)))))
 
+(define-library-test move-tag-simple-case (l p1 p2)
+  (index l p1)
+  (index l p2)
+  (add-datum-tags l p1 '("some tag"))
+  (add-datum-tags l p2 '("some tag"))
+  (add-tag-predicate l "some tag" "also add" :retroactive T)
+  (move-tag l "some tag" "new")
+  (false (get-tag l "some tag"))
+  (false (get-tag-data l "some tag"))
+  (false (get-tag-predicates l "some tag"))
+  (true (get-tag l "new"))
+  (is #'= 2 (length (get-tag-data l "new")))
+  (is #'= 2 (length (get-datum-tags l p1)))
+  (is #'= 2 (length (get-datum-tags l p2)))
+  (is #'equal "also add" (tag-name (car (get-tag-predicates l "new")))))
+
+(define-library-test move-tag-no-old-tag (l)
+  (fail (move-tag l "no" "where") 'no-such-tag))
+
+(define-library-test move-tag-theyre-the-same (l)
+  (fail (move-tag l "here" "here") 'cannot-mv-or-cp-to-itself))
+
+(define-library-test move-tag-cannot-merge-and-overwrite (l)
+  (fail (move-tag l "here" "there" :merge T :overwrite T)))
+
+(define-library-test move-tag-new-exists-default (l p)
+  (add-datum-tags l (car (index l p)) '("src" "dst"))
+  (fail (move-tag l "src" "dst") 'tag-already-exists))
+
+;; FIXME: We need a policy for handling predicand tags too!
+(define-library-test move-tag-new-exists-overwrite (l p1 p2)
+  (add-datum-tags l (car (index l p1)) '("src" "dst"))
+  (add-datum-tags l (car (index l p2)) '("src"))
+  (add-tag-predicate l "dst" "destination" :retroactive T)
+  (add-tag-predicate l "src" "source" :retroactive T)
+  (move-tag l "src" "dst" :overwrite T)
+  (false (get-tag l "src"))
+  (true (get-tag l "dst"))
+  (true (get-tag l "source"))
+  (true (get-tag l "destination"))
+  (is #'= 3 (length (list-tags l)))
+  (is #'= 3 (length (get-datum-tags l p1)))
+  (is #'= 2 (length (get-datum-tags l p2)))
+  (is #'= 1 (length (get-tag-predicates l "dst")))
+  (is #'equal "source" (tag-name (car (get-tag-predicates l "dst")))))
+
+;; FIXME: We need a policy for handling predicand tags too!
+(define-library-test move-tag-new-exists-merge (l p1 p2)
+  (add-datum-tags l (car (index l p1)) '("src" "dst"))
+  (add-datum-tags l (car (index l p2)) '("src"))
+  (add-tag-predicate l "dst" "destination" :retroactive T)
+  (add-tag-predicate l "src" "source" :retroactive T)
+  (move-tag l "src" "dst" :merge T)
+  (false (get-tag l "src"))
+  (true (get-tag l "dst"))
+  (true (get-tag l "source"))
+  (true (get-tag l "destination"))
+  (is #'= 3 (length (list-tags l)))
+  (is #'= 3 (length (get-datum-tags l p1)))
+  (is #'= 3 (length (get-datum-tags l p2)))
+  (is #'= 2 (length (get-tag-predicates l "dst"))))
+
 ;;; Tag Predicates
 
 (define-library-test add-predicate-to-a-tag (l)

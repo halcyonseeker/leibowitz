@@ -268,6 +268,43 @@ end")))
   (with-sqlite-tx (l)
     (%del-tag-inner-transaction l (%need-tag-name tag-or-name))))
 
+(defmethod move-tag ((l sqlite-library) old-tag-or-name new-tag-or-name
+                     &key (overwrite NIL) (merge NIL))
+  (check-type old-tag-or-name (or string tag))
+  (check-type new-tag-or-name (or string tag))
+  (check-type overwrite boolean)
+  (check-type merge boolean)
+  (assert (not (and merge overwrite)))
+  (let ((old (%need-tag-name old-tag-or-name))
+        (new (%need-tag-name new-tag-or-name)))
+    (when (equal old new) (error 'cannot-mv-or-cp-to-itself :d new))
+    (unless (get-tag l old) (error 'no-such-tag :name old))
+    (when (and (get-tag l new)
+               (not (or overwrite merge)))
+      (error 'tag-already-exists :name new))
+    (with-sqlite-tx (l)
+      (when overwrite
+        (%del-tag-inner-transaction l new))
+      (if merge
+          (let ((old-tag (get-tag l old)))
+            (sqlite-nq l "update tags set label = ? where name = ?" (tag-label old-tag) new)
+            (sqlite-nq l "update tags set count = count + ? where name = ?" (tag-count old-tag) new)
+            (sqlite-nq l "delete from tags where name = ?" old)
+            ;; Since we're merging, the data of old all need to be
+            ;; updated to the existing new's predicate tags.  Worst
+            ;; case runtime of O(fuck-my-life-I-hate-graphs).
+            (let* ((predicates (%cascade-down-predicate-tree l new))
+                   (tags (loop for tag being each hash-key of predicates
+                               collect tag)))
+              (loop for datum in (get-tag-data l old)
+                    do (%add-datum-tags-inner-transaction l datum tags))))
+          (sqlite-nq l "update tags set name = ? where name = ?" new old))
+      (sqlite-nq l "update tag_datum_junctions set tag_name = ? where tag_name = ?" new old)
+      (sqlite-nq l "update tag_predicates set iftag = ? where iftag = ?" new old)
+      (sqlite-nq l "update tag_predicates set thentag = ? where thentag = ?" new old))
+    ;; FIXME: with-sqlite-tx clobbers return values
+    (get-tag l new)))
+
 ;;; Reading and writing datum-tag relationships
 
 (defun %add-datum-tags-inner-transaction (lib datum-or-id tags &key replace)

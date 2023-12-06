@@ -19,6 +19,7 @@
            #:add-tag
            #:get-tag
            #:del-tag
+           #:move-tag
            #:get-datum-tags
            #:add-datum-tags
            #:del-datum-tags
@@ -78,6 +79,7 @@
            #:no-such-datum-in-disk-or-db
            #:datum-is-orphaned
            #:no-such-tag
+           #:tag-already-exists
            #:no-applicable-collection)
   ;; SQLite library backend
   (:export #:sqlite-library

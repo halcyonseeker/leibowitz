@@ -120,6 +120,17 @@ isn't present."))
   (:documentation "Given a tag or a tag name, delete it if it exists.  This will also
 remove all data associations, but not the data themselves."))
 
+(defgeneric move-tag (library old-tag-or-name new-tag-or-name &key overwrite merge)
+  (:documentation "Move a tag to a new name, retaining all datum and predicate
+associations.  If NEW exists and :overwrite isn't T, an error of type
+`tag-already-exists' will be signaled.  If NEW exists and :merge is T,
+OLD and NEW will be merged together into NEW, retaining the datum and
+predicate associations of OLD and NEW.  The key difference between
+:overwrite and :merge is that when the former is provided, NEW is
+first deleted in order to remove all predicate and data associations;
+ie, it is a clean rename.  Passing both keys is an error.  Returns
+NEW."))
+
 ;;; Reading and writing datum-tag relationships
 
 (defgeneric get-datum-tags (library datum-or-id)
