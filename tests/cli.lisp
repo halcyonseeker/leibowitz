@@ -190,6 +190,39 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: mv-tag
 
+(define-cli-test mv-tag (run)
+  (run "index" (namestring (mktmp (user-homedir-pathname)))) ;; initialize db
+  (add-tag *library* "src")
+  (run "mv-tag" "src" "dst")
+  (false (get-tag *library* "src"))
+  (true (get-tag *library* "dst")))
+
+(define-cli-test mv-tag-overwrite (run)
+  (run "index" (namestring (mktmp (user-homedir-pathname)))) ;; initialize db
+  (add-tag *library* "src")
+  (add-tag *library* "dst")
+  (fail (run "mv-tag" "src" "dst"))
+  (true (get-tag *library* "src"))
+  (true (get-tag *library* "dst"))
+  (run "mv-tag" "-f" "src" "dst")
+  (false (get-tag *library* "src"))
+  (true (get-tag *library* "dst")))
+
+(define-cli-test mv-tag-merge (run)
+  (run "index" (namestring (mktmp (user-homedir-pathname)))) ;; initialize db
+  (add-tag *library* "src")
+  (add-tag *library* "dst")
+  (fail (run "mv-tag" "src" "dst"))
+  (true (get-tag *library* "src"))
+  (true (get-tag *library* "dst"))
+  (run "mv-tag" "-m" "src" "dst")
+  (false (get-tag *library* "src"))
+  (true (get-tag *library* "dst")))
+
+(define-cli-test mv-tag-both-args (run)
+  (run "index" (namestring (mktmp (user-homedir-pathname)))) ;; initialize db
+  (fail (run "mv-tag" "-o" "-m" "src" "dst")))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: cp-tag
 
