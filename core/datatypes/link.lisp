@@ -11,7 +11,8 @@
   (datum-id d))
 
 ;; FIXME: add a list layout
-(defmethod datum-html-preview ((l library) (d datum-link))
+(defmethod datum-html-preview ((l library) (d datum-link) &key view)
+  (declare (ignore view))
   `(:div :class "tile"
          (:a :href ,(format NIL "/datum?id=~A"
                             (hunchentoot:url-encode (datum-id d)))
