@@ -134,6 +134,14 @@ first deleted in order to remove all predicate and data associations;
 ie, it is a clean rename.  Passing both keys is an error.  Returns
 NEW."))
 
+(defgeneric copy-tag (library old-tag-or-name new-tag-or-name &key overwrite merge)
+  (:documentation "Duplicate tag OLD to tag NEW, so that both have the same datum and
+predicate associations.  If NEW exists and :overwrite isn't T, an
+error of type `tag-already-exists' is signaled.  If NEW exists and
+:merge is T, the copy will be merged into that tag, retaining all
+datum and predicate associations of OLD and NEW, while still keeping
+OLD around.  Passing both keys is an error Returns NEW."))
+
 ;;; Reading and writing datum-tag relationships
 
 (defgeneric get-datum-tags (library datum-or-id)

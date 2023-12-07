@@ -20,6 +20,7 @@
            #:get-tag
            #:del-tag
            #:move-tag
+           #:copy-tag
            #:get-datum-tags
            #:add-datum-tags
            #:del-datum-tags

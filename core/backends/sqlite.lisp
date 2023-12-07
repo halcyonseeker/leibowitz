@@ -324,6 +324,32 @@ end")))
     ;; FIXME: with-sqlite-tx clobbers return values
     (get-tag l new)))
 
+(defmethod copy-tag ((l sqlite-library) old-tag-or-name new-tag-or-name
+                     &key (overwrite NIL) (merge NIL))
+  (check-type old-tag-or-name (or string tag))
+  (check-type new-tag-or-name (or string tag))
+  (check-type overwrite boolean)
+  (check-type merge boolean)
+  (assert (not (and merge overwrite)))
+  (let ((old (%need-tag-name old-tag-or-name))
+        (new (%need-tag-name new-tag-or-name)))
+    (when (equal old new) (error 'cannot-mv-or-cp-to-itself :d new))
+    (unless (get-tag l old) (error 'no-such-tag :name old))
+    (when (and (get-tag l new)
+               (not (or overwrite merge)))
+      (error 'tag-already-exists :name new))
+    (with-sqlite-tx (l)
+      (when overwrite (%del-tag-inner-transaction l new))
+      (let ((new-tag (make-instance 'tag :name new
+                                         :label (tag-label (get-tag l old)))))
+        (%add-tag-inner-transaction l new-tag))
+      (loop for predicate in (get-tag-predicates l old)
+            do (%add-tag-predicate-inner-transaction l new (list predicate)))
+      (loop for datum in (get-tag-data l old)
+            do (%add-datum-tags-inner-transaction l datum (list new))))
+    ;; FIXME: with-sqlite-tx clobbers return values
+    (get-tag l new)))
+
 ;;; Reading and writing datum-tag relationships
 
 (defun %add-datum-tags-inner-transaction (lib datum-or-id tags &key replace)
