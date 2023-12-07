@@ -284,7 +284,7 @@
     (add-datum-tags l d '("some" "tags"))
     (del-datum l d)
     (false (get-tag l "some"))
-    (false (get-tag l "tags"))))
+    (fail (get-tag l "tags" :error T) 'no-such-tag)))
 
 (define-library-test decrement-count-when-data-removed-from-tag-with-other-data (l path1 path2)
   (let ((d1 (make-instance 'datum :id path1))

@@ -114,9 +114,10 @@ you'll probably want to use `add-datum-tags' instead.  This method may
 be useful for adding a tag with a label that gives it some kind of
 special role."))
 
-(defgeneric get-tag (library name)
-  (:documentation "Find a tag by its name and return an instance of it or NIL if it
-isn't present."))
+(defgeneric get-tag (library tag-name &key error)
+  (:documentation "Find a tag by its name and return an instance of it.  By default
+returns NIL if the tag isn't found, if :error is T, raise a
+`no-such-tag'."))
 
 (defgeneric del-tag (library tag-or-name)
   (:documentation "Given a tag or a tag name, delete it if it exists.  This will also

@@ -255,14 +255,16 @@ end")))
              (tag-count tag-or-name))
   T)
 
-(defmethod get-tag ((l sqlite-library) name)
-  (check-type name string)
+(defmethod get-tag ((l sqlite-library) tag-name &key (error NIL))
+  (check-type tag-name string)
   (multiple-value-bind
         (name label count)
-      (sqlite-row l "select * from tags where name = ?" name)
+      (sqlite-row l "select * from tags where name = ?" tag-name)
     (if name
         (make-instance 'tag :name name :label label :count count)
-        NIL)))
+        (if error
+            (error 'no-such-tag :name tag-name)
+            NIL))))
 
 (defun %del-tag-inner-transaction (l name)
   (check-type l sqlite-library)
