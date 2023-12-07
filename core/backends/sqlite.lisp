@@ -151,7 +151,7 @@ end")))
                               :modified modified :terms terms
                               :collection (library-get-datum-collection l id))
         (if error
-            (error 'datum-not-indexed :lib l :id id)
+            (error 'datum-not-indexed :lib l :id (namestring path-or-url))
             NIL))))
 
 (defun %del-datum-inner-transaction (lib id)
