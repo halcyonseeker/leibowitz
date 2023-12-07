@@ -417,41 +417,46 @@ transaction, hence this little helper function."
 
 ;;; Reading and writing tag hierarchies
 
+(defun %add-tag-predicate-inner-transaction (l iftag-or-name thentags-or-names
+                                             &key (retroactive T) (replace NIL))
+  (labels ((add-assoc (ifname thenname)
+             (let ((ifname (%need-tag-name ifname))
+                   (thenname (%need-tag-name thenname)))
+               ;; FIXME: if this methods arguments are tags we'll
+               ;; lose information like labels!  In general the core
+               ;; library's handling of different argument types is
+               ;; abysmally convoluted.
+               (unless (get-tag l ifname)
+                 (%add-tag-inner-transaction l ifname))
+               (unless (get-tag l thenname)
+                 (%add-tag-inner-transaction l thenname))
+               ;; FIXME: give del-tag-predicate a retroactive option
+               ;; and pass it whatever value we were passed here
+               (sqlite-nq l (ccat "insert or ignore into tag_predicates "
+                                  "(iftag, thentag) values (?, ?)")
+                          ifname thenname)
+               (when retroactive
+                 ;; Big O of deez nuts
+                 (let ((predicates (%cascade-down-predicate-tree l iftag-or-name)))
+                   (loop for tag being each hash-key of predicates
+                         do (loop for datum in (get-tag-data l tag)
+                                  do (%add-datum-tags-inner-transaction
+                                      l datum (list thenname)))))))))
+    ;; FIXME: refactor del-tag-predicate to optionally take a list
+    (when replace
+      (loop for tag in (get-tag-predicates l iftag-or-name)
+            do (del-tag-predicate l iftag-or-name tag)))
+    (etypecase thentags-or-names
+      ((or string tag) (add-assoc iftag-or-name thentags-or-names))
+      (list (loop for thentag-or-name in thentags-or-names
+                  do (add-assoc iftag-or-name thentag-or-name))))))
+
 (defmethod add-tag-predicate ((l sqlite-library) iftag-or-name thentags-or-names
                               &key (retroactive T) (replace NIL))
   (check-type iftag-or-name (or tag string))
   (with-sqlite-tx (l)
-    (labels ((add-assoc (ifname thenname)
-               (let ((ifname (%need-tag-name ifname))
-                     (thenname (%need-tag-name thenname)))
-                 ;; FIXME: if this methods arguments are tags we'll
-                 ;; lose information like labels!  In general the core
-                 ;; library's handling of different argument types is
-                 ;; abysmally convoluted.
-                 (unless (get-tag l ifname)
-                   (%add-tag-inner-transaction l ifname))
-                 (unless (get-tag l thenname)
-                   (%add-tag-inner-transaction l thenname))
-                 ;; FIXME: give del-tag-predicate a retroactive option
-                 ;; and pass it whatever value we were passed here
-                 (sqlite-nq l (ccat "insert or ignore into tag_predicates "
-                                    "(iftag, thentag) values (?, ?)")
-                            ifname thenname)
-                 (when retroactive
-                   ;; Big O of deez nuts
-                   (let ((predicates (%cascade-down-predicate-tree l iftag-or-name)))
-                     (loop for tag being each hash-key of predicates
-                           do (loop for datum in (get-tag-data l tag)
-                                    do (%add-datum-tags-inner-transaction
-                                        l datum (list thenname)))))))))
-      ;; FIXME: refactor del-tag-predicate to optionally take a list
-      (when replace
-        (loop for tag in (get-tag-predicates l iftag-or-name)
-              do (del-tag-predicate l iftag-or-name tag)))
-      (etypecase thentags-or-names
-        ((or string tag) (add-assoc iftag-or-name thentags-or-names))
-        (list (loop for thentag-or-name in thentags-or-names
-                    do (add-assoc iftag-or-name thentag-or-name)))))))
+    (%add-tag-predicate-inner-transaction
+     l iftag-or-name thentags-or-names :replace replace :retroactive retroactive)))
 
 (defmethod get-tag-predicates ((l sqlite-library) tag-or-name)
   (check-type tag-or-name (or tag string))
