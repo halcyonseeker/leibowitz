@@ -7,7 +7,7 @@
    `(cl-who:with-html-output-to-string (*standard-output* nil :prologue NIL :indent t)
       ,@snippet)))
 
-(defun make-page (lib &key here sidebar title body limit offset header)
+(defun make-page (lib &key here sidebar title body limit offset header more-params)
   (eval
    `(cl-who:with-html-output-to-string (*standard-output* nil :prologue t :indent t)
       (:html
@@ -45,8 +45,12 @@
                                 collect `(:a :class ,(if (= offset pth-link-offset)
                                                         "page-link here"
                                                         "page-link")
-                                             :href ,(format NIL "~A?limit=~A&offset=~A"
-                                                            here limit pth-link-offset)
+                                             :href ,(let ((url (format NIL "~A?limit=~A&offset=~A"
+                                                                       (url here) (url limit)
+                                                                       (url pth-link-offset))))
+                                                      (if more-params
+                                                          (format NIL "~A&~A" url more-params)
+                                                          url))
                                              ,(format NIL "~A" p)))))
               (:footer :id "footer"
                        (:hr)
