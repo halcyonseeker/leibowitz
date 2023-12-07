@@ -111,9 +111,11 @@ functions."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun html (str)
-  (check-type str string)
-  (cl-who:escape-string str))
+  (typecase str
+    (string (cl-who:escape-string str))
+    (T str)))
 
 (defun url (str)
-  (check-type str string)
-  (hunchentoot:url-encode str))
+  (typecase str
+    (string (hunchentoot:url-encode str))
+    (T str)))
