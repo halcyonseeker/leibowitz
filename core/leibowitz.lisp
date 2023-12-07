@@ -151,9 +151,9 @@ orphaned they will be removed unless they're stored with a label.  If
 :cascade is T this will also remove all tags predicated in the tags to
 be removed."))
 
-(defgeneric get-tag-data (library tag-or-name)
+(defgeneric get-tag-data (library tag-or-name &key sort-by direction limit offset)
   (:documentation "Return a list of the data associated with a tag or NIL if there isn't
-any."))
+any.  Keyword arguments function the same as `list-data' and `query'"))
 
 ;;; Reading and writing tag hierarchies
 

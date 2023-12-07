@@ -259,7 +259,7 @@ listing.  Key arguments are passed unmodified to that method."
 (defun make-tag-view-page (lib tag view &rest options &key &allow-other-keys)
   (check-type lib library)
   (check-type tag tag)
-  `(,@(let ((data (loop for datum in (get-tag-data lib tag)
+  `(,@(let ((data (loop for datum in (apply #'get-tag-data (nconc (list lib tag) options))
                         collect (datum-html-preview lib datum :view view))))
         `(,@(make-datum-listing-filter-bar view
                                            (getf options :sort-by)

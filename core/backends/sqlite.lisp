@@ -377,11 +377,27 @@ transaction, hence this little helper function."
   (with-sqlite-tx (l)
     (%del-datum-tags-inner-transaction l datum-or-id tags :cascade cascade)))
 
-(defmethod get-tag-data ((l sqlite-library) tag-or-name)
+(defmethod get-tag-data ((l sqlite-library) tag-or-name
+                         &key (sort-by :modified) (direction :descending)
+                           (limit NIL) (offset NIL))
+  (assert (member sort-by '(:modified :birth :accesses)))
+  (assert (member direction '(:descending :ascending)))
+  (check-type limit (or null integer))
+  (check-type offset (or null integer))
   (check-type tag-or-name (or string tag))
-  (loop for row in (sqlite-rows l (ccat "select data.* from data "
-                                        "inner join tag_datum_junctions on "
-                                        "datum_id = data.id where tag_name = ?")
+  (when (or limit offset) (assert (and limit offset)))
+  (loop for row in (sqlite-rows l (format NIL (ccat "select data.* from data "
+                                                    "inner join tag_datum_junctions on "
+                                                    "datum_id = data.id where tag_name = ? "
+                                                    "order by ~A ~A ~A")
+                                          (cond ((eql sort-by :modified) "modified")
+                                                ((eql sort-by :birth) "birth")
+                                                ((eql sort-by :accesses) "accesses"))
+                                          (cond ((eql direction :descending) "desc")
+                                                ((eql direction :ascending) "asc"))
+                                          (if (and limit offset)
+                                              (format NIL "limit ~A offset ~A" limit offset)
+                                              ""))
                                 (%need-tag-name tag-or-name))
         collect (destructuring-bind (id accesses kind birth modified terms) row
                   (make-instance 'datum :id id :accesses accesses :kind kind

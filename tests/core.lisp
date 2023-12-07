@@ -343,6 +343,31 @@
   (is #'= 2 (length (get-datum-tags l p2)))
   (is #'equal "also add" (tag-name (car (get-tag-predicates l "new")))))
 
+(define-library-test get-tag-data-test-sort-and-direction (l p1 p2)
+  (index l p1)
+    (sleep 1) ;; timestamps have a granularity of 1 second smh
+  (with-open-file (s p2 :direction :output :if-exists :supersede)
+    (format s "hi :3~%"))
+  (index l p2)
+  (add-datum-tags l p1 '("tag"))
+  (add-datum-tags l p2 '("tag"))
+  ;; most recently modified first
+  (destructuring-bind (d1 d2)
+      (get-tag-data l "tag" :sort-by :modified :direction :descending)
+    (true (>= (datum-modified d1) (datum-modified d2))))
+  ;; least recently modified first
+  (destructuring-bind (d1 d2)
+      (get-tag-data l "tag" :sort-by :modified :direction :ascending)
+    (true (<= (datum-modified d1) (datum-modified d2))))
+  ;; most recently created first
+  (destructuring-bind (d1 d2)
+      (get-tag-data l "tag" :sort-by :birth :direction :descending)
+    (true (>= (datum-birth d1) (datum-birth d2))))
+  ;; least recently created first
+  (destructuring-bind (d1 d2)
+      (get-tag-data l "tag" :sort-by :birth :direction :ascending)
+    (true (<= (datum-birth d1) (datum-birth d2)))))
+
 (define-library-test move-tag-no-old-tag (l)
   (fail (move-tag l "no" "where") 'no-such-tag))
 
