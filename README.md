@@ -58,10 +58,11 @@ Roadmap to 0.1 version; minimum viable product
       be a result damaged indexes, which would make sense considering
       it only (so far) shows up when doing full-text search.
 - [ ] Record inodes so that the indexer can catch (some) moved files.
+- [ ] Support filtering by tag for all data listings
 
 ### Web
 
-- [ ] Add more error handling to the web UI!  Right now it is insanely
+- [X] Add more error handling to the web UI!  Right now it is insanely
       easy to get this thing to crash.
 - [ ] Expose the full API functionality in the web frontend:
   - [ ] Editing data entries:
@@ -69,20 +70,19 @@ Roadmap to 0.1 version; minimum viable product
     - [X] Removing tags
     - [X] Moving/renaming
     - [X] Uploading/importing from URL
-    - [ ] Manually reindexing files and directories
+    - [ ] Manually reindexing files and directories; useful /tree
     - [X] Deleting
-  - [ ] Editing tag entries:
-    - [ ] Removing data
-    - [ ] Renaming tags
-    - [ ] Editing tag description
+  - [X] Editing tag entries:
+    - [X] Removing data
+    - [X] Renaming tags
+    - [X] Editing tag description
     - [X] Adding parents
     - [X] Removing parents
-  - [ ] Search and listing:
-    - [ ] Support changing the sort order and criterion for all data
+  - [X] Search and listing:
+    - [X] Support changing the sort order and criterion for all data
           listings
-    - [ ] Support filtering by tag for all data listings
-    - [ ] Advanced search options, requires change to core full-text
-          search schema.
+    - [X] Paginate
+    - [X] Card view for more convenient browsing
 
 ### CLI
 
@@ -90,18 +90,17 @@ Roadmap to 0.1 version; minimum viable product
       the library; CL is absolutely clueless when it comes to
       resolving unix path notation.
 - [ ] Expose the full API functionality in the CLI interface:
-  - [ ] Editing data entries:
+  - [X] Editing data entries:
     - [X] Adding tags
     - [X] Removing tags
     - [X] Moving/renaming
-    - [ ] Uploading/importing from URL
     - [X] Manually reindexing files and directories
     - [X] Deleting
     - [X] Viewing data summaries
   - [ ] Editing tag entries:
     - [X] Adding data
     - [X] Removing data
-    - [ ] Renaming tags
+    - [X] Renaming tags
     - [ ] Editing tag description
     - [ ] Adding parents
     - [ ] Removing parents
@@ -111,9 +110,6 @@ Roadmap to 0.1 version; minimum viable product
   - [ ] Search and listing:
     - [ ] Support changing the sort order and criterion for all data
           listings
-    - [ ] Support filtering by tag for all data listings
-    - [ ] Advanced search options, requires change to core full-text
-          search schema.
 
 Future Work
 -----------
