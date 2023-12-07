@@ -76,6 +76,7 @@
                        (ls/definition)
                        (show-tag/definition)
                        (mv-tag/definition)
+                       (cp-tag/definition)
                        (rm-tag/definition)
                        (ls-tag/definition)
                        )
@@ -444,6 +445,29 @@ argument."
                      :description "Merge src into dst if dst already exists.")))
   (destructuring-bind (src dst) (clingon:command-arguments cmd)
     (move-tag *library* src dst
+              :merge (clingon:getopt cmd :merge)
+              :overwrite (clingon:getopt cmd :force))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand: cp-tag
+
+(defsubcmd cp-tag (cmd)
+    (:description "Copy a tag."
+     :usage "[-f|--force -m|--merge src dst]"
+     :options (list (clingon:make-option
+                     :flag
+                     :short-name #\f
+                     :long-name "force"
+                     :key :force
+                     :description "Overwrite dst if it already exists.")
+                    (clingon:make-option
+                     :flag
+                     :short-name #\m
+                     :long-name "merge"
+                     :key :merge
+                     :description "Merge src into dst if dst already exists.")))
+  (destructuring-bind (src dst) (clingon:command-arguments cmd)
+    (copy-tag *library* src dst
               :merge (clingon:getopt cmd :merge)
               :overwrite (clingon:getopt cmd :force))))
 

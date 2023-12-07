@@ -226,6 +226,39 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: cp-tag
 
+(define-cli-test cp-tag (run)
+  (run "index" (namestring (mktmp (user-homedir-pathname)))) ;; initialize db
+  (add-tag *library* "src")
+  (run "cp-tag" "src" "dst")
+  (true (get-tag *library* "src"))
+  (true (get-tag *library* "dst")))
+
+(define-cli-test cp-tag-overwrite (run)
+  (run "index" (namestring (mktmp (user-homedir-pathname)))) ;; initialize db
+  (add-tag *library* "src")
+  (add-tag *library* "dst")
+  (fail (run "cp-tag" "src" "dst"))
+  (true (get-tag *library* "src"))
+  (true (get-tag *library* "dst"))
+  (run "cp-tag" "-f" "src" "dst")
+  (true (get-tag *library* "src"))
+  (true (get-tag *library* "dst")))
+
+(define-cli-test cp-tag-merge (run)
+  (run "index" (namestring (mktmp (user-homedir-pathname)))) ;; initialize db
+  (add-tag *library* "src")
+  (add-tag *library* "dst")
+  (fail (run "cp-tag" "src" "dst"))
+  (true (get-tag *library* "src"))
+  (true (get-tag *library* "dst"))
+  (run "cp-tag" "-m" "src" "dst")
+  (true (get-tag *library* "src"))
+  (true (get-tag *library* "dst")))
+
+(define-cli-test cp-tag-both-args (run)
+  (run "index" (namestring (mktmp (user-homedir-pathname)))) ;; initialize db
+  (fail (run "cp-tag" "-o" "-m" "src" "dst")))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: rm-tag
 
