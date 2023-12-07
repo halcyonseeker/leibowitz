@@ -134,6 +134,18 @@
   (del-datum l "some datum id")
   (fail (del-datum l "no" :error T) 'datum-not-indexed))
 
+(define-library-test delete-datum-disk-keyword (l path path2)
+  (let ((d (make-instance 'datum :id path)))
+    (add-datum l d)
+    (del-datum l path :disk NIL)
+    (true (probe-file path))
+    (add-datum l d)
+    (del-datum l path)
+    (false (probe-file path))
+    (add-datum l (make-instance 'datum :id path2))
+    (delete-file path2)
+    (fail (del-datum l path2 :error T) 'datum-is-orphaned)))
+
 ;; FIXME: writing some tests for leibowitz.core::%datum-equal would be worthwhile
 
 (define-library-test insert-and-retrieve-datum (l path)

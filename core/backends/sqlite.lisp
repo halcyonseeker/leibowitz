@@ -162,12 +162,21 @@ end")))
   (sqlite-nq lib "delete from data where id = ?" id)
   (sqlite-nq lib "delete from tag_datum_junctions where datum_id = ?" id))
 
-(defmethod del-datum ((l sqlite-library) datum-or-id &key (error NIL))
+(defmethod del-datum ((l sqlite-library) datum-or-id &key (error NIL) (disk T))
   (check-type datum-or-id (or datum string pathname))
   (let ((id (%need-datum-id datum-or-id)))
     (when error (get-datum l id :error T))
     (with-sqlite-tx (l)
-      (%del-datum-inner-transaction l id))))
+      (%del-datum-inner-transaction l id))
+    ;; FIXME: this should be mediated by this datum's collection, and
+    ;; will break with datum-link!  Use the former, remove the latter!
+    ;; Placing this last means that if this datum is in db but not in
+    ;; disk, the orphaned entries will be removed before an error is
+    ;; signaled.
+    (when disk (if (probe-file id)
+                   (delete-file id)
+                   (when error
+                     (error 'datum-is-orphaned :id id))))))
 
 ;;; FIXME: Handle non-file data, they don't have entries on disk.  Or
 ;;; maybe just tear the link stuff out altogether, there's probably a

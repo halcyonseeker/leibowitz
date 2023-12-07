@@ -142,9 +142,9 @@
         (f2 (namestring (mktmp (user-homedir-pathname)))))
     (true (probe-file f1))
     (true (probe-file f2))
-    (run "rm" f1 f2)
-    (false (probe-file f1))
-    (false (probe-file f2))))
+    (fail (run "rm" f1 f2) 'datum-not-indexed)
+    (true (probe-file f1))
+    (true (probe-file f2))))
 
 (define-cli-test remove-indexed-files-no-options (run)
   (let ((f (namestring (mktmp (user-homedir-pathname)))))
