@@ -209,17 +209,40 @@
             (return-404 lib (format NIL "Tag named ~S not found" name))))
       (hunchentoot:redirect "/tags")))
 
+;; FIXME: for the redirects here, we really should get the full URL so
+;; that the user doesn't lose their place
 (leibowitz-route (edit-tag lib ("/tag" :method :post)) (name)
-  (let ((predicates (%parse-post-body-to-list
-                     (hunchentoot:post-parameter "tags")))
-        (ajax (hunchentoot:post-parameter "ajax")))
-    (add-tag-predicate lib name predicates :replace T)
-    (if ajax
-        ;; FIXME: handle NIL case or a no-such-tag condition, just
-        ;; like tag-view!
-        (html-snippet (make-tag-view-sidebar lib name))
-        (hunchentoot:redirect
-         (format NIL "/tag?name=~A" (hunchentoot:url-encode name))))))
+  (let ((predicates (%parse-post-body-to-list (hunchentoot:post-parameter "tags")))
+        ;; FIXME: Add support for recursive deletion to the core!
+        ;; (delete-children (hunchentoot:post-parameter "delete-children"))
+        ;; (delete-data (hunchentoot:post-parameter "delete-data"))
+        (move-to (hunchentoot:post-parameter "move-to"))
+        (copy-to (hunchentoot:post-parameter "copy-to"))
+        (delete  (hunchentoot:post-parameter "delete"))
+        (desc    (hunchentoot:post-parameter "description"))
+        (ajax    (hunchentoot:post-parameter "ajax")))
+    (handler-case
+        (cond (move-to
+               (move-tag lib name move-to)
+               (hunchentoot:redirect (format NIL "/tag?name=~A" (url move-to))))
+              (copy-to
+               (copy-tag lib name copy-to)
+               (hunchentoot:redirect (format NIL "/tag?name=~A" (url copy-to))))
+              (delete
+               (del-tag lib name)
+               (hunchentoot:redirect "/tags"))
+              (desc
+               (let ((tag (get-tag lib name)))
+                 (setf (tag-label tag) desc)
+                 (add-tag lib tag))
+               (hunchentoot:redirect (format NIL "/tag?name=~A" (url name))))
+              (predicates
+               (add-tag-predicate lib name predicates :replace T)
+               (if ajax
+                   (html-snippet (make-tag-view-sidebar lib name))
+                   (hunchentoot:redirect (format NIL "/tag?name=~A" (url name))))))
+      (no-such-tag ()
+        (return-404 lib (format NIL "Tag with NAME ~S not found" name))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Editing data

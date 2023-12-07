@@ -282,7 +282,6 @@ listing.  Key arguments are passed unmodified to that method."
                              (loop for tag in (get-tag-predicates lib tag)
                                    do (format s "~A~%" (tag-name tag)))))
                          (:button :id "tag-editor-submit" "Save Parent Tags"))))
-             ;;; FIXME: wire these up!
            (:div :id "editor-widget-right"
                  (:fieldset
                   (:legend "Edit Tag Description")
@@ -290,31 +289,42 @@ listing.  Key arguments are passed unmodified to that method."
                          (:textarea :id "description-editor-textarea"
                                     :name "description"
                                     :placeholder "Something about this tag"
-                                    ,(tag-label tag))
+                                    ,(html (tag-label tag)))
                          (:button :id "description-editor-submit"
                                   "Save Description")))
                  (:fieldset
                   (:legend "Rename Tag")
-                  (:form :method "put"
-                         (:input :type "text" :name "new-name" :value ,(tag-name tag))
+                  (:form :method "post"
+                         (:input :type "text" :name "move-to" :value ,(html (tag-name tag)))
                          (:button "Rename")))
                  (:fieldset
+                  (:legend "Copy Tag")
+                  (:form :method "post"
+                         (:input :type "text" :name "copy-to" :value ,(html (tag-name tag)))
+                         (:button "Copy")))
+                 (:fieldset
                   (:legend "Delete Tag")
-                  (:form :method "delete"
-                         (:div :class "form-row"
-                               (:input :type "checkbox"
-                                       :name "delete-children"
-                                       :id "delete-children")
-                               (:label :for "delete-children"
-                                       "Also delete child tags."))
-                         (:div :class "form-row"
-                               (:input :type "checkbox"
-                                       :name "delete-data"
-                                       :id "delete-data")
-                               (:label :for "delete-data"
-                                       "Also delete this tag's data.")))
-                  (:button ,(format NIL "Permanently Delete ~A"
-                                    (tag-name tag)))))))))
+                  (:form :method "post"
+                         ;; FIXME: In order to ensure atomicity,
+                         ;; del-tag (or some specific recursive
+                         ;; deletion method) must support this.
+                         ;; (:div :class "form-row"
+                         ;;       (:input :type "checkbox"
+                         ;;               :name "delete-children"
+                         ;;               :id "delete-children")
+                         ;;       (:label :for "delete-children"
+                         ;;               "Also delete child tags."))
+                         ;; (:div :class "form-row"
+                         ;;       (:input :type "checkbox"
+                         ;;               :name "delete-data"
+                         ;;               :id "delete-data")
+                         ;;       (:label :for "delete-data"
+                         ;;               "Also delete this tag's
+                         ;;               data."))
+                         (:button :name "delete"
+                                  :value "yes"
+                                  ,(format NIL "Permanently Delete ~S"
+                                           (html (tag-name tag)))))))))))
 
 (defun make-datum-listing-filter-bar (view sort-by direction)
   `((:nav :id "listing-filter-controls"
