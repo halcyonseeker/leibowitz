@@ -3,4 +3,6 @@
   :depends-on (#:clingon
                #:leibowitz.core
                #:leibowitz.web)
-  :components ((:file "main")))
+  :components ((:file "package")
+               (:file "conditions")
+               (:file "main")))
