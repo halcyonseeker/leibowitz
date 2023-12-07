@@ -46,7 +46,7 @@
                                                         "page-link here"
                                                         "page-link")
                                              :href ,(let ((url (format NIL "~A?limit=~A&offset=~A"
-                                                                       (url here) (url limit)
+                                                                       here (url limit)
                                                                        (url pth-link-offset))))
                                                       (if more-params
                                                           (format NIL "~A&~A" url more-params)
