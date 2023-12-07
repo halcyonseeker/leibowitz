@@ -238,8 +238,11 @@ argument."
   (let ((tag (car (clingon:command-arguments cmd)))
         (data (mapcar #'truename (cdr (clingon:command-arguments cmd)))))
     (loop for d in data
-          do (format T "Adding tag ~S to datum ~S~%" tag d)
-             (add-datum-tags *library* d (list tag)))))
+          do (if (uiop:directory-exists-p d)
+                 (format T "~A is a directory, skipping~%" d)
+                 (progn
+                   (format T "Adding tag ~S to datum ~A~%" tag d)
+                   (add-datum-tags *library* d (list tag)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: tags
