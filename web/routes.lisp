@@ -45,6 +45,7 @@
                                         :direction direction
                                         :limit limit
                                         :offset offset)
+               :total (library-data-quantity lib)
                :limit limit :offset offset)))
 
 (leibowitz-route (tags-page lib "/tags") ()
@@ -85,6 +86,12 @@
                            (list-search-results-as-html
                             lib q limit offset sort-by direction view)
                            `(,(make-search-page-search-box lib)))
+                 ;; FIXME; :total here is the number of results,
+                 ;; figure out a way to get that or perhaps replace
+                 ;; numeric pagination with a more button.  As a
+                 ;; marginally acceptable but inaccurate placeholder
+                 ;; we'll go with the number of data
+                 :total (library-data-quantity lib)
                  :limit limit :offset offset)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -194,6 +201,7 @@
                               :limit limit
                               :offset offset)
                        :here "/tag"
+                       :total (tag-count tag)
                        :limit limit
                        :offset offset
                        :more-params (format NIL "name=~A&sort-by=~A&direction=~A&view=~A"

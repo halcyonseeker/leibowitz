@@ -7,7 +7,7 @@
    `(cl-who:with-html-output-to-string (*standard-output* nil :prologue NIL :indent t)
       ,@snippet)))
 
-(defun make-page (lib &key here sidebar title body limit offset header more-params)
+(defun make-page (lib &key here sidebar title body limit offset total header more-params)
   (eval
    `(cl-who:with-html-output-to-string (*standard-output* nil :prologue t :indent t)
       (:html
@@ -38,8 +38,7 @@
                     (:main :id "content" ,@body))
               ,(when (and limit offset)
                  `(:nav :id "pagination" :class "ui"
-                        ,@(loop with total = (library-data-quantity lib)
-                                with pages = (ceiling (/ total limit))
+                        ,@(loop with pages = (ceiling (/ total limit))
                                 for p from 1 to pages
                                 for pth-link-offset = (* limit (- p 1))
                                 collect `(:a :class ,(if (= offset pth-link-offset)
