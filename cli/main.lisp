@@ -428,7 +428,7 @@ argument."
 ;;; Subcommand: mv-tag
 
 (defsubcmd mv-tag (cmd)
-    (:description "Mover or rename a tag."
+    (:description "Move or rename a tag."
      :usage "[-f|--force -m|--merge src dst]"
      :options (list (clingon:make-option
                      :flag
