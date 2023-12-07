@@ -243,17 +243,25 @@ end")))
 
 ;;; Reading and writing tags
 
+(defun %add-tag-inner-transaction (l tag)
+  (let* ((tag   (if (stringp tag) (make-instance 'tag :name tag) tag))
+         (prev-label (sqlite-row l "select label from tags where name = ?" (tag-name tag)))
+         (curr-label (if (slot-boundp tag 'label) (tag-label tag) NIL)))
+    ;; We insert-or-ignore here in order to not clobber count.
+    (sqlite-nq l "insert or ignore into tags (name, label, count) values (?, ?, ?)"
+               (tag-name tag) curr-label (tag-count tag))
+    (when curr-label
+      (unless (equal prev-label curr-label)
+        (sqlite-nq l "update tags set label = ? where name = ?"
+                   curr-label (tag-name tag))))
+    tag))
+
 (defmethod add-tag ((l sqlite-library) tag-or-name)
   (check-type tag-or-name (or tag string))
-  (when (stringp tag-or-name)
-    (setf tag-or-name (make-instance 'tag :name tag-or-name)))
-  (sqlite-nq l "insert or ignore into tags (name, label, count) values (?, ?, ?)"
-             (tag-name tag-or-name)
-             (if (slot-boundp tag-or-name 'label)
-                 (tag-label tag-or-name)
-                 NIL)
-             (tag-count tag-or-name))
-  T)
+  (with-sqlite-tx (l)
+    (%add-tag-inner-transaction l tag-or-name))
+  ;; fixme with-sqlite-tx clobbers return value
+  (get-tag l (%need-tag-name tag-or-name)))
 
 (defmethod get-tag ((l sqlite-library) tag-name &key (error NIL))
   (check-type tag-name string)
@@ -323,7 +331,7 @@ end")))
   (check-type datum-or-id (or datum pathname string))
   (check-type tags list)
   (labels ((add-assoc (l name id)
-             (add-tag l name)
+             (%add-tag-inner-transaction l name)
              (sqlite-nq l (ccat "insert into tag_datum_junctions "
                                 "(tag_name, datum_id) values (?, ?)")
                         name id)))
@@ -421,9 +429,9 @@ transaction, hence this little helper function."
                  ;; library's handling of different argument types is
                  ;; abysmally convoluted.
                  (unless (get-tag l ifname)
-                   (add-tag l (make-instance 'tag :name ifname)))
+                   (%add-tag-inner-transaction l ifname))
                  (unless (get-tag l thenname)
-                   (add-tag l (make-instance 'tag :name thenname)))
+                   (%add-tag-inner-transaction l thenname))
                  ;; FIXME: give del-tag-predicate a retroactive option
                  ;; and pass it whatever value we were passed here
                  (sqlite-nq l (ccat "insert or ignore into tag_predicates "

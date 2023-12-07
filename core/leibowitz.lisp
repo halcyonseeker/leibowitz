@@ -112,7 +112,7 @@ error will be issued."))
 orphaned tag without any corresponding data, so generally speaking
 you'll probably want to use `add-datum-tags' instead.  This method may
 be useful for adding a tag with a label that gives it some kind of
-special role."))
+special role.  Returns the tag instance."))
 
 (defgeneric get-tag (library tag-name &key error)
   (:documentation "Find a tag by its name and return an instance of it.  By default
