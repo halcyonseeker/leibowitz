@@ -256,12 +256,18 @@ listing.  Key arguments are passed unmodified to that method."
      (:h2 "Related tags")
      (:p "I'll need to figure out something clever here :p"))))
 
-(defun make-tag-view-page (lib tag)
+(defun make-tag-view-page (lib tag view &rest options &key &allow-other-keys)
   (check-type lib library)
   (check-type tag tag)
-  `((:section :id "tiles"
-              ,@(loop for datum in (get-tag-data lib tag)
-                      collect (datum-html-preview lib datum)))
+  `(,@(let ((data (loop for datum in (get-tag-data lib tag)
+                        collect (datum-html-preview lib datum :view view))))
+        `(,@(make-datum-listing-filter-bar view
+                                           (getf options :sort-by)
+                                           (getf options :direction))
+          (:small "FIXME get-tag-data should support sort-by/direction/limit/offset!")
+          (:small "FIXME get-tag-data should support pagination!")
+          ,(cond ((eql view :tile) `(:section :id "tiles" ,@data))
+                 ((eql view :card) `(:section :id "cards" ,@data)))))
     (:section
      (:h2 "Edit Tag")
      (:div :id "editor-widgets-container"

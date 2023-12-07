@@ -173,14 +173,31 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tag view machinery
 
-(leibowitz-route (tag-view lib "/tag") (name)
+(leibowitz-route (tag-view lib "/tag") (name limit offset sort-by direction view)
   (if name
-      (let ((tag (get-tag lib name)))
+      (let ((tag (get-tag lib name))
+            (limit (if limit (parse-integer limit) 50))
+            (offset (if offset (parse-integer offset) 0))
+            ;; The library uses keywords internally, but here we'll
+            ;; keep these as strings for creating pagination urls
+            (sort-by (if sort-by sort-by "modified"))
+            (direction (if direction direction "descending"))
+            (view (if view view "tile")))
         (if tag
             (make-page lib
                        :title (format NIL "~A | Leibowitz Web" name)
                        :sidebar (make-tag-view-sidebar lib tag)
-                       :body (make-tag-view-page lib tag))
+                       :body (make-tag-view-page
+                              lib tag (intern (string-upcase view) :keyword)
+                              :sort-by (intern (string-upcase sort-by) :keyword)
+                              :direction (intern (string-upcase direction) :keyword)
+                              :limit limit
+                              :offset offset)
+                       :here "/tag"
+                       :limit limit
+                       :offset offset
+                       :more-params (format NIL "name=~A&sort-by=~A&direction=~A&view=~A"
+                                            (url name) sort-by direction view))
             (return-404 lib (format NIL "Tag named ~S not found" name))))
       (hunchentoot:redirect "/tags")))
 
