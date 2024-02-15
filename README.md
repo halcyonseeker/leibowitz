@@ -158,3 +158,13 @@ Notes
   <https://derpibooru.org/>.  Leibowitz could integrate with a tagged
   forum like Tumblr or Dreamwidth/Livejournal where each datum is a
   post with replies/comments and tags...
+* Fucking SQLite FTS5 https://darksi.de/13.sqlite-fts5-structure/
+* We might be able to reduce the executable's size by moving SBCL
+  symbols into a shared library
+  https://github.com/quil-lang/sbcl-librarian
+* https://archive-it.org/post/the-stack-warc-file/
+* For serving raw files in the web UI, use `Content-Disposition:
+  attachement; filename=""` to preserve the filename when
+  downloading...  Or perhaps fix the URL to properly encode that?
+  Really, I should stop storing absolute IDs as absolute paths and do
+  something with inodes and relative paths.
