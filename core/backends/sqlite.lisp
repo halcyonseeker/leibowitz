@@ -73,6 +73,7 @@ create virtual table if not exists 'search' using fts5 (
   'id',
   content='data'
 )" "
+-- FIXME bruh why are we tracking this, just use a select count(*) instead
 create trigger if not exists inc_tag_count after insert on tag_datum_junctions begin
   update tags set count = count + 1 where name = new.tag_name;
 end" "
@@ -187,6 +188,8 @@ end")))
   (check-type new-datum-or-id (or string pathname datum))
   (let* ((old (%need-datum-id old-datum-or-id))
          (new (%need-datum-id new-datum-or-id))
+         ;; FIXME: aren't we appending an image file extension?  I
+         ;; think there'll be a bug here!
          (oldth (merge-pathnames old (library-thumbnail-cache-dir l)))
          (newth (merge-pathnames new (library-thumbnail-cache-dir l))))
     (when (equal old new) (error 'cannot-mv-or-cp-to-itself :d new))
@@ -243,6 +246,9 @@ end")))
 
 ;;; Reading and writing tags
 
+;; FIXME: again, tag-count could easily be found by a method that does
+;; a select count(*) query on the junction table so we wouldn't have
+;; to use multiple queries to update the label.
 (defun %add-tag-inner-transaction (l tag)
   (let* ((tag   (if (stringp tag) (make-instance 'tag :name tag) tag))
          (prev-label (sqlite-row l "select label from tags where name = ?" (tag-name tag)))
@@ -352,6 +358,8 @@ end")))
 
 ;;; Reading and writing datum-tag relationships
 
+;; FIXME: if tags is a list of tag instances, their labels are
+;; discarded!
 (defun %add-datum-tags-inner-transaction (lib datum-or-id tags &key replace)
   "Same deal as `%del-datum-tags-inner-transaction'."
   (check-type datum-or-id (or datum pathname string))

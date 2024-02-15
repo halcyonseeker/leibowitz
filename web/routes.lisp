@@ -244,6 +244,10 @@
       (no-such-tag ()
         (return-404 lib (format NIL "Tag with NAME ~S not found" name))))))
 
+;;; FIXME: Per the new forms, when :retroactive and :replace are both
+;;; passed to `datum-add-predicates', we should also go through and
+;;; REMOVE the old tags from all affected data!  Wire up the forms!
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Editing data
 

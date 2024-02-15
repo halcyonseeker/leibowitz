@@ -165,6 +165,10 @@ argument."
     (loop for job in jobs
           do (format T "Indexing ~A..." job)
              (finish-output)
+             ;; FIXME: index should take an &rest list and throw a
+             ;; specific error for nonexistent files and dirs.  Should
+             ;; we follow symlinks?  I figure even the falling back to
+             ;; cwd should be in the core...
              (index *library* (truename job))
              (format T "done~%"))))
 
@@ -310,6 +314,7 @@ argument."
                      :description "Overwrite existing files.")))
   (let ((src (car (clingon:command-arguments cmd)))
         (dst (cadr (clingon:command-arguments cmd))))
+    ;; FIXME: this code smells like ugly edge cases 🙃
     (when (probe-file src) (setf src (namestring (truename src))))
     (when (probe-file dst) (setf dst (namestring (truename dst))))
     (format T "Moving ~A to ~A~%" src dst)
@@ -350,6 +355,9 @@ argument."
 (defsubcmd rm (cmd)
     (:description "Remove a datum, including all tag and metadata associations."
      :usage "[datum ids...]")
+  ;; FIXME: rewrite this shitheap and move id resolution into core so
+  ;; that we don't have to pass absolute paths to delete orphaned
+  ;; files
   (let ((ids (loop for arg in (clingon:command-arguments cmd)
                    collect (cond
                              ((probe-file arg) (namestring (truename arg)))
@@ -382,6 +390,8 @@ argument."
   ;; tags a datum has rather than fetching them all!
   ;; FIXME: this output is bland, ugly, uninformative, and doesn't
   ;; scale with terminal size.
+  ;; FIXME: add support for listing multiple directories; infer cwd
+  ;; when none
   (let* ((dir (car (clingon:command-arguments cmd))))
     (loop for path in (reverse (uiop:directory-files
                                 (truename
@@ -410,6 +420,7 @@ argument."
 (defsubcmd ls-tag (cmd)
     (:description "List all tags."
      :usage "")
+  ;; FIXME: add support for different listing formats, etc
   (loop for tag in (list-tags *library*)
         do (format T "(~A data) ~A: ~S~%"
                    (tag-count tag) (tag-name tag) (tag-label tag))))
@@ -466,6 +477,7 @@ argument."
 (defsubcmd rm-tag (cmd)
     (:description "Remove a tag, leaving associated data intact."
      :usage "[tag names...]")
+  ;; FIXME yuck 🙀
   (let ((names (loop for arg in (clingon:command-arguments cmd)
                      collect (if (get-tag *library* arg)
                                  arg
