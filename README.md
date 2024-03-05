@@ -168,3 +168,8 @@ Notes
   downloading...  Or perhaps fix the URL to properly encode that?
   Really, I should stop storing absolute IDs as absolute paths and do
   something with inodes and relative paths.
+* In the web interface, use https://leafletjs.com with OSM data to
+  show maps of exif metadata from images, display GPS log files (eg,
+  from gpslogger), and maybe various GIS formats.  Will be harder in
+  native though I could probably cheat by XEmbed'ing mepo or
+  something.
