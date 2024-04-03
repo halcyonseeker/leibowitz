@@ -157,20 +157,16 @@ argument."
 ;;; Subcommand: index
 
 (defsubcmd index (cmd)
-    (:description "Index a file, directory, or url into leibowitz."
-     :usage "[options] [arguments ...]")
-  (let* ((args (clingon:command-arguments cmd))
-         (root (clingon:getopt cmd :root))
-         (jobs (if args args (if root (list root) (error "Idk what to index bro")))))
-    (loop for job in jobs
-          do (format T "Indexing ~A..." job)
-             (finish-output)
-             ;; FIXME: index should take an &rest list and throw a
-             ;; specific error for nonexistent files and dirs.  Should
-             ;; we follow symlinks?  I figure even the falling back to
-             ;; cwd should be in the core...
-             (index *library* (truename job))
-             (format T "done~%"))))
+    (:description "Recursively index a file or files, reading from stdin if none are specified."
+     :usage "[paths ...]")
+  (let ((args (clingon:command-arguments cmd)))
+    (if args
+        (index *library* args :log T)
+        (index *library*
+               (loop for line = (read-line *standard-input* nil 'eof)
+                     until (eq line 'eof)
+                     collect line)
+               :log T))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: web
