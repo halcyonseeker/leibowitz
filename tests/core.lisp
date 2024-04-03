@@ -193,11 +193,15 @@
     (true indexed)
     (is #'leibowitz.core::%datum-equal (car indexed) (get-datum l path))))
 
-(define-library-test index-url (l)
-  (let ((indexed (index l "https://nyaa.si")))
-    (true indexed)
-    (is #'leibowitz.core::%datum-equal
-        (car indexed) (get-datum l "https://nyaa.si"))))
+(define-library-test index-list-of-files (l p1 p2 p3 p4 p5)
+  (let* ((paths (list p1 p2 p3 p4 p5))
+         (indexed (index l paths)))
+    (is #'= 5 (length indexed))
+    (is #'equal (namestring p1) (datum-id (get-datum l p1)))
+    (is #'equal (namestring p2) (datum-id (get-datum l p2)))
+    (is #'equal (namestring p3) (datum-id (get-datum l p3)))
+    (is #'equal (namestring p4) (datum-id (get-datum l p4)))
+    (is #'equal (namestring p5) (datum-id (get-datum l p5)))))
 
 (define-library-test index-flat-directory (l p1 p2 p3 p4 p5)
   (let ((home (collection-homedir-root
@@ -230,6 +234,9 @@
         (is #'equal (namestring p3) (datum-id (get-datum l p3)))
         (is #'equal (namestring p4) (datum-id (get-datum l p4)))
         (is #'equal (namestring p5) (datum-id (get-datum l p5)))))))
+
+;; FIXME: add tests for all the new functionality described in the
+;; `index' fixme!
 
 ;;; Tagging
 

@@ -119,19 +119,36 @@ end")))
 
 ;;; Reading and writing data
 
-;; FIXME: calling on a five mb git repo is monstrously slow...
-(defmethod index ((l sqlite-library) path-or-url)
-  (check-type path-or-url (or string pathname))
-  (cond ((uiop:directory-exists-p path-or-url)
-         (let ((data NIL))
-           (cl-fad:walk-directory
-            path-or-url
-            (lambda (path)
-              (push (collection-index l (library-get-datum-collection l path) path)
-                    data)))
-           data))
-        (T (list (collection-index
-                  l (library-get-datum-collection l path-or-url) path-or-url)))))
+;; FIXME: Make indexing jobs run in parallel!  Add an option for
+;; following symlinks and one to control error handling: print to
+;; stderr and keep going or promote the error to the user.  We should
+;; have granular error types for all different kinds of failures and
+;; for the former error handling policy print a summary of any
+;; encountered at the end of output.  The symlink policy is probably
+;; up to the collection; should probably also filter out exotic file
+;; types like sockets, fifos, etc.
+(defmethod index ((l sqlite-library) (path-or-paths list) &key (log T))
+  (mapcar (lambda (path) (index l path :log log)) path-or-paths))
+(defmethod index ((l sqlite-library) (path-or-paths string) &key (log T))
+  (index l (pathname path-or-paths) :log log))
+(defmethod index ((l sqlite-library) (path-or-paths pathname) &key (log T))
+  (let ((indexed NIL))
+    (macrolet ((with-logging ((p) &body body)
+                 `(progn
+                    (when log (format T "Indexing ~A..." ,p) (finish-output))
+                    ,@body
+                    (when log (format T "done~%")))))
+      (if (uiop:directory-exists-p path-or-paths)
+          (cl-fad:walk-directory
+           path-or-paths
+           (lambda (path)
+             (with-logging (path)
+               (push (collection-index l (library-get-datum-collection l path) path)
+                     indexed))))
+          (with-logging (path-or-paths)
+            (push (collection-index l (library-get-datum-collection l path-or-paths) path-or-paths)
+                  indexed))))
+    indexed))
 
 (defmethod add-datum ((l sqlite-library) (d datum))
   (sqlite-nq l (ccat "insert or replace into data "
