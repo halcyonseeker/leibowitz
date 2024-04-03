@@ -84,7 +84,7 @@
                    :key :zsh-completions)
                   (clingon:make-option
                    :flag
-                   :description "Print markdown usage docs to standard-output."
+                   :description "Print markdown usage docs to stdout."
                    :long-name "markdown-documentation"
                    :key :markdown-documentation))))
 
@@ -177,7 +177,7 @@ argument."
 
 (defsubcmd web (cmd)
     (:description "Display a web UI."
-     :usage "[-p port]"
+     :usage "[-p|--port port]"
      :options (list (clingon:make-option
                      :integer
                      :description "Specify a port on which to run the web UI."
@@ -211,8 +211,8 @@ argument."
 ;;; Subcommand: show
 
 (defsubcmd show (cmd)
-    (:description "Print summaries of data."
-     :usage "[data ids...]")
+    (:description "Print information about files."
+     :usage "[paths...]")
   (loop for p in (clingon:command-arguments cmd)
         do (if (probe-file p)
                (datum-print-long-report
@@ -223,8 +223,8 @@ argument."
 ;;; Subcommand: tag
 
 (defsubcmd tag (cmd)
-    (:description "Apply a tag to one or more data."
-     :usage "[tag] [data ids...]")
+    (:description "Apply a tag to one or more files."
+     :usage "[tag] [paths...]")
   ;; FIXME: this will spit errors when working with URLS, but honestly
   ;; I'm not so sure that URLs should be supported as data ids along
   ;; with file names.  Perhaps "source url" could instead be a
@@ -243,7 +243,7 @@ argument."
 
 (defsubcmd tags (cmd)
     (:description "Apply one or more tags to a datum."
-     :usage "[datum id] [tags...]")
+     :usage "[path] [tags...]")
   (let ((id (truename (car (clingon:command-arguments cmd))))
         (tags (cdr (clingon:command-arguments cmd))))
     (format T "Adding tags ~S to datum ~S~%" tags id)
@@ -254,8 +254,8 @@ argument."
 ;;; Subcommand: untag
 
 (defsubcmd untag (cmd)
-    (:description "Remove a tag from one or more data."
-     :usage "[tag name] [data ids...]"
+    (:description "Remove a tag from one or more files."
+     :usage "[-c|--cascade] [tag] [paths...]"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\c
@@ -279,8 +279,8 @@ argument."
 ;;; Subcommand: untags
 
 (defsubcmd untags (cmd)
-    (:description "Remove one or more tags from a datum."
-     :usage "[datum id] [tags...]"
+    (:description "Remove one or more tags from a file."
+     :usage "[-c|--cascade] [path] [tags...]"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\c
@@ -304,8 +304,8 @@ argument."
 ;;; Subcommand: mv
 
 (defsubcmd mv (cmd)
-    (:description "Move or rename a datum, keeping metadata and tags intact."
-     :usage "[old] [new]"
+    (:description "Move or rename a file, keeping metadata and tags intact."
+     :usage "[-f|--force] [src] [dst]"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\f
@@ -329,8 +329,8 @@ argument."
 ;;; Subcommand: cp
 
 (defsubcmd cp (cmd)
-    (:description "Copy a datum, duplicating its tags and metadata."
-     :usage "[old] [new]"
+    (:description "Copy a file, duplicating its tags and metadata."
+     :usage "[-f|--force] [src] [dst]"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\f
@@ -353,8 +353,8 @@ argument."
 ;;; Subcommand: rm
 
 (defsubcmd rm (cmd)
-    (:description "Remove a datum, including all tag and metadata associations."
-     :usage "[datum ids...]")
+    (:description "Remove a file, including all tag and metadata associations."
+     :usage "[paths...]")
   ;; FIXME: rewrite this shitheap and move id resolution into core so
   ;; that we don't have to pass absolute paths to delete orphaned
   ;; files
@@ -384,7 +384,7 @@ argument."
 ;; Also fix /tree handler in routes.lisp.
 
 (defsubcmd ls (cmd)
-    (:description "List indexed data."
+    (:description "List indexed files."
      :usage "[directory]")
   ;; FIXME: this function is very slow, we should record the number of
   ;; tags a datum has rather than fetching them all!
@@ -406,8 +406,8 @@ argument."
 ;;; Subcommand: show-tag
 
 (defsubcmd show-tag (cmd)
-    (:description "Show information about a tag."
-     :usage "[tag names....]")
+    (:description "Show information about one or more tags."
+     :usage "[tag names...]")
   (loop for name in (clingon:command-arguments cmd)
         for tag = (get-tag *library* name)
         do (if tag
@@ -430,7 +430,7 @@ argument."
 
 (defsubcmd mv-tag (cmd)
     (:description "Move or rename a tag."
-     :usage "[-f|--force -m|--merge src dst]"
+     :usage "[-f|--force] [-m|--merge] [src] [dst]"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\f
@@ -453,7 +453,7 @@ argument."
 
 (defsubcmd cp-tag (cmd)
     (:description "Copy a tag."
-     :usage "[-f|--force -m|--merge src dst]"
+     :usage "[-f|--force] [-m|--merge] [src] [dst]"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\f
