@@ -312,18 +312,14 @@ none are specified."
                      :long-name "force"
                      :key :force
                      :description "Overwrite existing files.")))
-  (let ((src (car (clingon:command-arguments cmd)))
-        (dst (cadr (clingon:command-arguments cmd))))
-    ;; FIXME: this code smells like ugly edge cases 🙃
-    (when (probe-file src) (setf src (namestring (truename src))))
-    (when (probe-file dst) (setf dst (namestring (truename dst))))
-    (format T "Moving ~A to ~A~%" src dst)
+  (need-two-arguments (src dst)
+    (:else "You must specify a source name and a destination name")
+    (format T "Moving datum ~A to ~A~%" src dst)
     (handler-case
         (move-datum *library* src dst :overwrite (clingon:getopt cmd :force))
       (datum-already-exists ()
-        (format *error-output*
-                "File ~S already exists on disk or in db, pass -f to overwrite.~%"
-                dst)))))
+        ;; Catch this error in order to print a more helpful message.
+        (error "File ~S already exists, pass -f to overwrite.~%" dst)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: cp
@@ -337,10 +333,8 @@ none are specified."
                      :long-name "force"
                      :key :force
                      :description "Overwrite new if it exists.")))
-  (unless (= (length (clingon:command-arguments cmd)) 2)
-    (error "You must specify a source path and a destination path"))
-  (let ((src (car (clingon:command-arguments cmd)))
-        (dst (cadr (clingon:command-arguments cmd))))
+  (need-two-arguments (src dst)
+      (:else "You must specify a source path and a destination path")
     (format T "Copying ~A to ~A~%" src dst)
     (handler-case
         (copy-datum *library* src dst :overwrite (clingon:getopt cmd :force))
@@ -439,10 +433,15 @@ none are specified."
                      :long-name "merge"
                      :key :merge
                      :description "Merge src into dst if dst already exists.")))
-  (destructuring-bind (src dst) (clingon:command-arguments cmd)
-    (move-tag *library* src dst
-              :merge (clingon:getopt cmd :merge)
-              :overwrite (clingon:getopt cmd :force))))
+  (need-two-arguments (src dst)
+      (:else "You must specify a source name and a destination name")
+    (format T "Moving tag ~A to ~A~%" src dst)
+    (handler-case
+        (move-tag *library* src dst :merge (clingon:getopt cmd :merge)
+                                    :overwrite (clingon:getopt cmd :force))
+      (tag-already-exists ()
+        ;; Catch this error in order to print a more helpful message.
+        (error "Tag ~S already exists, pass -f to overwrite or -m to merge~%" dst)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: cp-tag
@@ -462,10 +461,16 @@ none are specified."
                      :long-name "merge"
                      :key :merge
                      :description "Merge src into dst if dst already exists.")))
-  (destructuring-bind (src dst) (clingon:command-arguments cmd)
-    (copy-tag *library* src dst
-              :merge (clingon:getopt cmd :merge)
-              :overwrite (clingon:getopt cmd :force))))
+  (need-two-arguments (src dst)
+      (:else "You must specify a source name and a destination name")
+    (format T "Copying tag ~A to ~A~%" src dst)
+    (handler-case
+        (copy-tag *library* src dst :merge (clingon:getopt cmd :merge)
+                                    :overwrite (clingon:getopt cmd :force))
+      (tag-already-exists ()
+        ;; Catch this error in order to print a more helpful message.
+        (error "Tag ~S already exists, pass -f to overwrite or -m to merge~%"
+               dst)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: rm-tag
