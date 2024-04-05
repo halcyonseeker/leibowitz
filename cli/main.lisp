@@ -204,13 +204,33 @@ argument."
 
 (defsubcmd find (cmd)
     (:description "Search your data."
-     :usage "[query terms...]"
-     ;; FIXME: once query supports it, here will go options to filter by
-     ;; tags and other attributes
-     )
-  (let ((terms (format NIL "~{~A~^ ~}" (clingon:command-arguments cmd))))
-    (loop for d in (query *library* terms)
-          do (format T "~A~%" (datum-id d)))))
+     :usage "[-r|--reverse] [-s|--sort-by rank|modified|birth|accesses] [query terms...]"
+     ;; FIXME: add support for tag filtering!
+     :options (list (clingon:make-option
+                     :flag
+                     :description "Reverse sort direction, default shows best match at top."
+                     :short-name #\r
+                     :long-name "reverse"
+                     :initial-value NIL
+                     :key :reverse)
+                    (clingon:make-option
+                     :string
+                     :description "Criterion to sort search results by, default is rank."
+                     :short-name #\s
+                     :long-name "sort-by"
+                     :initial-value "rank"
+                     :key :sort-by)))
+  (when (zerop (length (clingon:command-arguments cmd)))
+    (error "Query string not specified"))
+  (let* ((query (format NIL "~{~A~^ ~}" (clingon:command-arguments cmd)))
+         (direction (if (clingon:getopt cmd :reverse) :descending :ascending))
+         (sort-by (intern (string-upcase (clingon:getopt cmd :sort-by)) :keyword))
+         (results (query *library* query :direction direction :sort-by sort-by)))
+    (loop for res in results
+          for id = (datum-id res)
+          ;; FIXME performance....
+          for tags = (length (get-datum-tags *library* id))
+          do (format T "(~A tags) ~A~%" tags id))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: show
