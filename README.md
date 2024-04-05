@@ -111,6 +111,12 @@ Roadmap to 0.1 version; minimum viable product
     - [ ] Support changing the sort order and criterion for all data
           listings
 
+### Tests
+
+- [ ] My test harness breaks when `$LEIBOWTIZ_ROOT` is set, not a big
+      deal but may have led to me spending several hours chasing down
+      bugs that aren't there 🙃
+
 Future Work
 -----------
 - Implement collections for gallery-dl, man, etc.
