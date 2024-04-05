@@ -54,6 +54,11 @@ most technically useful way possible."))
   (:report (lambda (c s)
              (with-slots (name) c (format s "Tag ~S already exists" name)))))
 
+(define-condition file-not-regular (friendly-error)
+  ((path :initarg :path))
+  (:report (lambda (c s)
+             (with-slots (path) c (format s "File ~S is not regular" path)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Unfriendly errors
 

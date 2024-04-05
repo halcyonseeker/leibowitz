@@ -119,6 +119,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic API tests
 
+(define-library-test data-cannot-be-exotic-file-types (l path)
+  (let ((p1 (mktmp #P"/tmp/" :fifo))
+        (p2 (mktmp #P"/tmp/" :dir)))
+    (unwind-protect
+         (progn
+           (fail (make-instance 'datum :id p1) 'file-not-regular)
+           (fail (make-instance 'datum :id p2) 'file-not-regular))
+      (delete-file p1)
+      (uiop:delete-empty-directory p2))))
+
 (define-library-test insert-datum (l path)
   (let ((d (make-instance 'datum :id path)))
     (is #'eq d (add-datum l d))))

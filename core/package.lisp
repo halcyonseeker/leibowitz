@@ -81,6 +81,7 @@
            #:datum-is-orphaned
            #:no-such-tag
            #:tag-already-exists
+           #:file-not-regular
            #:no-applicable-collection)
   ;; SQLite library backend
   (:export #:sqlite-library

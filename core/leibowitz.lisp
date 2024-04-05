@@ -269,7 +269,18 @@ recently modified to the least recently modified."))
     (let ((kind (%datum-find-url-scheme-in-id (datum-id d))))
       (if kind
           (setf (datum-kind d) (format NIL "link/~A" kind))
-          (setf (datum-kind d) (%datum-find-mime d)))))
+          (progn
+            ;; Now we're pretty sure ID is a path, so make sure it's a
+            ;; regular file.  FIXME: would it make sense to do
+            ;; `truename' resolution/path normalization here too?
+            ;; What about a policy for symlink and hardlink
+            ;; resolution?  As it stands the following condition means
+            ;; that (make-instance 'datum ...) will fail for symlinks,
+            ;; is this what we want?
+            (unless (osicat-posix:s-isreg
+                     (osicat-posix:stat-mode (osicat-posix:stat (datum-id d))))
+              (error 'file-not-regular :path (datum-id d)))
+            (setf (datum-kind d) (%datum-find-mime d))))))
   ;; Change class to the appropriate one by mime type or URL scheme
   (handler-case
       (let ((full-mime (read-from-string
