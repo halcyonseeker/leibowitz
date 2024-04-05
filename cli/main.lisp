@@ -246,7 +246,8 @@ specified."
 ;;; Subcommand: untag
 
 (defsubcmd untag (cmd)
-    (:description "Remove a tag from one or more files."
+    (:description "Remove a tag from one or more files, reading from stdin if none are
+specified."
      :usage "[-c|--cascade] [tag] [paths...]"
      :options (list (clingon:make-option
                      :flag
@@ -254,18 +255,16 @@ specified."
                      :long-name "cascade"
                      :key :cascade
                      :description "Also remove tags from these data that depend on the supplied tag.")))
+  (when (zerop (length (clingon:command-arguments cmd)))
+    (error "No tag specified."))
   (let ((tag (car (clingon:command-arguments cmd)))
-        (data (loop for p in (cdr (clingon:command-arguments cmd))
-                    collect (if (probe-file p)
-                                (truename p)
-                                ;; FIXME: this will fail if the
-                                ;; underlying file was moved
-                                (error 'datum-not-indexed :lib *library* :id p)))))
-    (loop for d in data
-          do (format T "Removing tag ~S from datum ~S~%" tag d)
-             (del-datum-tags *library* d (list tag)
-                             :cascade (clingon:getopt cmd :cascade)))))
-
+        (paths (if (= (length (clingon:command-arguments cmd)) 1)
+                   (%collect-stdin-lines)
+                   (cdr (clingon:command-arguments cmd)))))
+  (loop for path in paths
+        do (format T "Removing tag ~S from ~A~%" tag path)
+           (del-datum-tags *library* path (list tag)
+                           :cascade (clingon:getopt cmd :cascade)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: untags
