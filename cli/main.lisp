@@ -217,20 +217,18 @@ argument."
 ;;; Subcommand: tag
 
 (defsubcmd tag (cmd)
-    (:description "Apply a tag to one or more files."
+    (:description "Apply a tag to one or more files, read from stdin if none are
+specified."
      :usage "[tag] [paths...]")
-  ;; FIXME: this will spit errors when working with URLS, but honestly
-  ;; I'm not so sure that URLs should be supported as data ids along
-  ;; with file names.  Perhaps "source url" could instead be a
-  ;; metadata tag for files in bookmark or torrent collections...
+  (when (zerop (length (clingon:command-arguments cmd)))
+    (error "No tag specified."))
   (let ((tag (car (clingon:command-arguments cmd)))
-        (data (mapcar #'truename (cdr (clingon:command-arguments cmd)))))
-    (loop for d in data
-          do (if (uiop:directory-exists-p d)
-                 (format T "~A is a directory, skipping~%" d)
-                 (progn
-                   (format T "Adding tag ~S to datum ~A~%" tag d)
-                   (add-datum-tags *library* d (list tag)))))))
+        (paths (if (= (length (clingon:command-arguments cmd)) 1)
+                   (%collect-stdin-lines)
+                   (cdr (clingon:command-arguments cmd)))))
+    (loop for path in paths
+          do (format T "Adding tag ~S to ~A~%" tag path)
+             (add-datum-tags *library* path (list tag)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: tags
