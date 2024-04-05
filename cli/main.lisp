@@ -25,6 +25,14 @@
        (handle-toplevel-args ,cmd)
        ,@handler)))
 
+(defmacro need-two-arguments
+    ((arg1 arg2) (&key (else "Two arguments required!")) &body body)
+  `(progn
+     (unless (= (length (clingon:command-arguments cmd)) 2)
+       (error ,else))
+     (destructuring-bind (,arg1 ,arg2) (clingon:command-arguments cmd)
+       ,@body)))
+
 (defun %collect-stdin-lines ()
   (loop for line = (read-line *standard-input* nil 'eof)
         until (eq line 'eof)
@@ -329,17 +337,16 @@ none are specified."
                      :long-name "force"
                      :key :force
                      :description "Overwrite new if it exists.")))
-    (let ((src (car (clingon:command-arguments cmd)))
-          (dst (cadr (clingon:command-arguments cmd))))
-      (when (probe-file src) (setf src (namestring (truename src))))
-      (when (probe-file dst) (setf dst (namestring (truename dst))))
-      (format T "Copying ~A to ~A~%" src dst)
-      (handler-case
-          (copy-datum *library* src dst :overwrite (clingon:getopt cmd :force))
-        (datum-already-exists ()
-          (format *error-output*
-                  "File ~S already exists on disk or in db, pass -f to overwrite.~%"
-                  dst)))))
+  (unless (= (length (clingon:command-arguments cmd)) 2)
+    (error "You must specify a source path and a destination path"))
+  (let ((src (car (clingon:command-arguments cmd)))
+        (dst (cadr (clingon:command-arguments cmd))))
+    (format T "Copying ~A to ~A~%" src dst)
+    (handler-case
+        (copy-datum *library* src dst :overwrite (clingon:getopt cmd :force))
+      (datum-already-exists ()
+        ;; Catch this error in order to print a more helpful message.
+        (error "Destination ~A already exists, pass -f to overwrite.~%" dst)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: rm
