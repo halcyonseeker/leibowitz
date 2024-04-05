@@ -44,10 +44,11 @@ most technically useful way possible."))
                (format s "Underlying file for ~S has been moved or deleted!" id)))))
 
 (define-condition no-such-tag (friendly-error)
-  ((name :initarg :name))
+  ((name :initarg :name)
+   (lib :initarg :lib))
   (:report (lambda (c s)
-             (with-slots (name) c
-               (format s "There is no tag named ~S" name)))))
+             (with-slots (name lib) c
+               (format s "Tag with name ~S not present in ~S" name lib)))))
 
 (define-condition tag-already-exists (friendly-error)
   ((name :initarg :name))
