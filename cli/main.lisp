@@ -210,11 +210,8 @@ argument."
 (defsubcmd show (cmd)
     (:description "Print information about files."
      :usage "[paths...]")
-  (loop for p in (clingon:command-arguments cmd)
-        do (if (probe-file p)
-               (datum-print-long-report
-                *library* (get-datum *library* (truename p)))
-               (error 'datum-not-indexed :lib *library* :id p))))
+  (loop for path in (clingon:command-arguments cmd)
+        do (datum-print-long-report *library* (get-datum *library* path :error T))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: tag
@@ -406,10 +403,7 @@ argument."
     (:description "Show information about one or more tags."
      :usage "[tag names...]")
   (loop for name in (clingon:command-arguments cmd)
-        for tag = (get-tag *library* name)
-        do (if tag
-               (tag-print-long-report *library* tag)
-               (error 'no-such-tag :name name))))
+        do (tag-print-long-report *library* (get-tag *library* name :error T))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: ls-tags
