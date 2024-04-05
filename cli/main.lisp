@@ -25,6 +25,11 @@
        (handle-toplevel-args ,cmd)
        ,@handler)))
 
+(defun %collect-stdin-lines ()
+  (loop for line = (read-line *standard-input* nil 'eof)
+        until (eq line 'eof)
+        collect line))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entrypoints
 
@@ -162,11 +167,7 @@ argument."
   (let ((args (clingon:command-arguments cmd)))
     (if args
         (index *library* args :log T)
-        (index *library*
-               (loop for line = (read-line *standard-input* nil 'eof)
-                     until (eq line 'eof)
-                     collect line)
-               :log T))))
+        (index *library* (%collect-stdin-lines) :log T))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: web
