@@ -268,18 +268,23 @@ recently modified to the least recently modified."))
   ;; Set the information required maybe to change our class
   (when (pathnamep (datum-id d))
     (setf (datum-id d) (namestring (datum-id d))))
+  ;; FIXME: `truename' here resolves relative paths to absolute,
+  ;; meaning that all files are addressed internally by their absolute
+  ;; paths.  It would be nice to store tham relative to $HOME or
+  ;; $LEIBOWITZ_ROOT so that libraries may be portable (we'd also need
+  ;; to modify the thumbnail cache in that case).
+  (when (probe-file (datum-id d))
+    (setf (datum-id d) (namestring (truename (datum-id d)))))
   (unless (slot-boundp d 'kind)
     (let ((kind (%datum-find-url-scheme-in-id (datum-id d))))
       (if kind
           (setf (datum-kind d) (format NIL "link/~A" kind))
           (progn
             ;; Now we're pretty sure ID is a path, so make sure it's a
-            ;; regular file.  FIXME: would it make sense to do
-            ;; `truename' resolution/path normalization here too?
-            ;; What about a policy for symlink and hardlink
-            ;; resolution?  As it stands the following condition means
-            ;; that (make-instance 'datum ...) will fail for symlinks,
-            ;; is this what we want?
+            ;; regular file.  FIXME: What about a policy for symlink
+            ;; and hardlink resolution?  As it stands the following
+            ;; condition means that (make-instance 'datum ...) will
+            ;; fail for symlinks, is this what we want?
             (unless (osicat-posix:s-isreg
                      (osicat-posix:stat-mode (osicat-posix:stat (datum-id d))))
               (error 'file-not-regular :path (datum-id d)))
@@ -543,7 +548,21 @@ to date."))
 
 (defun %need-datum-id (datum-or-id)
   (etypecase datum-or-id
-    (string datum-or-id)
-    (pathname (namestring datum-or-id))
+    ((or string pathname)
+     ;; Attempt to resolve datum-or-id to an absolute path, if we
+     ;; can't then just return it as is, converting to a string if
+     ;; it's a pathname.
+     (if (probe-file datum-or-id)
+         (namestring (truename datum-or-id))
+         (progn
+           (format *error-output*
+                   "Warning: ~S does not exist on disk.~%~A~%~A~%~A~%"
+                   datum-or-id
+                   "I'm using it as-is which may cause this operation to fail, if this"
+                   "caused an error to occur (eg, datum not found), try passing the"
+                   "absolute path to where you think it should be.")
+           (if (pathnamep datum-or-id)
+               (namestring datum-or-id)
+               datum-or-id))))
     (datum (datum-id datum-or-id))))
 

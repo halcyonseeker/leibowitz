@@ -177,7 +177,7 @@ end")))
   (multiple-value-bind
         (id accesses kind birth modified terms)
       (sqlite-row l "select * from data where id = ?"
-                  (if (pathnamep path-or-url) (namestring path-or-url) path-or-url))
+                  (%need-datum-id path-or-url))
     (if id
         (make-instance 'datum :id id :accesses accesses :kind kind :birth birth
                               :modified modified :terms terms
