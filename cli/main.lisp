@@ -234,13 +234,17 @@ specified."
 ;;; Subcommand: tags
 
 (defsubcmd tags (cmd)
-    (:description "Apply one or more tags to a datum."
+    (:description "Apply one or more tags to a datum, reading from stdin if no tags are
+specified."
      :usage "[path] [tags...]")
-  (let ((id (truename (car (clingon:command-arguments cmd))))
-        (tags (cdr (clingon:command-arguments cmd))))
-    (format T "Adding tags ~S to datum ~S~%" tags id)
-    (add-datum-tags *library* id tags)))
-
+  (when (zerop (length (clingon:command-arguments cmd)))
+    (error "No file specified."))
+  (let ((path (car (clingon:command-arguments cmd)))
+        (tags (if (= (length (clingon:command-arguments cmd)) 1)
+                  (%collect-stdin-lines)
+                  (cdr (clingon:command-arguments cmd)))))
+    (format t "Adding tags ~S to datum ~A~%" tags path)
+    (add-datum-tags *library* path tags)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: untag
@@ -270,26 +274,23 @@ specified."
 ;;; Subcommand: untags
 
 (defsubcmd untags (cmd)
-    (:description "Remove one or more tags from a file."
+    (:description "Remove one or more tags from a file, reading tag names from stdin if
+none are specified."
      :usage "[-c|--cascade] [path] [tags...]"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\c
                      :long-name "cascade"
                      :key :cascade
-                     :description "Also remove tags from this datum that depend on the supplied tags.")))
-  (let ((id (car (clingon:command-arguments cmd)))
-        (tags (cdr (clingon:command-arguments cmd))))
-    (if (probe-file id)
-        (setf id (truename id))
-        ;; FIXME this wil fail if the underlying file is moved or
-        ;; deleted; all this error handling should go in the core
-        ;; where path resolution can be handled by an internal
-        ;; `truename' which attempts to resolve the ID even with a
-        ;; missing file.
-        (error 'datum-not-indexed :lib *library* :id id))
-    (format T "Removing tags ~S from datum ~S~%" tags id)
-    (del-datum-tags *library* id tags :cascade (clingon:getopt cmd :cascade))))
+                     :description "Also remove tags from this file that depend on the supplied tags.")))
+  (when (zerop (length (clingon:command-arguments cmd)))
+    (error "No path specified."))
+  (let ((path (car (clingon:command-arguments cmd)))
+        (tags (if (= (length (clingon:command-arguments cmd)) 1)
+                  (%collect-stdin-lines)
+                  (cdr (clingon:command-arguments cmd)))))
+    (format T "Removing tags ~S from ~A~%" tags path)
+    (del-datum-tags *library* path tags :cascade (clingon:getopt cmd :cascade))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: mv
