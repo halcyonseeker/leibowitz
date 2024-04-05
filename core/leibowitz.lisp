@@ -157,12 +157,12 @@ is a `datum', a string, or a pathname.  Returns NIL if there are no tags."))
 replaces the existing ones rather than adding to them.  An error of type
 `datum-not-indexed' is signaled if the supplied one isn't present."))
 
-;; FIXME: what about NIL?
 (defgeneric del-datum-tags (library datum-or-id tags &key cascade)
   (:documentation "Remove one or more tags from a datum.  If this leaves any tags
 orphaned they will be removed unless they're stored with a label.  If
 :cascade is T this will also remove all tags predicated in the tags to
-be removed."))
+be removed.  Signals `datum-not-indexed' if the requested datum cannot
+be found."))
 
 (defgeneric get-tag-data (library tag-or-name &key sort-by direction limit offset)
   (:documentation "Return a list of the data associated with a tag or NIL if there isn't

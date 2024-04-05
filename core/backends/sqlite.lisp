@@ -446,9 +446,15 @@ transaction, hence this little helper function."
                (loop for req being each hash-key of (%cascade-down-predicate-tree lib name)
                      do (del-assoc lib req id))))))
 
-(defmethod del-datum-tags ((l sqlite-library) datum-or-id tags &key (cascade NIL))
-  (check-type datum-or-id (or datum pathname string))
-  (check-type tags list)
+(defmethod del-datum-tags ((l sqlite-library) (datum-or-id datum) (tags list)
+                           &key (cascade NIL))
+  (del-datum-tags l (datum-id datum-or-id) tags :cascade cascade))
+(defmethod del-datum-tags ((l sqlite-library) (datum-or-id pathname) (tags list)
+                           &key (cascade NIL))
+  (del-datum-tags l (%need-datum-id d) tags :cascade cascade))
+(defmethod del-datum-tags ((l sqlite-library) (datum-or-id string) (tags list)
+                           &key (cascade NIL))
+  (get-datum l datum-or-id :error T)
   (with-sqlite-tx (l)
     (%del-datum-tags-inner-transaction l datum-or-id tags :cascade cascade)))
 
