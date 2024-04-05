@@ -119,25 +119,39 @@ end")))
 
 ;;; Reading and writing data
 
-;; FIXME: Make indexing jobs run in parallel!  Add an option for
-;; following symlinks and one to control error handling: print to
-;; stderr and keep going or promote the error to the user.  We should
-;; have granular error types for all different kinds of failures and
-;; for the former error handling policy print a summary of any
-;; encountered at the end of output.  The symlink policy is probably
-;; up to the collection; should probably also filter out exotic file
-;; types like sockets, fifos, etc.
-(defmethod index ((l sqlite-library) (path-or-paths list) &key (log T))
-  (mapcar (lambda (path) (index l path :log log)) path-or-paths))
-(defmethod index ((l sqlite-library) (path-or-paths string) &key (log T))
-  (index l (pathname path-or-paths) :log log))
-(defmethod index ((l sqlite-library) (path-or-paths pathname) &key (log T))
+;; FIXME: Make indexing jobs run in parallel!
+(defmethod index ((l sqlite-library) (path-or-paths list)
+                  &key (log T) (promote-error NIL))
+  (mapcar (lambda (path) (index l path :log log :promote-error promote-error))
+          path-or-paths))
+(defmethod index ((l sqlite-library) (path-or-paths string)
+                  &key (log T) (promote-error NIL))
+  (index l (pathname path-or-paths) :log log :promote-error promote-error))
+(defmethod index ((l sqlite-library) (path-or-paths pathname)
+                  &key (log T) (promote-error NIL))
   (let ((indexed NIL))
     (macrolet ((with-logging ((p) &body body)
                  `(progn
                     (when log (format T "Indexing ~A..." ,p) (finish-output))
-                    ,@body
-                    (when log (format T "done~%")))))
+                    (handler-case
+                        ,@body
+                      ;; FIXME: `no-such-file', `file-not-readable',
+                      ;; etc.  The fact that `no-such-file' errors end
+                      ;; up as `no-applicable-collection' is really
+                      ;; annoying, where would be the proper place to
+                      ;; correct this?  Perhaps in `datum's
+                      ;; `initialize-instance'?  Really I should rip
+                      ;; out collections altogether, they're feeling
+                      ;; more and more like an overly-complex and
+                      ;; inconvenient way of having custom indexing
+                      ;; rules for given directories.
+                      (file-not-regular (c)
+                        (if promote-error
+                            (error c)
+                            (format T "failed!~%Error: ~A~%" c)))
+                      (:no-error (c)
+                        (declare (ignore c))
+                        (when log (format T "done~%")))))))
       (if (uiop:directory-exists-p path-or-paths)
           (cl-fad:walk-directory
            path-or-paths

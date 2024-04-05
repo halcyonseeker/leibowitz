@@ -69,10 +69,13 @@ the library and where the cdrs is the quantity of data with that type."))
 
 ;;; Reading and writing data
 
-(defgeneric index (library path-or-paths &key log)
+(defgeneric index (library path-or-paths &key log promote-error)
   (:documentation "High-level function to index a file, a list of files, or all files
-beneath a directory tree.  Logs progress to stdout if :log is T and
-returns a list of all the files indexed."))
+beneath a directory tree.  Logs progress to stdout if :log is T; if
+:promote-error is T recoverable errors encountered during indexing
+will be promoted to the user, if not they will be logged to stderr
+regardless of the value of :log.  Index returns a list of all the
+files indexed."))
 
 (defgeneric add-datum (library datum)
   (:documentation "Given a datum, add it to the library then return it."))
@@ -500,7 +503,7 @@ corresponds with files on disk."))
   (:documentation "Check if this collection is applicable to a given ID."))
 
 (defgeneric collection-index (library collection id)
-  (:documentation "Index a file or url into the library per the rules of this
+  (:documentation "Index a file into the library per the rules of this
 collection."))
 
 (defgeneric %collection-html-sidebar-section-for-datum (library collection datum)
