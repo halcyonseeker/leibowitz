@@ -455,7 +455,7 @@ transaction, hence this little helper function."
   (del-datum-tags l (datum-id datum-or-id) tags :cascade cascade))
 (defmethod del-datum-tags ((l sqlite-library) (datum-or-id pathname) (tags list)
                            &key (cascade NIL))
-  (del-datum-tags l (%need-datum-id d) tags :cascade cascade))
+  (del-datum-tags l (%need-datum-id datum-or-id) tags :cascade cascade))
 (defmethod del-datum-tags ((l sqlite-library) (datum-or-id string) (tags list)
                            &key (cascade NIL))
   (get-datum l datum-or-id :error T)
