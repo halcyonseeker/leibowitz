@@ -133,39 +133,46 @@ end")))
   (index l (pathname path-or-paths) :log log :promote-error promote-error))
 (defmethod index ((l sqlite-library) (path-or-paths pathname)
                   &key (log T) (promote-error NIL))
-  (let ((indexed NIL))
-    (macrolet ((with-logging ((p) &body body)
-                 `(progn
-                    (when log (format T "Indexing ~A..." ,p) (finish-output))
-                    (handler-case
-                        ,@body
-                      ;; FIXME: `no-such-file', `file-not-readable',
-                      ;; etc.  The fact that `no-such-file' errors end
-                      ;; up as `no-applicable-collection' is really
-                      ;; annoying, where would be the proper place to
-                      ;; correct this?  Perhaps in `datum's
-                      ;; `initialize-instance'?  Really I should rip
-                      ;; out collections altogether, they're feeling
-                      ;; more and more like an overly-complex and
-                      ;; inconvenient way of having custom indexing
-                      ;; rules for given directories.
-                      (file-not-regular (c)
-                        (if promote-error
-                            (error c)
-                            (format T "failed!~%Error: ~A~%" c)))
-                      (:no-error (c)
-                        (declare (ignore c))
-                        (when log (format T "done~%")))))))
+  (let ((thumbnailer:*thumbnail-cache-dir* (library-thumbnail-cache-dir l))
+        (indexed NIL))
+    (labels ((index-worker (path)
+               (when (library-path-indexable-p l path)
+                 (when log (format T "Indexing ~A..." path) (finish-output))
+                 (handler-case
+                     (let ((d (collection-index l (library-get-datum-collection l path) path)))
+                       (push d indexed)
+                       (handler-case
+                           (thumbnailer:get-thumbnail (datum-id d) (datum-kind d))
+                         (thumbnailer:unsupported-file-type ())
+                         (thumbnailer:thumbnail-creation-failed ()))
+                       ;; For some reason known only to God and the
+                       ;; spirit that dwells within the Steele Bank
+                       ;; Common Lisp, we _need_ to `finish-output'
+                       ;; here in order to avoid an "invalid number of
+                       ;; arguments: 2" error
+                       (when log (finish-output)))
+                   ;; FIXME: `no-such-file', `file-not-readable', etc.
+                   ;; The fact that `no-such-file' errors end up as
+                   ;; `no-applicable-collection' is really annoying,
+                   ;; where would be the proper place to correct this?
+                   ;; Perhaps in `datum's `initialize-instance'?
+                   ;; Really I should rip out collections altogether,
+                   ;; they're feeling more and more like an
+                   ;; overly-complex and inconvenient way of having
+                   ;; custom indexing rules for given directories.
+                   (file-not-regular (c)
+                     (if promote-error
+                         (error c)
+                         (when log (format T "failed!~%Error: ~A~%" c) (finish-output))))
+                   (:no-error (c)
+                     (declare (ignore c))
+                     (when log (format T "done~%")))
+                   (T (c)
+                     (when log (format T "failed!~%Error: ~A~%" c) (finish-output))
+                     (error c))))))
       (if (uiop:directory-exists-p path-or-paths)
-          (cl-fad:walk-directory
-           path-or-paths
-           (lambda (path)
-             (with-logging (path)
-               (push (collection-index l (library-get-datum-collection l path) path)
-                     indexed))))
-          (with-logging (path-or-paths)
-            (push (collection-index l (library-get-datum-collection l path-or-paths) path-or-paths)
-                  indexed))))
+          (cl-fad:walk-directory path-or-paths #'index-worker)
+          (index-worker path-or-paths)))
     indexed))
 
 (defmethod add-datum ((l sqlite-library) (d datum))
