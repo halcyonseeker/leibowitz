@@ -4,7 +4,8 @@
   (:export #:*thumbnail-cache-dir*
            #:get-thumbnail
            #:unsupported-file-type
-           #:source-file-not-accessible))
+           #:source-file-not-accessible
+           #:thumbnail-creation-failed))
 
 (in-package :thumbnailer)
 
@@ -51,6 +52,12 @@ thumbnail was last generated."
                (format s "Failed to create thumbnail for ~S, file doesn't exist."
                        path)))))
 
+(define-condition thumbnail-creation-failed (error)
+  ((path :initarg :path))
+  (:report (lambda (c s)
+             (with-slots (path) c
+               (format s "Failed to create thumbnail for ~S:~%" path)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Generators
 
@@ -94,7 +101,10 @@ the thumbnail cache."
                     ((equal (subseq mime 0 6) "video/")
                      #'ffmpeg-generate-thumbnail)
                     (T (error 'unsupported-file-type :mime mime :path path)))))
-    (if async
-        (bt:make-thread (lambda () (funcall func path cached-path))
-                        :name "Thumbnailer worker")
-        (funcall func path cached-path))))
+    (handler-case
+        (if async
+            (bt:make-thread (lambda () (funcall func path cached-path))
+                            :name "Thumbnailer worker")
+            (funcall func path cached-path))
+      (uiop:subprocess-error ()
+        (error 'thumbnail-creation-failed :path path)))))
