@@ -67,6 +67,19 @@ the library and where the cdrs is the quantity of data with that type."))
 (defgeneric datum-num-tags (library datum)
   (:documentation "Return the number of tags associated with this datum."))
 
+(defgeneric library-path-indexable-p (library path)
+  (:documentation "Given a path, return T or NIL depending on whether or not it's allowed
+to be indexed.  At some point this will evolve into a full
+include/exclude system, akin to gitignore, but for right now we're
+just flat excluding all hidden files and children of hidden
+directories.")
+  (:method ((l library) (p pathname))
+    (if (loop for part in (append (cdr (pathname-directory p))
+                                  (list (if (pathname-name p) (pathname-name p) " ")))
+              when (eq #\. (aref part 0)) do (return T))
+        NIL
+        T)))
+
 ;;; Reading and writing data
 
 (defgeneric index (library path-or-paths &key log promote-error)

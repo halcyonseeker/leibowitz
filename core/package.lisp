@@ -8,7 +8,8 @@
            #:library-print-info
            #:library-data-quantity
            #:library-all-file-types
-           #:library-get-datum-collection)
+           #:library-get-datum-collection
+           #:library-path-indexable-p)
   (:export #:index
            #:injest-raw-datum
            #:add-datum
