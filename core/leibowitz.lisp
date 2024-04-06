@@ -569,11 +569,12 @@ to date."))
          (namestring (truename datum-or-id))
          (progn
            (format *error-output*
-                   "Warning: ~S does not exist on disk.~%~A~%~A~%~A~%"
-                   datum-or-id
-                   "I'm using it as-is which may cause this operation to fail, if this"
-                   "caused an error to occur (eg, datum not found), try passing the"
-                   "absolute path to where you think it should be.")
+                   "Warning: ~S does not exist on disk.  ~
+                   I'm using the value as-is which may cause this~
+                   operation to fail (eg, with datum not found).  If ~
+                   it does, try passing the absolute path to where~
+                   you think it should be.~%"
+                   datum-or-id)
            (if (pathnamep datum-or-id)
                (namestring datum-or-id)
                datum-or-id))))
