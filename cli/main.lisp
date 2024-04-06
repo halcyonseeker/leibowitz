@@ -228,8 +228,7 @@ argument."
          (results (query *library* query :direction direction :sort-by sort-by)))
     (loop for res in results
           for id = (datum-id res)
-          ;; FIXME performance....
-          for tags = (length (get-datum-tags *library* id))
+          for tags = (datum-num-tags *library* id)
           do (format T "(~A tags) ~A~%" tags id))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -412,7 +411,7 @@ none are specified."
           for datum = (get-datum *library* path)
           when datum
             do (format T "(~A tags) ~A~%"
-                       (length (get-datum-tags *library* datum))
+                       (datum-num-tags *library* datum)
                        (path:basename (datum-id datum))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
