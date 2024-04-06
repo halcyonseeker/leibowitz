@@ -113,9 +113,13 @@ end")))
   (format T "SQLite Library on ~A with ~A data indexed~%"
           (namestring (slot-value l 'db-path)) (library-data-quantity l)))
 
-(defmethod datum-num-tags ((l sqlite-library) (d datum))
+(defmethod datum-num-tags ((l sqlite-library) (datum datum))
+  (datum-num-tags l (%need-datum-id datum)))
+(defmethod datum-num-tags ((l sqlite-library) (datum pathname))
+  (datum-num-tags l (%need-datum-id datum)))
+(defmethod datum-num-tags ((l sqlite-library) (datum string))
   (sqlite-row l "select count(*) from tag_datum_junctions where datum_id = ? "
-              (datum-id d)))
+              datum))
 
 ;;; Reading and writing data
 
