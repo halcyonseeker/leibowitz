@@ -95,11 +95,11 @@ the thumbnail cache."
     (pathname (concatenate 'string (namestring path) ".jpg"))))
 
 (defun dispatch-thumbnailer (path cached-path mime async)
-  (let ((func (cond ((and (equal (subseq mime 0 6) "image/")
-                          (not (equal mime "image/gif")))
-                     #'imagemagick-generate-thumbnail)
-                    ((equal (subseq mime 0 6) "video/")
+  (let ((func (cond ((or (equal (subseq mime 0 6) "video/")
+                         (equal mime "image/gif"))
                      #'ffmpeg-generate-thumbnail)
+                    ((equal (subseq mime 0 6) "image/")
+                     #'imagemagick-generate-thumbnail)
                     (T (error 'unsupported-file-type :mime mime :path path)))))
     (handler-case
         (if async
