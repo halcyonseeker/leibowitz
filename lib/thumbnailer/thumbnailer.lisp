@@ -139,7 +139,6 @@ the thumbnail cache."
                      #'imagemagick-generate-thumbnail)
                     ((or (equal mime "application/pdf")
                          (equal mime "application/postscript")
-                         ;; Microsoft Word
                          (if (libreoffice-available-p)
                              (mime-is-fancy-office-format mime)
                              NIL))
@@ -165,6 +164,7 @@ hood to convert office formats to PDFs."
 
 (defun mime-is-fancy-office-format (mime)
   (or
+   ;; Microsoft Word
    (equal mime "application/msword")
    (equal mime "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
    ;; Microsoft Powerpoint
