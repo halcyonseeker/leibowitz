@@ -6,14 +6,18 @@ file system.  It works by shelling out Imagemagick and ffmpeg and
 should in theory work for all files with `video/*` or `image/*` mime
 types, as well as `audio/*` files with embedded cover art.  The only
 audio format I've found so far that don't work are flacs with ffmpeg
-6.1.1.
+6.1.1.  It also works for pdf, postscript, and a handful of Microsoft
+office formats — these require that you have LibreOffice installed as
+ImageMagick calls it under the hood to convert them to pdf.
 
-In order to use it, install ffmpeg and ImageMagick (for best results
-make sure the former has been compiled with support for
-patent-encumbered codecs), `(load #P"/path/to/thumbnailer.asd")`, and
-`(ql:quickload :thumbnailer)`.  Once I've satisfied every criterion on
-the following roadmap I'll seperate this project into its own
-repository and publish it on quicklisp.
+In order to use it, install ffmpeg, ImageMagick (for best results make
+sure the former has been compiled with support for patent-encumbered
+codecs), and optionally LibreOffice, then clone this repo somewhere
+quicklisp can find it, and finally `(ql:quickload :thumbnailer)`.
+
+Once I've satisfied every criterion on the following roadmap I'll
+seperate this project into its own repository and publish it on
+quicklisp.
 
 Usage
 -----
@@ -49,9 +53,9 @@ Required before I submit to quicklisp:
       ffmpeg or something instead
 - [X] Don't hardcode the default `thumbnailer:*thumbnail-cache-dir*`
       under `/tmp/` then verify Windows and OSX support.
-- [ ] Support PDF and Postscript
 - [X] Verify support for audio with embedded cover art
 - [ ] Verify support for audio WITHOUT embedded cover art
+- [X] Support PDF and Postscript
 - [ ] Support plain text
 - [ ] Support EPUB, MOBI, and other ebook formats
 - [ ] Optionally fall back to looking for generic file icons using the
@@ -76,7 +80,7 @@ Cool but optional features:
       of the programming language used in a text file.  License
       permitting, we could steal these from the [treemacs
       project](https://github.com/Alexander-Miller/treemacs/tree/master/icons/default).
-- [ ] Maybe support MS Office, LibreOffice, and other fancy formats.
+- [X] Maybe support MS Office, LibreOffice, and other fancy formats.
 - [ ] Maybe optionally support previews for weirder things like
       torrents, tarballs, and zip archives?
 - [ ] Imagemagick doesn't seem to support rtf (text/rtf) or odp

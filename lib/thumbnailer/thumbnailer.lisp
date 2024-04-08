@@ -73,6 +73,13 @@ thumbnail was last generated."
                           (namestring cached-path))
                     :error-output T))
 
+(defun imagemagick-generate-document-thumbnail (original-path cached-path)
+  (uiop:run-program (list *imagemagick-exe*
+                          "convert"
+                          "-resize" "300x300"
+                          (format NIL "~A[0]" (namestring original-path))
+                          (namestring cached-path))))
+
 (defun ffmpeg-generate-thumbnail (original-path cached-path)
   (uiop:run-program (list *ffmpeg-exe*
                           "-i" (namestring original-path)
@@ -105,6 +112,13 @@ the thumbnail cache."
                      #'ffmpeg-generate-thumbnail)
                     ((equal (subseq mime 0 6) "image/")
                      #'imagemagick-generate-thumbnail)
+                    ((or (equal mime "application/pdf")
+                         (equal mime "application/postscript")
+                         ;; Microsoft Word
+                         (if (libreoffice-available-p)
+                             (mime-is-fancy-office-format mime)
+                             NIL))
+                     #'imagemagick-generate-document-thumbnail)
                     (T (error 'unsupported-file-type :mime mime :path path)))))
     (handler-case
         (if async
@@ -113,3 +127,21 @@ the thumbnail cache."
             (funcall func path cached-path))
       (uiop:subprocess-error ()
         (error 'thumbnail-creation-failed :path path :mime mime)))))
+
+(defun libreoffice-available-p ()
+  "Check if libreoffice is available as imagemagick uses it under the
+hood to convert office formats to PDFs."
+  #-windows(handler-case
+               (progn (uiop:run-program '("which" "libreoffice")) T)
+             (uiop:subprocess-error () NIL))
+  #+windows(error "thumbnailer doesn't support windows yet :("))
+
+(defun mime-is-fancy-office-format (mime)
+  (or
+   (equal mime "application/msword")
+   (equal mime "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+   ;; Microsoft Powerpoint
+   (equal mime "application/vnd.ms-powerpoint")
+   (equal mime "application/vnd.openxmlformats-officedocument.presentationml.presentation")
+   ;; Libreoffice Writer
+   (equal mime "application/vnd.oasis.opendocument.text")))
