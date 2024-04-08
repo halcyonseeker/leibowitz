@@ -13,8 +13,9 @@
 (defparameter *imagemagick-exe* "magick")
 (defparameter *thumbnail-cache-dir*
   (ensure-directories-exist
-   (pathname
-    (format NIL "/tmp/thumbnailer_cache_dir-tmp~36R/" (random (expt 36 8))))))
+   (merge-pathnames
+    (pathname (format NIL "thumbnailer_cache_dir-tmp~36R/" (random (expt 36 8))))
+    (uiop:temporary-directory))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entrypoint

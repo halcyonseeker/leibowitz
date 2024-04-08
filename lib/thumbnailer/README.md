@@ -43,7 +43,7 @@ Required before I submit to quicklisp:
 - [ ] Make sure more exotic animated images like apng and animated
       webp are supported by imagemagick, if not detect them and use
       ffmpeg or something instead
-- [ ] Don't hardcode the default `thumbnailer:*thumbnail-cache-dir*`
+- [X] Don't hardcode the default `thumbnailer:*thumbnail-cache-dir*`
       under `/tmp/` then verify Windows and OSX support.
 - [ ] Verify support for audio with embedded cover art
 - [ ] Support PDF and Postscript
