@@ -74,6 +74,11 @@ Cool but optional features:
 - [ ] Maybe support MS Office, LibreOffice, and other fancy formats.
 - [ ] Maybe optionally support previews for weirder things like
       torrents, tarballs, and zip archives?
+- [ ] Imagemagick doesn't seem to support rtf (text/rtf) or odp
+      (application/vnd.oasis.opendocument.presentation), which seems
+      odd to me since for docx, doc, and pptx support it shells out to
+      a headless libreoffice for pdf export.  I imagine this would be
+      easy to fix upstream.
 
 Derivative work:
 
