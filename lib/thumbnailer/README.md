@@ -26,14 +26,16 @@ for your application's cache will probably look something like this:
 (handler-case
     (let ((thumbnailer:*thumbnail-cache-dir* #P"my/apps/thumbnail/cache"))
       (thumbnailer:get-thumbnail #P"path/to/some/file.ext" "mime/type"))
-  (thumbnailer:unsupported-file-type ()))
-
+  (thumbnailer:unsupported-file-type ())
+  (thumbnailer:thumbnail-creation-failed ()))
 ```
 
-Catching `thumbnailer:unsupported-file-type` like this will silently
-skip unsupported files.  If your ImageMagick or ffmpeg executables
-are not in your `$PATH`, you can set the `thumbnailer:*ffmpeg-exe*`
-or `thumbnailer:*imagemagick-exe*` accordingly.
+Catching `thumbnailer:unsupported-file-type` and
+`thumbnailer:thumbnail-creation-failed` like this will silently skip
+unsupported or mangled files.  If your ImageMagick or ffmpeg
+executables are not in your `$PATH`, you can set the
+`thumbnailer:*ffmpeg-exe*` or `thumbnailer:*imagemagick-exe*`
+accordingly.
 
 Roadmap
 -------
