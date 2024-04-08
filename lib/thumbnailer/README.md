@@ -6,9 +6,10 @@ file system.  It works by shelling out Imagemagick and ffmpeg and
 should in theory work for all files with `video/*` or `image/*` mime
 types, as well as `audio/*` files with embedded cover art.  The only
 audio format I've found so far that don't work are flacs with ffmpeg
-6.1.1.  It also works for pdf, postscript, and a handful of Microsoft
-office formats — these require that you have LibreOffice installed as
-ImageMagick calls it under the hood to convert them to pdf.
+6.1.1.  It also works for pdf, postscript, epub, and a handful of
+Microsoft office formats — these require that you have LibreOffice
+installed as ImageMagick calls it under the hood to convert them to
+pdf.
 
 In order to use it, install ffmpeg, ImageMagick (for best results make
 sure the former has been compiled with support for patent-encumbered
@@ -57,7 +58,7 @@ Required before I submit to quicklisp:
 - [ ] Verify support for audio WITHOUT embedded cover art
 - [X] Support PDF and Postscript
 - [ ] Support plain text
-- [ ] Support EPUB, MOBI, and other ebook formats
+- [ ] Support MOBI, CBZ, and other ebook formats
 - [ ] Optionally fall back to looking for generic file icons using the
       OS/DE appropriate mechanisms, optionally respecting the user's
       theme.

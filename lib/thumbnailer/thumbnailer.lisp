@@ -89,6 +89,31 @@ thumbnail was last generated."
                           (namestring cached-path))
                     :error-output T))
 
+(defun extract-epub-cover-and-resize (original-path cached-path)
+  (let ((intermediate-manifest (uiop:tmpize-pathname
+                                (merge-pathnames "thumbnailer_epub_manifest"
+                                                 *thumbnail-cache-dir*)))
+        (intermediate-cover (uiop:tmpize-pathname
+                             (merge-pathnames "thumbnailer_epub_cover"
+                                              *thumbnail-cache-dir*))))
+    (unwind-protect
+         ;; FIXME: What are the performance consequences of keeping a
+         ;; zip file open for longer vs opening it twice?
+         (zip:with-zipfile (zf original-path)
+           (zip:zipfile-entry-contents (zip:get-zipfile-entry "content.opf" zf)
+                                       intermediate-manifest)
+           (destructuring-bind (cover-href cover-mime)
+               (lquery:$1 (lquery:initialize intermediate-manifest)
+                 "package" "manifest" "item"
+                 (filter #'(lambda (item)
+                             (equal (lquery-funcs:attr item :id) "cover")))
+                 (combine (attr :href) (attr :media-type)))
+             (zip:zipfile-entry-contents (zip:get-zipfile-entry cover-href zf)
+                                         intermediate-cover)
+             (dispatch-thumbnailer intermediate-cover cached-path cover-mime NIL)))
+      (delete-file intermediate-manifest)
+      (delete-file intermediate-cover))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Helpers
 
@@ -119,6 +144,8 @@ the thumbnail cache."
                              (mime-is-fancy-office-format mime)
                              NIL))
                      #'imagemagick-generate-document-thumbnail)
+                    ((equal mime "application/epub+zip")
+                     #'extract-epub-cover-and-resize)
                     (T (error 'unsupported-file-type :mime mime :path path)))))
     (handler-case
         (if async
