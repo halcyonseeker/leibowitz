@@ -4,7 +4,9 @@ A file thumbnailing library for Common Lisp
 A simple thumbnail generation library with support for caching on the
 file system.  It works by shelling out Imagemagick and ffmpeg and
 should in theory work for all files with `video/*` or `image/*` mime
-types, as well as `audio/*` files with embedded cover art.
+types, as well as `audio/*` files with embedded cover art.  The only
+audio format I've found so far that don't work are flacs with ffmpeg
+6.1.1.
 
 In order to use it, install ffmpeg and ImageMagick (for best results
 make sure the former has been compiled with support for
@@ -45,8 +47,9 @@ Required before I submit to quicklisp:
       ffmpeg or something instead
 - [X] Don't hardcode the default `thumbnailer:*thumbnail-cache-dir*`
       under `/tmp/` then verify Windows and OSX support.
-- [ ] Verify support for audio with embedded cover art
 - [ ] Support PDF and Postscript
+- [X] Verify support for audio with embedded cover art
+- [ ] Verify support for audio WITHOUT embedded cover art
 - [ ] Support plain text
 - [ ] Support EPUB, MOBI, and other ebook formats
 - [ ] Optionally fall back to looking for generic file icons using the

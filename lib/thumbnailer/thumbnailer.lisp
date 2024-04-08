@@ -99,6 +99,8 @@ the thumbnail cache."
 
 (defun dispatch-thumbnailer (path cached-path mime async)
   (let ((func (cond ((or (equal (subseq mime 0 6) "video/")
+                         (and (equal (subseq mime 0 6) "audio/")
+                              (not (equal mime "audio/flac")))
                          (equal mime "image/gif"))
                      #'ffmpeg-generate-thumbnail)
                     ((equal (subseq mime 0 6) "image/")
