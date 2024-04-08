@@ -43,7 +43,7 @@ thumbnail was last generated."
    (path :initarg :path))
   (:report (lambda (c s)
              (with-slots (mime path) c
-               (format s "Unsupported mime type ~S for file ~S"
+               (format s "Unsupported mime type ~S for file~%~S"
                        mime path)))))
 
 (define-condition source-file-not-accessible (error)
@@ -54,10 +54,12 @@ thumbnail was last generated."
                        path)))))
 
 (define-condition thumbnail-creation-failed (error)
-  ((path :initarg :path))
+  ((path :initarg :path)
+   (mime :initarg :mime))
   (:report (lambda (c s)
-             (with-slots (path) c
-               (format s "Failed to create thumbnail for ~S:~%" path)))))
+             (with-slots (mime path) c
+               (format s "Failed to create thumbnail for ~S file~%~S"
+                       mime path)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Generators
@@ -108,4 +110,4 @@ the thumbnail cache."
                             :name "Thumbnailer worker")
             (funcall func path cached-path))
       (uiop:subprocess-error ()
-        (error 'thumbnail-creation-failed :path path)))))
+        (error 'thumbnail-creation-failed :path path :mime mime)))))
