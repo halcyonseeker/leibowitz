@@ -55,11 +55,12 @@ thumbnail was last generated."
 
 (define-condition thumbnail-creation-failed (error)
   ((path :initarg :path)
-   (mime :initarg :mime))
+   (mime :initarg :mime)
+   (why  :initarg :why))
   (:report (lambda (c s)
-             (with-slots (mime path) c
-               (format s "Failed to create thumbnail for ~S file~%~S"
-                       mime path)))))
+             (with-slots (mime path why) c
+               (format s "Failed to create thumbnail for ~S file~%Path: ~S~%Reason: ~A"
+                       mime path why)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Generators
@@ -151,8 +152,9 @@ the thumbnail cache."
             (bt:make-thread (lambda () (funcall func path cached-path))
                             :name "Thumbnailer worker")
             (funcall func path cached-path))
-      (uiop:subprocess-error ()
-        (error 'thumbnail-creation-failed :path path :mime mime)))))
+      (uiop:subprocess-error (c)
+        (error 'thumbnail-creation-failed :path path :mime mime
+                                          :why (format NIL "~S" c))))))
 
 (defun libreoffice-available-p ()
   "Check if libreoffice is available as imagemagick uses it under the
