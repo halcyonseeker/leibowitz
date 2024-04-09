@@ -32,6 +32,9 @@ body {
 	background-color: var(--bg);
 	color: var(--fg);
 }
+h2, h3, h4, h5, h6, h7, h8 {
+	border-bottom: solid 0.1rem var(--fg);
+}
 .ui {
 	background-color: var(--ui-bg);
 }
@@ -104,7 +107,6 @@ ul.path-breadcrumbs a:visited {
 	padding-left: 0px;
 }
 #sidebar h2 {
-	border-bottom: solid 0.1rem var(--fg);
 	font-size: medium;
 }
 .tag-count {
