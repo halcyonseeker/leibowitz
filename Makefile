@@ -5,11 +5,11 @@ all: build completions
 
 build: $(LISP_SOURCES_REGEX)
 	mkdir -p build
-	sbcl --load leibowitz.asd \
+	sbcl --noinform --load leibowitz.asd \
 	     --eval '(progn (ql:quickload :leibowitz) (asdf:make :leibowitz) (quit))'
 
 test: $(LISP_SOURCES_REGEX)
-	sbcl --load leibowitz.asd \
+	sbcl --noinform --load leibowitz.asd \
 	     --eval '(progn (ql:quickload :leibowitz/tests) (asdf:test-system :leibowitz) (quit))'
 
 completions: build
