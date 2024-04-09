@@ -70,6 +70,19 @@ the library and where the cdrs is the quantity of data with that type."))
 (defgeneric library-list-files-by-type (library type)
   (:documentation "Return a list of data whose `datum-kind' slot matches TYPE."))
 
+;; FIXME: Like the method right above, this method really needs to be
+;; merged in with list-data once I figure out how to pass SQLite a
+;; parameter into a LIKE match without getting a gaping huge SQL
+;; injection.  For now this suffices...  Also note that since we're
+;; working against the filesystem for this right now this will fail to
+;; return any data whose files have been moved or deleted.
+(defgeneric library-list-files-in-dir (library dir &key include-unindexed)
+  (:documentation "Return a list of data in DIR.  If :include-unindexed is true un
+unindexed files will be included as pathnames, so the caller will need
+to typecase on the result.  Note that it's possible that some data
+returned by this method will have since been deleted or renamed on the
+filesystem."))
+
 (defgeneric datum-num-tags (library datum)
   (:documentation "Return the number of tags associated with this datum."))
 

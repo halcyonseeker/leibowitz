@@ -9,6 +9,7 @@
            #:library-data-quantity
            #:library-all-file-types
            #:library-list-files-by-type
+           #:library-list-files-in-dir
            #:library-get-datum-collection
            #:library-path-indexable-p)
   (:export #:index

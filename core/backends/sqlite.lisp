@@ -119,6 +119,19 @@ end")))
                              :collection (library-get-datum-collection l id))))
    (sqlite-rows l "select * from data where type = ?" type)))
 
+(defmethod library-list-files-in-dir ((l sqlite-library) (dir pathname)
+                                      &key (include-unindexed NIL))
+  (let ((ret NIL))
+    (loop for path in (uiop:directory-files (truename dir))
+          for datum = (get-datum l path)
+          do (if datum
+                 (push datum ret)
+                 (when include-unindexed (push path ret))))
+    ret))
+(defmethod library-list-files-in-dir ((l sqlite-library) (dir string)
+                                      &key (include-unindexed NIL))
+  (library-list-files-in-dir l (pathname dir) :include-unindexed include-unindexed))
+
 (defmethod library-print-info ((l sqlite-library))
   (format T "SQLite Library on ~A with ~A data indexed~%"
           (namestring (slot-value l 'db-path)) (library-data-quantity l)))
