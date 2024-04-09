@@ -58,7 +58,6 @@
              :sidebar `((:section "Idk yet"))
              :body (list-tags-as-html lib)))
 
-
 (leibowitz-route (tree-page lib "/tree") (dir)
   (let ((dir (if dir dir (user-homedir-pathname))))
     (if (and (uiop:directory-exists-p dir)
@@ -67,8 +66,8 @@
                    :here "/tree"
                    :title "Tree | Leibowitz Web"
                    :header (make-tree-breadcrumbs dir)
-                   :sidebar (make-tree-sidebar)
-                   :body (list-contents-of-directory dir))
+                   :sidebar (make-tree-sidebar dir)
+                   :body (list-contents-of-directory lib dir))
         (return-404 lib (format NIL "Directory ~S does not exist" dir)))))
 
 ;; FIXME: parameter validations hould be in the core, just parse here

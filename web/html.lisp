@@ -153,28 +153,44 @@ listing.  Key arguments are passed unmodified to that method."
                                                   path-so-far))
                                   ,part)))))))
 
-(defun make-tree-sidebar ()
+(defun make-tree-sidebar (dir)
   `((:section
-     (:h2 "Quick Links")
-     (:ul ,@(loop for d in (reverse (uiop:subdirectories (user-homedir-pathname)))
+     (:h2 "Subdirectories")
+     (:ul ,@(loop for sd in (reverse (uiop:subdirectories dir))
+                  for name = (car (last (pathname-directory sd)))
                   collect `(:li (:a :href ,(format NIL "/tree?dir=~A"
                                                    (hunchentoot:url-encode
-                                                    (namestring d)))
-                                    ,(cl-who:escape-string
-                                      (enough-namestring
-                                       d (user-homedir-pathname))))))))))
+                                                    (namestring sd)))
+                                    ,(cl-who:escape-string name))))))))
 
-;; FIXME: make the listing prettier and more informative and figure
-;; out a proper policy for opening files.
-(defun list-contents-of-directory (dir)
-  `((:section
-     (:ul ,@(loop for p in (nconc (reverse (uiop:subdirectories dir))
-                                  (reverse (uiop:directory-files dir)))
-                  collect `(:li (:a :href ,(format NIL "/tree?dir=~A"
-                                                   (hunchentoot:url-encode
-                                                    (namestring p)))
-                                    ,(cl-who:escape-string
-                                      (enough-namestring p dir)))))))))
+
+(defun list-contents-of-directory (lib dir)
+  (let ((indexed NIL)
+         (unindexed NIL))
+    (mapcar (lambda (file)
+              (etypecase file
+                (datum (push file indexed))
+                (pathname (push file unindexed))))
+            (library-list-files-in-dir lib dir :include-unindexed T))
+    `((:section
+       (:p "FIXME: Add controls to index/reindex individual files or the whole directory")
+       (:p "FIXME: Rework the core so I can have list-data controls here too!")
+       (:p "FIXME: Eventually query will also need to be able to filter by directory..."))
+      (:section
+       (:h2 "Indexed files")
+       (:div :id "tiles"
+             ,@(loop for datum in indexed collect (datum-html-preview lib datum))))
+      (:section
+       (:h2 "Unindexed files")
+       (:div
+        :id "tiles"
+        ,@(loop for f in unindexed
+                collect `(:div :class "tile"
+                               (:a :href ,(format NIL "/raw?id=~A"
+                                                  (hunchentoot:url-encode
+                                                   (namestring f)))
+                                   ,(cl-who:escape-string
+                                     (namestring (pathname-name f)))))))))))
 
 (defun make-datum-view-page (lib datum)
   (incf (datum-accesses datum))
