@@ -53,6 +53,7 @@
   ;; Specific types of data
   (:export #:datum-text
            #:datum-text/html
+           #:datum-application/pdf
            #:datum-image
            #:datum-video
            #:datum-link/web)
