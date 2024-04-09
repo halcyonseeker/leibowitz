@@ -172,6 +172,7 @@
 ;; cache directory.  We really need to store static files in a set
 ;; place and use hunchentoot's static file handler instead!
 (leibowitz-route (datum-thumbnail lib "/thumbnail") (path)
+  (setf (hunchentoot:content-type*) "image/jpeg")
   (with-open-file (s path :element-type '(unsigned-byte 8))
     (let ((buf (make-array (file-length s) :element-type '(unsigned-byte 8))))
       (handler-case
