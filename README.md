@@ -47,8 +47,6 @@ Roadmap to 0.1 version; minimum viable product
 - [ ] Improve full text search to index different fields (path, title,
       body, tags, tag descriptions) separately so that the user may
       selectively search in them.
-- [ ] Optimize the indexer method and make it run multiple workers in
-      parallel, right now it's very slow.
 - [ ] Sometimes doing a full-text search yields an error `Code
       CORRUPT: database disk image is malformed.` with the offending
       stanza being `select data.* from search left join data on
@@ -176,6 +174,8 @@ Future Work
 - Could be interesting to supplement search with a local LLM, probably
   Facebook's [Llama2](https://ai.meta.com/llama/), fed entirely by
   your local corpus.
+- Consider making the indexer run concurrently.  I think some things
+  in the core are still too fiddly for this to be wise.
 
 Notes
 -----
