@@ -391,10 +391,6 @@ none are specified."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: ls
 
-;; FIXME: Given that leibowitz is ostensibly an enhanced filesystem,
-;; it makes sense that we should have this functionality in the core.
-;; Also fix /tree handler in routes.lisp.
-
 (defsubcmd ls (cmd)
     (:description "List indexed files."
      :usage "[directory]")
@@ -404,15 +400,18 @@ none are specified."
   ;; scale with terminal size.
   ;; FIXME: add support for listing multiple directories; infer cwd
   ;; when none
-  (let* ((dir (car (clingon:command-arguments cmd))))
-    (loop for path in (reverse (uiop:directory-files
-                                (truename
-                                 (if dir dir (uiop:getcwd)))))
-          for datum = (get-datum *library* path)
-          when datum
-            do (format T "(~A tags) ~A~%"
-                       (datum-num-tags *library* datum)
-                       (path:basename (datum-id datum))))))
+  (let* ((dir (if (clingon:command-arguments cmd)
+                  (truename (car (clingon:command-arguments cmd)))
+                  (uiop:getcwd))))
+    (format T "SHOWING LISTING FOR ~A~%" dir)
+    (loop for sub in (uiop:subdirectories dir)
+          do (format T "~A~%" (enough-namestring sub dir)))
+    (loop for file in (library-list-files-in-dir *library* dir :include-unindexed T)
+          do (etypecase file
+               (datum (format T "(~A tags) ~A~%"
+                              (datum-num-tags *library* file)
+                              (enough-namestring (datum-id file) dir)))
+               (pathname (format T "UNINDEXED ~A~%" (enough-namestring file dir)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: show-tag
