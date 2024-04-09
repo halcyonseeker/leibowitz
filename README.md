@@ -121,6 +121,10 @@ Future Work
 -----------
 - Make sure the web UI is properly accessible and easy to use with a
   screenreader.  <https://www.w3.org/WAI/ARIA/apg/>
+- Unify searching and listing into a single method that restricts the
+  view of the database, then expose this in the web and cli.  EVERY
+  view into the filesystem should thus be trivially filtered using the
+  same sets of rules.
 - Implement collections for gallery-dl, man, etc.
 - Add support for file and collection specific metadata fields,
   probably implemented as a special kind of tags.

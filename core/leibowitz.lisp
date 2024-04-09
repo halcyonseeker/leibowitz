@@ -177,6 +177,7 @@ orphaned they will be removed unless they're stored with a label.  If
 be removed.  Signals `datum-not-indexed' if the requested datum cannot
 be found."))
 
+;; FIXME: unify searching and listing files into a single method!
 (defgeneric get-tag-data (library tag-or-name &key sort-by direction limit offset)
   (:documentation "Return a list of the data associated with a tag or NIL if there isn't
 any.  Keyword arguments function the same as `list-data' and `query'"))
@@ -205,6 +206,7 @@ thentag."))
 
 ;;; Searching and Listing
 
+;; FIXME: unify searching and listing files into a single method!
 (defgeneric query (library terms &key sort-by direction limit offset)
   (:documentation "Return data that match the search terms.  :sort-by and :direction
 behave the same as for `list-data', except that the former also
@@ -218,6 +220,7 @@ data."))
   (:documentation "Return a list of the top :limit sorted in descending order by
 count."))
 
+;; FIXME: unify searching and listing files into a single method!
 (defgeneric list-data (library &key direction sort-by offset limit)
   (:documentation "Return a list of data.  :direction may be either :ascending or
 :descending and controls the manner in which the data are returned; it
