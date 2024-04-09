@@ -109,6 +109,16 @@ end")))
                        l "select count(*) from data where type = ?"
                        (car type)))))
 
+(defmethod library-list-files-by-type ((l sqlite-library) (type string))
+  (mapcar
+   (lambda (row)
+     (destructuring-bind (id accesses kind birth modified terms) row
+       (make-instance 'datum :id id :accesses accesses :kind kind
+                             :birth birth :modified modified
+                             :terms terms
+                             :collection (library-get-datum-collection l id))))
+   (sqlite-rows l "select * from data where type = ?" type)))
+
 (defmethod library-print-info ((l sqlite-library))
   (format T "SQLite Library on ~A with ~A data indexed~%"
           (namestring (slot-value l 'db-path)) (library-data-quantity l)))

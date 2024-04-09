@@ -707,6 +707,19 @@
       (get-tag-data l "tag" :sort-by :birth :direction :ascending)
     (true (<= (datum-birth d1) (datum-birth d2)))))
 
+(define-library-test list-files-by-type (l p1 p2)
+  (with-open-file (s p1 :direction :output :if-exists :supersede)
+    (format s "hi :3~%"))
+  (with-open-file (s p2 :direction :output :if-exists :supersede)
+    (format s "<!DOCTYPE html>~%"))
+  (index l (list p1 p2))
+  (let ((res (library-list-files-by-type l "text/plain")))
+    (is #'= 1 (length res))
+    (is #'equal (namestring p1) (datum-id (car res))))
+  (let ((res (library-list-files-by-type l "text/plain")))
+    (is #'= 1 (length res))
+    (is #'equal (namestring p1) (datum-id (car res)))))
+
 ;;; Working with files on disk
 
 ;; FIXME: verify that search terms changed!

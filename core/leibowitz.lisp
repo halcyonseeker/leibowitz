@@ -64,6 +64,12 @@ used to populate the :collection slot when instantiating a datum."))
   (:documentation "Return a list of cons cells where the car is each unique file type in
 the library and where the cdrs is the quantity of data with that type."))
 
+;; FIXME: unify searching and listing files into a single method!
+;; FIXME: consider adding support for matching the major/ and + parts
+;; of the mime type.
+(defgeneric library-list-files-by-type (library type)
+  (:documentation "Return a list of data whose `datum-kind' slot matches TYPE."))
+
 (defgeneric datum-num-tags (library datum)
   (:documentation "Return the number of tags associated with this datum."))
 
