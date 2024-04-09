@@ -438,7 +438,8 @@ consist of a list of sections."))
                                                (namestring
                                                 (thumbnailer:get-thumbnail
                                                  (datum-id d) (datum-kind d)))))))
-                     (thumbnailer:unsupported-file-type ()))
+                     (thumbnailer:unsupported-file-type ())
+                     (thumbnailer:thumbnail-creation-failed ()))
                   (:div (:small ,(cl-who:escape-string (datum-title d)))))))
       (:card
        `(:div :class "card"
