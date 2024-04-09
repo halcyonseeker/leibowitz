@@ -119,6 +119,8 @@ Roadmap to 0.1 version; minimum viable product
 
 Future Work
 -----------
+- Make sure the web UI is properly accessible and easy to use with a
+  screenreader.  <https://www.w3.org/WAI/ARIA/apg/>
 - Implement collections for gallery-dl, man, etc.
 - Add support for file and collection specific metadata fields,
   probably implemented as a special kind of tags.
