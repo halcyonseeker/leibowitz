@@ -88,7 +88,7 @@
     (:section
      (:h2 "File Types")
      (:ul ,@(loop for type in (library-all-file-types lib)
-                  collect `(:li (:a :href "/fixme/implement/search/filters"
+                  collect `(:li (:a :href ,(format NIL "/type/~A" (car type))
                                     ,(car type))
                                 (:small ,(format NIL "(~A)" (cdr type)))))))))
 

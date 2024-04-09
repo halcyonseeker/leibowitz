@@ -401,7 +401,8 @@ consist of a list containing at least one section tag."))
                          (:li (:span :class "sidebar-metadata-key"
                                      "Mime Type")
                               (:span :class "sidebar-metadata-var"
-                                     ,(datum-kind d)))
+                                     (:a :href ,(format NIL "/type/~A" (datum-kind d))
+                                         ,(datum-kind d))))
                          (:li (:span :class "sidebar-metadata-key"
                                      "Collection")
                               (:span :class "sidebar-metadata-var"

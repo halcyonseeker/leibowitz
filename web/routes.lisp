@@ -97,6 +97,17 @@
                  :total (library-data-quantity lib)
                  :limit limit :offset offset)))
 
+(leibowitz-route (type-view-page lib "/type/:major/:minor") ()
+  (let ((type (if minor (format NIL "~A/~A" major minor) major)))
+    (make-page lib
+               :title (format NIL "List of ~A files | Leibowitz Web" type)
+               :sidebar `((:section "Idk yet"))
+               :body `((:p "FIXME: All data listings should be sortable, filterable, and paginated!")
+                       (:section :id "tiles"
+                                 ,@(loop for datum in (library-list-files-by-type
+                                                       lib type)
+                                         collect (datum-html-preview lib datum)))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Uploading data
 
