@@ -59,6 +59,19 @@ Roadmap to 0.1 version; minimum viable product
       it only (so far) shows up when doing full-text search.
 - [ ] Record inodes so that the indexer can catch (some) moved files.
 - [ ] Support filtering by tag for all data listings
+- [ ] Common Lisp's pathname type treats certain characters (eg, `*`,
+      `[`, `]`) in file names specially; figure out how to work around
+      this!  This results in two different errors when calling
+      `index`:
+      - When such a file is in a directory that is being indexed we
+        get ENOENT re-thrown up from `index-worker` in `index` (the
+        error-handling currently truncates stack traces), I think this
+        is caused by pathname/namestring conversion causes extra
+        backslashes to be inserted at some point.
+      - And when indexing it directly we get a type error
+        "SB-IMPL::PATTERN is not of type VECTOR" from an `aref` call
+        in `library-path-indexable-p`, I gather this is because
+        pathname patterns are formed differently.
 
 ### Web
 
