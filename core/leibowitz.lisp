@@ -405,7 +405,8 @@ consist of a list containing at least one section tag."))
                                      "Modified")
                               (:span :class "sidebar-metadata-var"
                                      ,(timefmt (datum-modified d)))))
-                    (:a :href ,(format NIL "/raw?id=~A" (hunchentoot:url-encode (datum-id d)))
+                    (:a :id "raw-url"
+                        :href ,(format NIL "/raw?id=~A" (hunchentoot:url-encode (datum-id d)))
                         "View Raw")))
         ,(%collection-html-sidebar-section-for-datum l (datum-collection d) d)
         (:section (:h2 ,(format NIL " Tags (~A)" (datum-num-tags l d)))

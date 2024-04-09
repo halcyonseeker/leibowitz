@@ -12,6 +12,9 @@
 (leibowitz-route (script lib "/static/fluff.js") ()
   (hunchentoot:handle-static-file
    (merge-pathnames #P"code/leibowitz/web/static/fluff.js" (user-homedir-pathname))))
+(leibowitz-route (script-display-pdf lib "/static/display_pdf.js") ()
+  (hunchentoot:handle-static-file
+   (merge-pathnames #P"code/leibowitz/web/static/display_pdf.js" (user-homedir-pathname))))
 
 (defun %parse-post-body-to-list (data)
   (when data
