@@ -290,3 +290,14 @@
                    (hunchentoot:redirect (format NIL "/datum?id=~A" (url id))))))
       (datum-not-indexed ()
         (return-404 lib (format NIL "Datum with ID ~S not found" id))))))
+
+(leibowitz-route (index-datum lib ("/index" :method :post)) (path)
+  (if path
+      (progn
+        (index lib path)
+        (hunchentoot:redirect (format NIL "/~A=~A"
+                                      (if (uiop:directory-exists-p path)
+                                          "tree?dir" "datum?id")
+                                      (hunchentoot:url-encode path))))
+      (return-400 lib "You didn't specify what you want me to index")))
+

@@ -230,6 +230,15 @@ ul.path-breadcrumbs a:visited {
 	display: block;
 }
 
+#sidebar-and-content-container #index-files-form input[type=text] {
+	width: 95%;
+	padding: 0.25em;
+}
+
+#sidebar-and-content-container #index-files-form .form-row {
+	padding-top: 5px;
+}
+
 /***********************************************************************
  * Metadata Editor Widget */
 

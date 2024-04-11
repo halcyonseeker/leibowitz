@@ -161,6 +161,16 @@ listing.  Key arguments are passed unmodified to that method."
 
 (defun make-tree-sidebar (dir)
   `((:section
+     ;; FIXME: This allows index files outside of their
+     ;; $LEIBOWITZ_ROOT or $HOME, which currently causes a
+     ;; no-applicable-collection error and if allowed in practice will
+     ;; almost certainly be a security issue.  Really, this problem
+     ;; stems from the fact that we're storing absolute paths.  When
+     ;; using $LEIBOWITZ_ROOT, the library should be fully portable
+     ;; with respect to the location of that directory on the
+     ;; filesystem.
+     ,(index-files-form dir "Index files under this directory"))
+    (:section
      (:h2 "Subdirectories")
      (:ul ,@(loop for sd in (reverse (uiop:subdirectories dir))
                   for name = (car (last (pathname-directory sd)))
@@ -386,3 +396,11 @@ listing.  Key arguments are passed unmodified to that method."
                         (:label :for "ascending" "Ascending"))
                  (:input :type "submit" :value "Filter")))
     (:small "FIXME: Also filter by tags and terms!")))
+
+(defun index-files-form (path msg)
+  `(:form :method "post" :action "/index" :id "index-files-form"
+            (:div :class "form-row"
+                  (:input :type "text" :name "path"
+                          :value ,(cl-who:escape-string (namestring path))))
+            (:div :class "form-row"
+                  (:input :type "submit" :value ,msg)0)))
