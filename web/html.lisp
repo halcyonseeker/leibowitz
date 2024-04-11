@@ -64,7 +64,13 @@
   (setf (hunchentoot:return-code*) 404)
   (make-page lib :here ""
                  :title "404 Not Found | Leibowitz Web"
-                 :body `((:section (:p ,msg)))))
+                 :body `((:section (:p ,(cl-who:escape-string msg))))))
+
+(defun return-400 (lib &optional msg)
+  (setf (hunchentoot:return-code*) 400)
+  (make-page lib :here ""
+                 :title "400 Bad Request | Leibowitz Web"
+                 :body `((:section (:p ,(cl-who:escape-string msg))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
