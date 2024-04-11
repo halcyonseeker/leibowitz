@@ -154,17 +154,16 @@
 ;; Datum view machinery
 
 (leibowitz-route (datum-view lib "/datum") (id)
-  ;; FIXME: get-datum should be changed to throw a condition when the
-  ;; datum isn't found, returning NIL is in-band signaling.
   (if id
-      (let ((d (get-datum lib id)))
-        (if d
+      (handler-case
+          (let ((d (get-datum lib id :error T)))
             (make-page lib
                        :title (format NIL "~A | Leibowitz Web" (datum-title d))
                        :header (make-tree-breadcrumbs (datum-title d) (pathname id))
                        :sidebar (datum-html-sidebar lib d)
-                       :body (make-datum-view-page lib d))
-            (return-404 lib (format NIL "Datum with ID ~S not found" id))))
+                       :body (make-datum-view-page lib d)))
+        (datum-not-indexed ()
+          (return-404 lib (format NIL "Datum with ID ~S not found" id))))
       (hunchentoot:redirect "/")))
 
 (leibowitz-route (datum-raw lib "/raw") (id)
