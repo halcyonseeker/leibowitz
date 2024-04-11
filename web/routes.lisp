@@ -65,7 +65,7 @@
         (make-page lib
                    :here "/tree"
                    :title "Tree | Leibowitz Web"
-                   :header (make-tree-breadcrumbs dir)
+                   :header (make-tree-breadcrumbs "Tree | Leibowitz Web" dir)
                    :sidebar (make-tree-sidebar dir)
                    :body (list-contents-of-directory lib dir))
         (return-404 lib (format NIL "Directory ~S does not exist" dir)))))
@@ -161,8 +161,7 @@
         (if d
             (make-page lib
                        :title (format NIL "~A | Leibowitz Web" (datum-title d))
-                       :header `((:h1 ,(datum-title d))
-                                 (:small ,id))
+                       :header (make-tree-breadcrumbs (datum-title d) (pathname id))
                        :sidebar (datum-html-sidebar lib d)
                        :body (make-datum-view-page lib d))
             (return-404 lib (format NIL "Datum with ID ~S not found" id))))

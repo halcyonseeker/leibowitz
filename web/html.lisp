@@ -137,12 +137,12 @@ listing.  Key arguments are passed unmodified to that method."
                                 (:span :class "tag-desc"
                                        ,(tag-label tag))))))))
 
-(defun make-tree-breadcrumbs (dir)
-  `((:h1 "Tree | Leibowitz Web")
+(defun make-tree-breadcrumbs (title absolute-path)
+  `((:h1 ,title)
     (:nav
      (:ul :class "path-breadcrumbs"
           ,@(loop with path-so-far = "/"
-                  for part in (pathname-directory dir)
+                  for part in (pathname-directory absolute-path)
                   when (stringp part)
                     do (setf path-so-far
                              (concatenate 'string path-so-far part "/"))
