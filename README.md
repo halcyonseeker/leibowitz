@@ -1,29 +1,47 @@
 Leibowitz
 =========
 
-Leibowitz is an experimental Common Lisp library intended to abstract
-traditional file systems to make them behave like object storage.
-Features include:
+* [Project Homepage](https://sr.ht/~thalia/leibowitz)
+* [Source Code](https://git.sr.ht/~thalia/leibowitz)
+* [Bug Tracker](https://todo.sr.ht/~thalia/leibowitz)
+* [Mailing List](https://lists.sr.ht/~thalia/leibowitz)
 
-* **Tagging**, so you can organize data into mutually inclusive
-  ontologies.  You can also construct hierarchies of tags using the
-  predicate system where data with a certain tag might be
-  automatically be added to a "parent" tag.
-* **Full text search** of all files.  There's room to add custom
-  indexing methods to do things like OCR image files and import
-  metadata for movies, books, and music and such.
-* **Collections** of files that allow you to customize how Leibowitz
-  sees certain files on disk grouped by directory or URL schema.  This
-  allows Leibowitz to act as a manager for bookmarked webpages,
-  torrents, and whatnot.
-* **Modular backends** in which to store the tag ontology and text
-  dump for search.  Right now only SQLite is supported.
+Leibowitz is my attempt at building a personal knowledge management
+(PKM) platform.  It consists of a Common Lisp library exposed as a
+command-line utility and a web interface that act as an abstraction
+layer over the Unix file system providing the following features:
+
+* **Tags**, which may be applied to files in a mutually-inclusive
+  fashion allowing for much more granular organizational schemes than
+  the mutually-exclusive Unix file system.  Tags are also hierarchical
+  meaning that any given tag may have other tags as its "parents" or
+  "children".  Think directories but much more flexible.
+* **Full text search** of textual dumps of all indexed files.  This is
+  done using a a dedicated full-text search engine fed with useful
+  text extracted from files so results are more complete, have fewer
+  false positives, and are presented much faster than with grep(1).
+* **Extensible** and **scriptable** in Common Lisp using the symbols
+  exported by the `leibowitz` package.  I take a batteries-included
+  approach to development, however there's no way I can anticipate all
+  use-cases so it should be relatively easy for end-users to tweak
+  Leibowitz's behavior to fit the information they want to organize.
+* **Friendly for Unix hackers**.  Although Leibowitz seeks to abstract
+  over Unix's API in a way that's comfortable for Lisp hackers to use
+  at a REPL, it is primarily intended to be used as a command-line
+  tool.  As such, I have done my best to make sure it adheres the
+  conventions of Unix-like systems.
+* **A web interface** that consists of a somewhat primitive GUI for a
+  browsing and managing a knowledge base.  It does NOT yet have any
+  concept of permissions so I would strongly recommend exposing it
+  over a network unless you trust every device connected to it or gate
+  it behind HTTP basic authentication with a reverse proxy.
+
+IMPORTANT NOTE
+--------------
 
 At present Leibowitz is very much a work in progress and is varying
-degrees of useful from a REPL, the command line, and a web UI. I
-intend on also building several other user interface options,
-including a JSON HTTP API, a 9p API, and a desktop application using
-TK or maybe QT.
+degrees of useful from a REPL, the command line, and a web UI.  **I
+WOULD STRONGLY RECOMMEND AGAINST USING IT**
 
 Installation
 ------------
