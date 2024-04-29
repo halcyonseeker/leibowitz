@@ -43,11 +43,12 @@
       (ensure-directories-exist linkdir))))
 
 (defgeneric library-get-datum-collection (library id)
-  (:method ((l library) id)
-    (check-type id (or string pathname))
+  (:method ((l library) (id string))
     (let ((col (find-if (lambda (c) (collection-applicable-p c id))
                         (library-collections l))))
       (if col col (error 'no-applicable-collection :id id))))
+  (:method ((l library) (id pathname))
+    (library-get-datum-collection l (uiop:native-namestring id)))
   (:documentation "Find the collection instance which manages ID.  If none can be found,
 raise an error of type `no-applicable-collection'.  This should be
 used to populate the :collection slot when instantiating a datum."))
