@@ -454,6 +454,8 @@ consist of a list of sections."))
                                                (uiop:native-namestring
                                                 (thumbnailer:get-thumbnail
                                                  (datum-id d) (datum-kind d)))))))
+                     (thumbnailer:source-file-not-accessible ()
+                       `(:p "This file has been moved or deleted on disk!"))
                      (thumbnailer:unsupported-file-type ())
                      (thumbnailer:thumbnail-creation-failed ()))
                   (:div (:small ,(cl-who:escape-string (datum-title d)))))))
