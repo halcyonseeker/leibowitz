@@ -451,7 +451,7 @@ consist of a list of sections."))
                                             (library-thumbnail-cache-dir l)))
                                       (format NIL "/thumbnail?path=~A"
                                               (hunchentoot:url-encode
-                                               (namestring
+                                               (uiop:native-namestring
                                                 (thumbnailer:get-thumbnail
                                                  (datum-id d) (datum-kind d)))))))
                      (thumbnailer:unsupported-file-type ())
