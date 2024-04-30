@@ -24,7 +24,9 @@
   "Return a path to the thumbnail of PATH in `*thumbnail-cache-dir*',
 generating it if it doesn't exist or if PATH was modified after the
 thumbnail was last generated."
-  (check-type path (or string pathname))
+  (setf path (etypecase path
+               (string (uiop:parse-native-namestring path))
+               (pathname path)))
   (unless (probe-file path)
     (error 'source-file-not-accessible :path path))
   (let* ((cached-path (get-cached-path path))
