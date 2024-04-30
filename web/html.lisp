@@ -206,7 +206,8 @@ listing.  Key arguments are passed unmodified to that method."
                                                   (hunchentoot:url-encode
                                                    (namestring f)))
                                    ,(cl-who:escape-string
-                                     (namestring (pathname-name f)))))))))))
+                                     (uiop:native-namestring
+                                      (pathname-name (uiop:parse-unix-namestring f))))))))))))
 
 (defun make-datum-view-page (lib datum)
   (incf (datum-accesses datum))

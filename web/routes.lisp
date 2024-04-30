@@ -61,7 +61,7 @@
 (leibowitz-route (tree-page lib "/tree") (dir)
   (let ((dir (if dir dir (user-homedir-pathname))))
     (if (and (uiop:directory-exists-p dir)
-             (uiop:absolute-pathname-p (pathname dir)))
+             (uiop:absolute-pathname-p (uiop:parse-unix-namestring dir)))
         (make-page lib
                    :here "/tree"
                    :title "Tree | Leibowitz Web"
@@ -138,7 +138,7 @@
              ;; that topic, the collection API feels simultaneously
              ;; half-baked (what's even doing??) and overengineered
              ;; (whyyyy God are there so many things to keep track of)
-             (dest (merge-pathnames name)))
+             (dest (merge-pathnames (uiop:parse-unix-namestring name))))
         (if (probe-file dest)
             ;; FIXME: create a conflict-resolution page that should also
             ;; be used for copying and moving files.
@@ -159,7 +159,8 @@
           (let ((d (get-datum lib id :error T)))
             (make-page lib
                        :title (format NIL "~A | Leibowitz Web" (datum-title d))
-                       :header (make-tree-breadcrumbs (datum-title d) (pathname id))
+                       :header (make-tree-breadcrumbs (datum-title d)
+                                                      (uiop:parse-unix-namestring id))
                        :sidebar (datum-html-sidebar lib d)
                        :body (make-datum-view-page lib d)))
         (datum-not-indexed ()
