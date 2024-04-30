@@ -240,8 +240,8 @@ end")))
     ;; Placing this last means that if this datum is in db but not in
     ;; disk, the orphaned entries will be removed before an error is
     ;; signaled.
-    (when disk (if (probe-file id)
-                   (delete-file id)
+    (when disk (if (probe-file (uiop:parse-native-namestring id))
+                   (delete-file (uiop:parse-native-namestring id))
                    (when error
                      (error 'datum-is-orphaned :id id))))))
 
