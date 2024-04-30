@@ -585,24 +585,38 @@ to date."))
     (tag (tag-name tag-or-name))
     (string tag-or-name)))
 
-(defun %need-datum-id (datum-or-id)
+#+windows(error "pathname normalization will need to be rewritten for windows")
+#-windows(defun %need-datum-id (datum-or-id)
+  "Given a datum, a string, or a pathname, return the appropriate datum
+id.  This is possibly the most important function in this package.  It
+is responsible for normalizing paths provided as input by the user
+into strings containing the absolute (for now…) paths that uniquely
+identify indexed data.  It works around CL's God-awful wild pathname
+facility and does its best to produce absolute paths even when the
+file doesn't exist on disk.
+
+God and the machine spirits willing, when we switch to addressing
+files by paths relative to $HOME or $LEIBOWITZ_ROOT so that libraries
+may be portable, this function will be _the only_ code in Leibowitz
+outside of `library' itself that will need to change in order for all
+datum and library methods to work 🙏⛩️"
   (etypecase datum-or-id
     ((or string pathname)
-     ;; Attempt to resolve datum-or-id to an absolute path, if we
-     ;; can't then just return it as is, converting to a string if
-     ;; it's a pathname.
-     (if (probe-file datum-or-id)
-         (namestring (truename datum-or-id))
-         (progn
-           (format *error-output*
-                   "Warning: ~S does not exist on disk.  ~
-                   I'm using the value as-is which may cause this~
-                   operation to fail (eg, with datum not found).  If ~
-                   it does, try passing the absolute path to where~
-                   you think it should be.~%"
-                   datum-or-id)
-           (if (pathnamep datum-or-id)
-               (namestring datum-or-id)
-               datum-or-id))))
+     ;; Notice how we're using `uiop:native-namestring' and
+     ;; `uiop:parse-native-namestring' instead of `namestring' and
+     ;; `pathname' respectively.  This is necessary because CL's
+     ;; pathname type reeks worse than a week old corpse in summer; in
+     ;; SBCL at least, it insists on interpreting square brackets in
+     ;; file names as wildcards with no clear way to DISABLE
+     ;; WILDCARDING AND ADDRESS THE FILE LITERALLY, GOD DAMMIT.  With
+     ;; all the thought that went in to the design of CL you'd expect
+     ;; this might have crossed someone's mind at some point 🙃.  Oh,
+     ;; also, there are probably a bunch of places in the core waiting
+     ;; to explode because of this
+     (uiop:native-namestring
+      (let ((p (uiop:parse-unix-namestring datum-or-id)))
+        ;; There ~shouldn't~ be any difference between these but this
+        ;; may be a source of fiddly annoying bugs...
+        (if (probe-file p) (truename p) (merge-pathnames p)))))
     (datum (datum-id datum-or-id))))
 
