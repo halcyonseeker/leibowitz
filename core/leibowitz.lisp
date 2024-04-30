@@ -302,15 +302,7 @@ recently modified to the least recently modified."))
     ((d datum) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
   ;; Set the information required maybe to change our class
-  (when (pathnamep (datum-id d))
-    (setf (datum-id d) (namestring (datum-id d))))
-  ;; FIXME: `truename' here resolves relative paths to absolute,
-  ;; meaning that all files are addressed internally by their absolute
-  ;; paths.  It would be nice to store tham relative to $HOME or
-  ;; $LEIBOWITZ_ROOT so that libraries may be portable (we'd also need
-  ;; to modify the thumbnail cache in that case).
-  (when (probe-file (datum-id d))
-    (setf (datum-id d) (namestring (truename (datum-id d)))))
+  (setf (datum-id d) (%need-datum-id (datum-id d)))
   (unless (slot-boundp d 'kind)
     (let ((kind (%datum-find-url-scheme-in-id (datum-id d))))
       (if kind
