@@ -371,8 +371,9 @@ none are specified."
   ;; that we don't have to pass absolute paths to delete orphaned
   ;; files
   (let ((ids (loop for arg in (clingon:command-arguments cmd)
+                   for path = (uiop:parse-unix-namestring arg)
                    collect (cond
-                             ((probe-file arg) (namestring (truename arg)))
+                             ((probe-file path) (truename path))
                              ;; The forgoing branch failed, so it's
                              ;; not on disk.
                              ((get-datum *library* arg) arg)
@@ -405,13 +406,19 @@ none are specified."
                   (uiop:getcwd))))
     (format T "SHOWING LISTING FOR ~A~%" dir)
     (loop for sub in (uiop:subdirectories dir)
-          do (format T "~A~%" (enough-namestring sub dir)))
+          do (format T "~A~%"
+                     (uiop:native-namestring (uiop:enough-pathname sub dir))))
     (loop for file in (library-list-files-in-dir *library* dir :include-unindexed T)
           do (etypecase file
                (datum (format T "(~A tags) ~A~%"
                               (datum-num-tags *library* file)
-                              (enough-namestring (datum-id file) dir)))
-               (pathname (format T "UNINDEXED ~A~%" (enough-namestring file dir)))))))
+                              (uiop:native-namestring
+                               (uiop:enough-pathname
+                                (uiop:parse-unix-namestring (datum-id file))
+                                dir))))
+               (pathname (format T "UNINDEXED ~A~%"
+                                 (uiop:native-namestring
+                                  (uiop:enough-pathname file dir))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: show-tag
