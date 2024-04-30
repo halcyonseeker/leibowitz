@@ -75,7 +75,7 @@ Roadmap to 0.1 version; minimum viable product
       it only (so far) shows up when doing full-text search.
 - [ ] Record inodes so that the indexer can catch (some) moved files.
 - [ ] Support filtering by tag for all data listings
-- [ ] Common Lisp's pathname type treats certain characters (eg, `*`,
+- [X] Common Lisp's pathname type treats certain characters (eg, `*`,
       `[`, `]`) in file names specially; figure out how to work around
       this!  This results in two different errors when calling
       `index`:
@@ -88,6 +88,12 @@ Roadmap to 0.1 version; minimum viable product
         "SB-IMPL::PATTERN is not of type VECTOR" from an `aref` call
         in `library-path-indexable-p`, I gather this is because
         pathname patterns are formed differently.
+- [ ] The library methods `list-data`, `list-tags`, and `query` should
+      have a `:filter` argument for specifying a function with which
+      to process the output; if used carefully this could also be used
+      to reduce both the code and the asymptotic runtime complexity of
+      the current web and command-line listing functions.
+
 
 ### Web
 
