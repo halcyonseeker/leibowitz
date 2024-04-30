@@ -372,7 +372,7 @@ for different file types."))
 
 (defgeneric datum-title (datum)
   (:method ((d datum))
-    (pathname-name (datum-id d)))
+    (pathname-name (uiop:parse-native-namestring (datum-id d))))
   (:documentation "Return a friendly title for this datum."))
 
 (defgeneric datum-print-long-report (library datum)
