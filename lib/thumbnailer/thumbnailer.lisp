@@ -216,5 +216,5 @@ hood to convert office formats to PDFs."
 
 (defun tmpfile (name)
   (merge-pathnames
-   (pathname (format NIL "~A-tmp~36R/" name (random (expt 36 8))))
+   (pathname (format NIL "~A-tmp~36R" name (random (expt 36 8))))
    *thumbnail-cache-dir*))
