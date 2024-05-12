@@ -45,7 +45,7 @@ thumbnail was last generated."
    (path :initarg :path))
   (:report (lambda (c s)
              (with-slots (mime path) c
-               (format s "Unsupported mime type ~S for file~%~S"
+               (format s "Unsupported mime type ~S for file~%  Path: ~S"
                        mime path)))))
 
 (define-condition source-file-not-accessible (error)
