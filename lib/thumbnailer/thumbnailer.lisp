@@ -93,29 +93,66 @@ thumbnail was last generated."
                     :error-output T))
 
 (defun extract-epub-cover-and-resize (original-path cached-path)
-  (let ((intermediate-manifest (uiop:tmpize-pathname
-                                (merge-pathnames "thumbnailer_epub_manifest"
-                                                 *thumbnail-cache-dir*)))
-        (intermediate-cover (uiop:tmpize-pathname
-                             (merge-pathnames "thumbnailer_epub_cover"
-                                              *thumbnail-cache-dir*))))
+  (let ((intermediate-meta-inf (tmpfile "thumbnailer_epub_meta-inf"))
+        (intermediate-manifest (tmpfile "thumbnailer_epub_manifest"))
+        (intermediate-cover    (tmpfile "thumbnailer_epub_cover")))
     (unwind-protect
-         ;; FIXME: What are the performance consequences of keeping a
-         ;; zip file open for longer vs opening it twice?
          (zip:with-zipfile (zf original-path)
-           (zip:zipfile-entry-contents (zip:get-zipfile-entry "content.opf" zf)
-                                       intermediate-manifest)
+           ;; Check META-INF/container.xml for the entry giving the
+           ;; file name of the OEBPS package file, then extract it to
+           ;; imtermediate-manifest.
+           (let ((entry (zip:get-zipfile-entry "META-INF/container.xml" zf)))
+             (unless (eq (type-of entry) 'zip::zipfile-entry)
+               (error 'thumbnail-creation-failed
+                      :mime "application/epub+zip" :path original-path
+                      :why "Alleged epub is missing META-INF/container.xml file."))
+             (zip:zipfile-entry-contents entry intermediate-meta-inf))
+           ;; Now parse the META-INF/container.xml file in search of
+           ;; the ROOTFILE entry specifying the file name of this
+           ;; epub's actual metadata file.
+           (let ((oebps (lquery:$1 (lquery:initialize intermediate-meta-inf)
+                          "container" "rootfiles" "rootfile"
+                          (filter #'(lambda (rootfile)
+                                      (equal (lquery-funcs:attr rootfile :media-type)
+                                             "application/oebps-package+xml")))
+                          (attr :full-path))))
+             (unless (stringp oebps)
+               (error 'thumbnail-creation-failed
+                      :mime "application/epub+zip" :path original-path
+                      :why "Epub's META-INF/container.xml doesn't contain a manifest"))
+             ;; Now extract the actual manifest file which hopefully
+             ;; species the cover...
+             (let ((entry (zip:get-zipfile-entry oebps zf)))
+               (unless (eq (type-of entry) 'zip::zipfile-entry)
+                 (error 'thumbnail-creation-failed
+                      :mime "application/epub+zip" :path original-path
+                      :why (format NIL "Epub is malformed; specified manifest file ~S not found!"
+                                   oebps)))
+               (zip:zipfile-entry-contents entry intermediate-manifest)))
+           ;; Now go looking for the cover image in the oebps file.
            (destructuring-bind (cover-href cover-mime)
                (lquery:$1 (lquery:initialize intermediate-manifest)
                  "package" "manifest" "item"
                  (filter #'(lambda (item)
                              (equal (lquery-funcs:attr item :id) "cover")))
                  (combine (attr :href) (attr :media-type)))
-             (zip:zipfile-entry-contents (zip:get-zipfile-entry cover-href zf)
-                                         intermediate-cover)
+             ;; Finally, extract the fucker and get a thumbnail of it!
+             (unless (and (stringp cover-href) (stringp cover-mime))
+               (error 'thumbnail-creation-failed
+                      :mime "application/epub+zip" :path original-path
+                      :why "Epub manifest doesn't specify cover image."))
+             (let ((entry (zip:get-zipfile-entry cover-href zf)))
+               (unless (eq (type-of entry) 'zip::zipfile-entry)
+                 (error 'thumbnail-creation-failed
+                      :mime "application/epub+zip" :path original-path
+                      :why (format NIL "Epub is malformed; specified cover file ~S not found!"
+                                   cover-href)))
+               (zip:zipfile-entry-contents entry intermediate-cover))
              (dispatch-thumbnailer intermediate-cover cached-path cover-mime NIL)))
-      (delete-file intermediate-manifest)
-      (delete-file intermediate-cover))))
+      (ignore-errors
+       (delete-file intermediate-meta-inf)
+       (delete-file intermediate-manifest)
+       (delete-file intermediate-cover)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Helpers
@@ -176,3 +213,8 @@ hood to convert office formats to PDFs."
    (equal mime "application/vnd.openxmlformats-officedocument.presentationml.presentation")
    ;; Libreoffice Writer
    (equal mime "application/vnd.oasis.opendocument.text")))
+
+(defun tmpfile (name)
+  (merge-pathnames
+   (pathname (format NIL "~A-tmp~36R/" name (random (expt 36 8))))
+   *thumbnail-cache-dir*))
