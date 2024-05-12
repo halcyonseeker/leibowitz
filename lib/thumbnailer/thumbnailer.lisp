@@ -61,7 +61,7 @@ thumbnail was last generated."
    (why  :initarg :why))
   (:report (lambda (c s)
              (with-slots (mime path why) c
-               (format s "Failed to create thumbnail for ~S file~%Path: ~S~%Reason: ~A"
+               (format s "Failed to create thumbnail for ~S file~%  Path: ~S~%  Reason: ~A"
                        mime path why)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
