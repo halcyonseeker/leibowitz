@@ -69,27 +69,27 @@ thumbnail was last generated."
 
 (defun imagemagick-generate-thumbnail (original-path cached-path)
   (uiop:run-program (list *imagemagick-exe*
-                          (namestring original-path)
+                          (uiop:native-namestring original-path)
                           "-format" "jpg"
                           "-thumbnail" "300x300"
                           "-strip"
-                          (namestring cached-path))
+                          (uiop:native-namestring cached-path))
                     :error-output T))
 
 (defun imagemagick-generate-document-thumbnail (original-path cached-path)
   (uiop:run-program (list *imagemagick-exe*
                           "convert"
                           "-resize" "300x300"
-                          (format NIL "~A[0]" (namestring original-path))
-                          (namestring cached-path))))
+                          (format NIL "~A[0]" (uiop:native-namestring original-path))
+                          (uiop:native-namestring cached-path))))
 
 (defun ffmpeg-generate-thumbnail (original-path cached-path)
   (uiop:run-program (list *ffmpeg-exe*
-                          "-i" (namestring original-path)
+                          "-i" (uiop:native-namestring original-path)
                           "-vf" "select=eq(n\,34)"
                           "-vf" "scale=300:-2"
                           "-vframes" "1"
-                          (namestring cached-path))
+                          (uiop:native-namestring cached-path))
                     :error-output T))
 
 (defun extract-epub-cover-and-resize (original-path cached-path)
@@ -168,11 +168,11 @@ the thumbnail cache."
   (let* ((path (if (uiop:absolute-pathname-p path)
                    path
                    (merge-pathnames path)))
-         (path (namestring path))
+         (path (uiop:native-namestring path))
          (path (pathname (subseq path 1 (length path))))
          (path (merge-pathnames path *thumbnail-cache-dir*)))
     (ensure-directories-exist (directory-namestring path))
-    (pathname (concatenate 'string (namestring path) ".jpg"))))
+    (pathname (concatenate 'string (uiop:native-namestring path) ".jpg"))))
 
 (defun dispatch-thumbnailer (path cached-path mime async)
   (let ((func (cond ((or (equal (subseq mime 0 6) "video/")
