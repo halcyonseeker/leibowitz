@@ -134,7 +134,12 @@ thumbnail was last generated."
                (lquery:$1 (lquery:initialize intermediate-manifest)
                  "package" "manifest" "item"
                  (filter #'(lambda (item)
-                             (equal (lquery-funcs:attr item :id) "cover")))
+                             (let ((props (lquery-funcs:attr item :properties))
+                                   (id    (lquery-funcs:attr item :id)))
+                               (or (equal id "cover")
+                                   (equal id "cover-image")
+                                   (equal props "cover")
+                                   (equal props "cover-image")))))
                  (combine (attr :href) (attr :media-type)))
              ;; Finally, extract the fucker and get a thumbnail of it!
              (unless (and (stringp cover-href) (stringp cover-mime))
