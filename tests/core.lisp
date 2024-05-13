@@ -166,10 +166,16 @@
     (is #'= 1 (datum-accesses (get-datum l path)))))
 
 (define-library-test get-datum-quantity (l p1 p2 p3)
+  (is #'= 0 (library-data-quantity l))
   (add-datum l (make-instance 'datum :id p1))
   (add-datum l (make-instance 'datum :id p2))
   (add-datum l (make-instance 'datum :id p3))
-  (is #'= 3 (library-data-quantity l)))
+  (is #'= 3 (library-data-quantity l))
+  (del-datum l p1)
+  (del-datum l p2)
+  (is #'= 1 (library-data-quantity l))
+  (del-datum l p3)
+  (is #'= 0 (library-data-quantity l)))
 
 ;;; High-level indexer method
 
