@@ -53,6 +53,9 @@ used to populate the :collection slot when instantiating a datum."))
 (defgeneric library-data-quantity (library)
   (:documentation "Return the number of data stored in this library."))
 
+(defgeneric library-tag-quantity (library)
+  (:documentation "Return the number of tags in the library."))
+
 (defgeneric library-all-file-types (library)
   (:documentation "Return a list of cons cells where the car is each unique file type in
 the library and where the cdrs is the quantity of data with that type."))

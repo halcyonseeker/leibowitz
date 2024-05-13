@@ -99,6 +99,9 @@ end")))
 (defmethod library-data-quantity ((l sqlite-library))
   (sqlite-row l "select count(*) from data"))
 
+(defmethod library-tag-quantity ((l sqlite-library))
+  (sqlite-row l "select count(*) from tags"))
+
 ;;; FIXME: get this into one statement so that we can sort by count
 ;;; and group by the major part.  This is apparently Very Hard in SQL.
 ;;; FIXME: is it worth writing tests for this?

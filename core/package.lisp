@@ -8,6 +8,7 @@
            #:library-collections
            #:library-print-info
            #:library-data-quantity
+           #:library-tag-quantity
            #:library-all-file-types
            #:library-list-files-by-type
            #:library-list-files-in-dir

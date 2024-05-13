@@ -252,6 +252,13 @@
       (is #'equal 1 (length tags))
       (is #'equal "gat" (tag-name (car tags))))))
 
+(define-library-test library-tag-quantity (l)
+  (is #'= 0 (library-tag-quantity l))
+  (add-tag l "hey")
+  (is #'= 1 (library-tag-quantity l))
+  (del-tag l "hey")
+  (is #'= 0 (library-tag-quantity l)))
+
 (define-library-test cannot-add-tags-to-nonexistent-datum (l)
   (fail (add-datum-tags l "no datum with this id" '("asdf"))
         'datum-not-indexed))
