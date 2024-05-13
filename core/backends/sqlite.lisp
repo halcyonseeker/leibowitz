@@ -162,14 +162,13 @@ end")))
         (indexed NIL))
     (labels ((index-worker (path)
                (when (library-path-indexable-p l path)
-                 (when log (format T "Indexing ~A..." path) (finish-output))
+                 (when log
+                   (format T "Indexing ~S..." (uiop:native-namestring path))
+                   (finish-output))
                  (handler-case
                      (let ((d (collection-index l (library-get-datum-collection l path) path)))
                        (push d indexed)
-                       (handler-case
-                           (thumbnailer:get-thumbnail (datum-id d) (datum-kind d))
-                         (thumbnailer:unsupported-file-type ())
-                         (thumbnailer:thumbnail-creation-failed ()))
+                       (thumbnailer:get-thumbnail (datum-id d) (datum-kind d))
                        ;; For some reason known only to God and the
                        ;; spirit that dwells within the Steele Bank
                        ;; Common Lisp, we _need_ to `finish-output'
@@ -185,16 +184,21 @@ end")))
                    ;; they're feeling more and more like an
                    ;; overly-complex and inconvenient way of having
                    ;; custom indexing rules for given directories.
-                   (file-not-regular (c)
+                   ;; (file-not-regular (c)
+                   ;;   (if promote-error
+                   ;;       (error c)
+                   ;;       (when log (format T "failed!~%Error: ~A~%" c) (finish-output))))
+                   (thumbnailer:unsupported-file-type (c)
                      (if promote-error
                          (error c)
-                         (when log (format T "failed!~%Error: ~A~%" c) (finish-output))))
+                         (when log (format T "done~%~A~%" c))))
+                   (thumbnailer:thumbnail-creation-failed (c)
+                     (if promote-error
+                         (error c)
+                         (when log (format T "done~%~A~%" c))))
                    (:no-error (c)
                      (declare (ignore c))
-                     (when log (format T "done~%")))
-                   (T (c)
-                     (when log (format T "failed!~%Error: ~A~%" c) (finish-output))
-                     (error c))))))
+                     (when log (format T "done~%")))))))
       (if (uiop:directory-exists-p path-or-paths)
           (cl-fad:walk-directory path-or-paths #'index-worker)
           (index-worker path-or-paths)))
@@ -256,33 +260,35 @@ end")))
   (check-type new-datum-or-id (or string pathname datum))
   (let* ((old (%need-datum-id old-datum-or-id))
          (new (%need-datum-id new-datum-or-id))
+         (oldpath (uiop:parse-unix-namestring old))
+         (newpath (uiop:parse-unix-namestring new))
          ;; FIXME: aren't we appending an image file extension?  I
          ;; think there'll be a bug here!
-         (oldth (merge-pathnames old (library-thumbnail-cache-dir l)))
-         (newth (merge-pathnames new (library-thumbnail-cache-dir l))))
+         (oldth (merge-pathnames oldpath (library-thumbnail-cache-dir l)))
+         (newth (merge-pathnames newpath (library-thumbnail-cache-dir l))))
     (when (equal old new) (error 'cannot-mv-or-cp-to-itself :d new))
     (unless (get-datum l old) (error 'datum-not-indexed :lib l :id old))
-    (when (and (or (get-datum l new) (probe-file new))
+    (when (and (or (get-datum l new) (probe-file newpath))
                (not overwrite))
       (error 'datum-already-exists :d new))
-    (when (and (not (probe-file old))
-               (not (probe-file new)))
+    (when (and (not (probe-file oldpath))
+               (not (probe-file newpath)))
       (error 'datum-is-orphaned :id old))
     ;; It's okay if old doesn't exist on disk as long as the entry is
     ;; still in the DB; the user might have moved it and want to
     ;; update the ID.
-    (when (probe-file old)
-      (rename-file old new)
+    (when (probe-file oldpath)
+      (rename-file oldpath newpath)
       ;; The user probably passed a relative path for new, and we want
       ;; the absolute for all ids.
-      (setf new (namestring (truename new))))
+      (setf new (uiop:native-namestring (truename newpath))))
     (when (probe-file oldth)
       (rename-file oldth newth))
     ;; Triggers do the hard lifting of keeping everything up to date.
     (with-sqlite-tx (l)
       (%del-datum-inner-transaction l new)
       (sqlite-nq l "update data set id = ? where id = ?" new old))
-    (namestring new)))
+    (uiop:native-namestring new)))
 
 (defmethod copy-datum ((l sqlite-library) old-datum-or-id new-datum-or-id
                        &key (overwrite NIL))
