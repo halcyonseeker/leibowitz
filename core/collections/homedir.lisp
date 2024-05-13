@@ -26,12 +26,6 @@
   (print-unreadable-object (c stream :type T)
     (format stream "~A" (collection-homedir-root c))))
 
-;;; FIXME: Since `uiop:parse-unix-namestring' can convert URLs to
-;;; pathnames just fine and since we're attempting to handle
-;;; non-existent paths too this implementation returns T for URLs,
-;;; causing all of the `library-get-datum-collection' tests to fail.
-;;; This is okay since I think the collections API is something of a
-;;; misfeature and I'll probably rip it out soon.
 (defmethod collection-applicable-p ((c collection-homedir) (id string))
   (let* ((id (uiop:parse-unix-namestring id))
          (root (uiop:native-namestring (collection-homedir-root c)))

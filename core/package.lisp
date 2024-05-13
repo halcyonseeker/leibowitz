@@ -58,8 +58,7 @@
            #:datum-text/html
            #:datum-application/pdf
            #:datum-image
-           #:datum-video
-           #:datum-link/web)
+           #:datum-video)
   ;; Tag metadata
   (:export #:tag
            #:tag-name
@@ -72,9 +71,7 @@
            #:collection-index)
   ;; Types of collectionsn
   (:export #:collection-homedir
-           #:collection-homedir-root
-           #:collection-link
-           #:collection-link/web)
+           #:collection-homedir-root)
   ;; Library curator API
   (:export #:curator)
   ;; Error conditions

@@ -212,20 +212,20 @@ end")))
              (datum-modified d) (datum-terms d))
   d)
 
-(defmethod get-datum ((l sqlite-library) (path-or-url string) &key (error NIL))
+(defmethod get-datum ((l sqlite-library) (path string) &key (error NIL))
   (multiple-value-bind
         (id accesses kind birth modified terms)
       (sqlite-row l "select * from data where id = ?"
-                  (%need-datum-id path-or-url))
+                  (%need-datum-id path))
     (if id
         (make-instance 'datum :id id :accesses accesses :kind kind :birth birth
                               :modified modified :terms terms
                               :collection (library-get-datum-collection l id))
         (if error
-            (error 'datum-not-indexed :lib l :id path-or-url)
+            (error 'datum-not-indexed :lib l :id path)
             NIL))))
-(defmethod get-datum ((l sqlite-library) (path-or-url pathname) &key (error NIL))
-  (get-datum l (%need-datum-id path-or-url)))
+(defmethod get-datum ((l sqlite-library) (path pathname) &key (error NIL))
+  (get-datum l (%need-datum-id path)))
 
 (defun %del-datum-inner-transaction (lib id)
   (loop for tag in (get-datum-tags lib id)
@@ -241,8 +241,7 @@ end")))
     (when error (get-datum l id :error T))
     (with-sqlite-tx (l)
       (%del-datum-inner-transaction l id))
-    ;; FIXME: this should be mediated by this datum's collection, and
-    ;; will break with datum-link!  Use the former, remove the latter!
+    ;; FIXME: this should be mediated by this datum's collection.
     ;; Placing this last means that if this datum is in db but not in
     ;; disk, the orphaned entries will be removed before an error is
     ;; signaled.
@@ -251,9 +250,6 @@ end")))
                    (when error
                      (error 'datum-is-orphaned :id id))))))
 
-;;; FIXME: Handle non-file data, they don't have entries on disk.  Or
-;;; maybe just tear the link stuff out altogether, there's probably a
-;;; better way of doing that...
 (defmethod move-datum ((l sqlite-library) old-datum-or-id new-datum-or-id
                              &key (overwrite NIL))
   (check-type old-datum-or-id (or string pathname datum))

@@ -16,8 +16,7 @@
     :type list
     :initarg :collections
     :accessor library-collections
-    :initform (list (make-instance 'collection-homedir)
-                    (make-instance 'collection-link/web))
+    :initform (list (make-instance 'collection-homedir))
     :documentation "A list of cons cells mapping predicate
     functions to instances of collection classes.  Use the
     `library-get-datum-collection' method instead of querying these
@@ -27,20 +26,13 @@
 (defmethod initialize-instance :after
     ((l library) &rest initargs &key &allow-other-keys)
   (ensure-directories-exist (library-thumbnail-cache-dir l))
-  (let ((homedir (getf initargs :homedir))
-        (linkdir (getf initargs :linkdir)))
+  (let ((homedir (getf initargs :homedir)))
     (when homedir
       (setf (collection-homedir-root
              (find-if (lambda (c) (eql (type-of c) 'collection-homedir))
                       (library-collections l)))
             homedir)
-      (ensure-directories-exist homedir))
-    (when linkdir
-      (setf (collection-link/web-directory
-             (find-if (lambda (c) (eql (type-of c) 'collection-link/web))
-                      (library-collections l)))
-            linkdir)
-      (ensure-directories-exist linkdir))))
+      (ensure-directories-exist homedir))))
 
 (defgeneric library-get-datum-collection (library id)
   (:method ((l library) (id string))

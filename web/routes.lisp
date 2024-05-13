@@ -110,9 +110,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Uploading data
 
-;; FIXME wtf am I even doing with the datum-link?  Should I just
-;; stop supporting it altogether?
-
 (leibowitz-route (new-page lib "/new") ()
   (make-page lib
              :here "new"

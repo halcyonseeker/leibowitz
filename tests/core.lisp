@@ -64,12 +64,6 @@
       (is #'equal "text/html" (datum-kind d))
       (is #'equal "hi :^3" (datum-terms d)))))
 
-(define-test datum-is-reinitialized-by-url-scheme-in-id :parent core
-  (let ((d (make-instance 'datum :id "https://thepiratebay.org")))
-    (of-type datum-link/web d)
-    (is #'equal "link/web" (datum-kind d))
-    (is #'equal "https://thepiratebay.org" (datum-terms d))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Collections API tests
 
@@ -90,31 +84,12 @@
       (fail (library-get-datum-collection l "/hopefully/not/your/~")
           'no-applicable-collection))))
 
-(define-test library-get-datum-collection-works-for-link/web :parent core
-  (let ((l (make-instance 'library :thumbnail-cache-dir #P"/tmp/")))
-    (labels ((web ()
-               (find-if (lambda (elem) (eql (type-of elem) 'collection-link/web))
-                        (library-collections l))))
-      (is #'eq (web) (library-get-datum-collection l "https://dreamwidth.org"))
-      (is #'eq (web) (library-get-datum-collection l "http://alt.suicide.holiday"))
-      (fail (library-get-datum-collection l "ftp://yourmomsnudes.zip")
-          'no-applicable-collection)
-      (fail (library-get-datum-collection l ".sbclrc")
-          'no-applicable-collection)
-      (fail (library-get-datum-collection l #p".sbclrc")
-          'no-applicable-collection))))
-
 ;; homedir-specific methods
 
 ;; FIXME: here go a bunch of regex tests for gitignore-like
 ;; knowability
 
 ;; FIXME: other stuff with the root set to a subdirectory of /tmp.
-
-;; link-specific methods
-
-;; FIXME: here go a bunch of tests for downloading URLs and making
-;; sure they're indexed as the right kind of datum
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic API tests

@@ -15,8 +15,6 @@
                (:module "datatypes" :components ((:file "text")
                                                  (:file "image")
                                                  (:file "video")
-                                                 (:file "link")
                                                  (:module "application"
                                                           :components ((:file "pdf")))))
-               (:module "collections" :components ((:file "homedir")
-                                                   (:file "link")))))
+               (:module "collections" :components ((:file "homedir")))))
