@@ -202,9 +202,7 @@ listing.  Key arguments are passed unmodified to that method."
                                (:a :href ,(format NIL "/raw?id=~A"
                                                   (url
                                                    (namestring f)))
-                                   ,(html
-                                     (uiop:native-namestring
-                                      (pathname-name (uiop:parse-unix-namestring f))))))))))))
+                                   ,(html (pathname-name (uiop:parse-unix-namestring f)))))))))))
 
 (defun make-datum-view-page (lib datum)
   (incf (datum-accesses datum))
