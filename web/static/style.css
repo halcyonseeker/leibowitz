@@ -98,7 +98,7 @@ ul.path-breadcrumbs a:visited {
 	display: flex;
 }
 #sidebar {
-	min-width: 230px;
+	min-width: 240px;
 	padding: 0px 5px 0px 5px;
 	flex: 0;
 }
