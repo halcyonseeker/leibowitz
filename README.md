@@ -36,6 +36,51 @@ layer over the Unix file system providing the following features:
   over a network unless you trust every device connected to it or gate
   it behind HTTP basic authentication with a reverse proxy.
 
+![A screenshot of the Leibowitz web view showing the main file listing](docs/web_main_file_listing.png)
+
+```
+% leibowitz help
+NAME:
+  leibowitz - A lispy object-storage layer for unix file systems.
+
+USAGE:
+  leibowitz [global-options] [<command>] [command-options] [arguments ...]
+
+OPTIONS:
+      --help                    display usage information and exit
+      --markdown-documentation  Print markdown usage docs to stdout.
+      --version                 display version and exit
+      --zsh-completions         Print zsh-completions to stdout.
+  -r, --root <PATH>             Specify a directory in which to run in root mode. [env:
+                                $LEIBOWITZ_ROOT]
+
+COMMANDS:
+  help      Another way to print help info.
+  info      Print information and statistics about the dataset.
+  index     Recursively index a file or files, reading from stdin if none are
+            specified.
+  web       Display a web UI.
+  find      Search your data.
+  show      Print information about files.
+  tag       Apply a tag to one or more files, read from stdin if none are
+            specified.
+  tags      Apply one or more tags to a datum, reading from stdin if no tags are
+            specified.
+  untag     Remove a tag from one or more files, reading from stdin if none are
+            specified.
+  untags    Remove one or more tags from a file, reading tag names from stdin if
+            none are specified.
+  mv        Move or rename a file, keeping metadata and tags intact.
+  cp        Copy a file, duplicating its tags and metadata.
+  rm        Remove a file, including all tag and metadata associations.
+  ls        List indexed files.
+  show-tag  Show information about one or more tags.
+  mv-tag    Move or rename a tag.
+  cp-tag    Copy a tag.
+  rm-tag    Remove a tag, leaving associated data intact.
+  ls-tag    List all tags.
+```
+
 IMPORTANT NOTE
 --------------
 
