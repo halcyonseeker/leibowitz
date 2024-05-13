@@ -359,7 +359,14 @@ for different file types."))
   (:method ((d datum))
     (multiple-value-bind (stdout)
         (uiop:run-program (list "file" "-Ei" (datum-id d)) :output :string)
-      (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout))))
+      (let ((mime (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout)))
+            (cbz (subseq (datum-id d) (- (length (datum-id d)) 4) (length (datum-id d)))))
+        ;; Work around the fact that file 5.45 shipped by OpenSuse
+        ;; Tumbleweed yields "application/zip" for all the comic book
+        ;; archive files in my library.
+        (if (equal cbz ".cbz")
+            "application/vnd.comicbook+zip"
+            mime))))
   (:documentation "Get this mime time of this datum's file."))
 
 (defgeneric datum-title (datum)
