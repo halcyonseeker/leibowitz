@@ -356,6 +356,7 @@ listing.  Key arguments are passed unmodified to that method."
                                   ,(format NIL "Permanently Delete ~S"
                                            (html (tag-name tag)))))))))))
 
+;; FIXME: Also filter by tags and terms once supported by the core
 (defun make-datum-listing-filter-bar (view sort-by direction)
   `((:nav :id "listing-filter-controls"
           (:form :method "get" :id "datum-listing-filter-form"
@@ -392,8 +393,7 @@ listing.  Key arguments are passed unmodified to that method."
                              `(:input :type "radio" :name "direction" :value "ascending" :checked "")
                              `(:input :type "radio" :name "direction" :value "ascending"))
                         (:label :for "ascending" "Ascending"))
-                 (:input :type "submit" :value "Filter")))
-    (:small "FIXME: Also filter by tags and terms!")))
+                 (:input :type "submit" :value "Filter")))))
 
 (defun index-files-form (path msg)
   `(:form :method "post" :action "/index" :id "index-files-form"
