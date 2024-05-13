@@ -2,6 +2,9 @@
 (defpackage :thumbnailer
   (:use #:cl)
   (:export #:*thumbnail-cache-dir*
+           #:*mutool-exe*
+           #:*ffmpeg-exe*
+           #:*imagemagick-exe*
            #:get-thumbnail
            #:unsupported-file-type
            #:source-file-not-accessible
