@@ -137,8 +137,10 @@ end")))
                              :include-unindexed include-unindexed))
 
 (defmethod library-print-info ((l sqlite-library))
-  (format T "SQLite Library on ~A with ~A data indexed~%"
-          (namestring (slot-value l 'db-path)) (library-data-quantity l)))
+  (format T "SQLite Library on ~A with ~A tags and ~A files.~%"
+          (namestring (slot-value l 'db-path))
+          (library-tag-quantity l)
+          (library-data-quantity l)))
 
 (defmethod datum-num-tags ((l sqlite-library) (datum datum))
   (datum-num-tags l (%need-datum-id datum)))
