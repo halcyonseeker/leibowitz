@@ -638,10 +638,11 @@ transaction, hence this little helper function."
                                         :terms terms
                                         :collection (library-get-datum-collection l id)))))
 
-;; FIXME: currently untested
-;; FIXME: how would we sort by popularly viewed tags?
-(defmethod list-tags ((l sqlite-library))
-  (loop for row in (sqlite-rows l "select * from tags order by count desc")
+(defmethod list-tags ((l sqlite-library) &key (limit NIL))
+  (check-type limit (or null integer))
+  (loop for row in (sqlite-rows
+                    l (format NIL "select * from tags order by count desc ~A"
+                              (if limit  (format NIL "limit ~A" limit) "")))
         collect (destructuring-bind (name label count) row
                   (make-instance 'tag :name name :count count :label label))))
 

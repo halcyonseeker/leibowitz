@@ -708,6 +708,15 @@
     (is #'= 1 (length res))
     (is #'equal (namestring p1) (datum-id (car res)))))
 
+
+(define-library-test list-tags (l p1 p2)
+  (add-datum-tags l (car (index l p1)) '("tag one" "tag two"))
+  (add-datum-tags l (car (index l p2)) '("tag two" "tag three"))
+  (is #'= 3 (length (list-tags l)))
+  (let ((top (list-tags l :limit 1)))
+    (is #'= 1 (length top))
+    (is #'equal "tag two" (tag-name (car top)))))
+
 ;;; Working with files on disk
 
 ;; FIXME: verify that search terms changed!

@@ -231,9 +231,10 @@ relevant search matches by default.  :limit and :offset may be used
 for pagination and are set to NIL by default, returning all matching
 data."))
 
-(defgeneric list-tags (library)
-  (:documentation "Return a list of the top :limit sorted in descending order by
-count."))
+(defgeneric list-tags (library &key limit)
+  (:documentation
+   "Return a list of the top :limit tags sorted by number of data
+in descending order.  Returns all by default."))
 
 ;; FIXME: unify searching and listing files into a single method!
 (defgeneric list-data (library &key direction sort-by offset limit)
