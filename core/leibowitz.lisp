@@ -359,7 +359,8 @@ for different file types."))
   (:method ((d datum))
     (multiple-value-bind (stdout)
         (uiop:run-program (list "file" "-Ei" (datum-id d)) :output :string)
-      (let ((mime (subseq stdout (+ 2 (search ":" stdout)) (search ";" stdout)))
+      (let ((mime (subseq stdout (+ 2 (search ": " stdout :from-end T))
+                          (search "; " stdout :from-end T)))
             (cbz (subseq (datum-id d) (- (length (datum-id d)) 4) (length (datum-id d)))))
         ;; Work around the fact that file 5.45 shipped by OpenSuse
         ;; Tumbleweed yields "application/zip" for all the comic book
