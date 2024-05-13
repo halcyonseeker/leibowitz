@@ -304,20 +304,15 @@ recently modified to the least recently modified."))
   ;; Set the information required maybe to change our class
   (setf (datum-id d) (%need-datum-id (datum-id d)))
   (unless (slot-boundp d 'kind)
-    (let ((kind (%datum-find-url-scheme-in-id (datum-id d))))
-      (if kind
-          (setf (datum-kind d) (format NIL "link/~A" kind))
-          (progn
-            ;; Now we're pretty sure ID is a path, so make sure it's a
-            ;; regular file.  FIXME: What about a policy for symlink
-            ;; and hardlink resolution?  As it stands the following
-            ;; condition means that (make-instance 'datum ...) will
-            ;; fail for symlinks, is this what we want?
-            (unless (osicat-posix:s-isreg
-                     (osicat-posix:stat-mode (osicat-posix:stat (datum-id d))))
-              (error 'file-not-regular :path (datum-id d)))
-            (setf (datum-kind d) (%datum-find-mime d))))))
-  ;; Change class to the appropriate one by mime type or URL scheme
+    ;; FIXME: What about a policy for symlink and hardlink resolution?
+    ;; As it stands the following condition means that (make-instance
+    ;; 'datum ...) will fail for symlinks, is this what we want?
+    ;;; Make sure it's a regular file.
+    (unless (osicat-posix:s-isreg
+             (osicat-posix:stat-mode (osicat-posix:stat (datum-id d))))
+      (error 'file-not-regular :path (datum-id d)))
+    (setf (datum-kind d) (%datum-find-mime d)))
+  ;; Change class to the appropriate one by mime type
   (handler-case
       (let ((full-mime (read-from-string
                         (format NIL "leibowitz.core:datum-~A" (datum-kind d)))))
@@ -491,16 +486,6 @@ this datum that links to the full detail page."))
           (end-of-file () buf)))))
   (:documentation "Return a datum in its most primitive form, either an array of bytes
 or a UTF-8 string."))
-
-(defun %datum-find-url-scheme-in-id (id)
-  "Little helper to find some kind of URL scheme in a datum's ID."
-  (check-type id string)
-  (let ((scheme (let ((pos (search ":" id)))
-                  (when pos (subseq id 0 pos)))))
-    (cond ((or (equal scheme "https")
-               (equal scheme "http"))
-           "web")
-          (T scheme))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Tags of stored data
