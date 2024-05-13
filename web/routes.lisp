@@ -64,7 +64,7 @@
              (uiop:absolute-pathname-p (uiop:parse-unix-namestring dir)))
         (make-page lib
                    :here "/tree"
-                   :title "Tree | Leibowitz Web"
+                   :title (format NIL "~A | Leibowitz Web" dir)
                    :header (make-tree-breadcrumbs "Tree | Leibowitz Web" dir)
                    :sidebar (make-tree-sidebar dir)
                    :body (list-contents-of-directory lib dir))
