@@ -46,7 +46,7 @@ WOULD STRONGLY RECOMMEND AGAINST USING IT**
 Installation
 ------------
 
-Right now in order to build or use Leibowitz you need ffmpeg,
+Right now in order to build or use Leibowitz you need ffmpeg, mupdf
 imagemagick, sqlite, make, quicklisp, and sbcl.  On my machine I can
 build it as an executable with `make` or hack on it from a REPL with
 `(load #P"leibowitz.asd"` and `(ql:quickload :leibowitz)`.  I'd like
