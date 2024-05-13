@@ -200,8 +200,7 @@ listing.  Key arguments are passed unmodified to that method."
         ,@(loop for f in unindexed
                 collect `(:div :class "tile"
                                (:a :href ,(format NIL "/raw?id=~A"
-                                                  (url
-                                                   (namestring f)))
+                                                  (url (uiop:native-namestring f)))
                                    ,(html (pathname-name (uiop:parse-unix-namestring f)))))))))))
 
 (defun make-datum-view-page (lib datum)
