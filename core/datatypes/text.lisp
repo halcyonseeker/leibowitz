@@ -24,7 +24,7 @@
 (defmethod datum-html-report ((l library) (d datum-text))
   (declare (ignore l))
   `((:section
-     (:pre ,(cl-who:escape-string
+     (:pre ,(html
              (with-open-file (stream (datum-id d))
                (let ((contents (make-string (file-length stream))))
                  (read-sequence contents stream)

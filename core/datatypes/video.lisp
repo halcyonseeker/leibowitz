@@ -13,6 +13,5 @@
   (declare (ignore l))
   `((:section
      (:video :controls T
-             :src ,(format NIL"/raw?id=~A"
-                           (hunchentoot:url-encode (datum-id d)))
+             :src ,(format NIL"/raw?id=~A" (url (datum-id d)))
              :type ,(datum-kind d)))))

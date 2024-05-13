@@ -17,8 +17,7 @@
 (defmethod datum-html-report ((l library) (d datum-application/pdf))
   (declare (ignore l))
   `((:section
-     (:pre ,(cl-who:escape-string
-             (with-output-to-string (s) (describe d s)))))
+     (:pre ,(html (with-output-to-string (s) (describe d s)))))
     (:section
      (:b "FIXME USE AN OFFICIAL RELEASE FOR PRODUCTION")
      ;; FIXME: BAD!  Figure out a policy for static files then look

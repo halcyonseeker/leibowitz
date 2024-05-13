@@ -13,6 +13,5 @@
 (defmethod datum-html-report ((l library) (d datum-image))
   (declare (ignore l))
   `((:section
-     (:img :alt (cl-who:escape-string
-                 "Once we get OCR support that'll be the alt text :)")
-           :src ,(format NIL "/raw?id=~A" (hunchentoot:url-encode (datum-id d)))))))
+     (:img :alt (html "Once we get OCR support that'll be the alt text :)")
+           :src ,(format NIL "/raw?id=~A" (url (datum-id d)))))))
