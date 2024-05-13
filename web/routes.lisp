@@ -233,7 +233,7 @@
         (ajax    (hunchentoot:post-parameter "ajax")))
     (handler-case
         (cond (move-to
-               (move-tag lib name move-to)
+               (move-tag lib name move-to :merge T)
                (hunchentoot:redirect (format NIL "/tag?name=~A" (url move-to))))
               (copy-to
                (copy-tag lib name copy-to)
