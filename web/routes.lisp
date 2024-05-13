@@ -249,7 +249,7 @@
               (predicates
                (add-tag-predicate lib name predicates :replace T)
                (if ajax
-                   (html-snippet (make-tag-view-sidebar lib name))
+                   (html-snippet (make-tag-view-sidebar lib (get-tag lib name)))
                    (hunchentoot:redirect (format NIL "/tag?name=~A" (url name))))))
       (no-such-tag ()
         (return-404 lib (format NIL "Tag with NAME ~S not found" name))))))
