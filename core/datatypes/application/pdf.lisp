@@ -17,13 +17,4 @@
 (defmethod datum-html-report ((l library) (d datum-application/pdf))
   (declare (ignore l))
   `((:section
-     (:pre ,(html (with-output-to-string (s) (describe d s)))))
-    (:section
-     (:b "FIXME USE AN OFFICIAL RELEASE FOR PRODUCTION")
-     ;; FIXME: BAD!  Figure out a policy for static files then look
-     ;; for this locally!
-     (:script :src "https://mozilla.github.io/pdf.js/build/pdf.mjs"
-              :type "module"
-              :id "pdfjs-script")
-     (:script :src "/static/display_pdf.js")
-     (:canvas :id "pdfjs-canvas"))))
+     (:pre ,(html (with-output-to-string (s) (describe d s)))))))
