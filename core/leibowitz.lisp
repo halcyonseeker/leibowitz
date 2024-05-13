@@ -389,7 +389,7 @@ for different file types."))
   (:method ((l library) (d datum))
     (declare (ignore l))
     `((:section
-       (:pre ,(cl-who:escape-string
+       (:pre ,(html
                (with-output-to-string (s)
                  (describe d s)))))))
   (:documentation "Return this datum summarized as a cl-who XHTML structure.  It should
@@ -425,14 +425,13 @@ consist of a list containing at least one section tag."))
                               (:span :class "sidebar-metadata-var"
                                      ,(timefmt (datum-modified d)))))
                     (:a :id "raw-url"
-                        :href ,(format NIL "/raw?id=~A" (hunchentoot:url-encode (datum-id d)))
+                        :href ,(format NIL "/raw?id=~A" (url (datum-id d)))
                         "View Raw")))
         ,(%collection-html-sidebar-section-for-datum l (datum-collection d) d)
         (:section (:h2 ,(format NIL " Tags (~A)" (datum-num-tags l d)))
                   (:ul ,@(loop for tag in (get-datum-tags l d)
                                collect `(:li (:a :href ,(format NIL "/tag?name=~A"
-                                                                (hunchentoot:url-encode
-                                                                 (tag-name tag)))
+                                                                (url (tag-name tag)))
                                                  ,(tag-name tag))
                                              (:span :class "tag-count"
                                                     ,(format nil "(~a)" (tag-count tag)))))))))
@@ -445,32 +444,29 @@ consist of a list of sections."))
     (ecase view
       (:tile
        `(:div :class "tile"
-              (:a :href ,(format NIL "/datum?id=~A"
-                                 (hunchentoot:url-encode (datum-id d)))
+              (:a :href ,(format NIL "/datum?id=~A" (url (datum-id d)))
                   :title ,(let ((nt (datum-num-tags l d)))
                             (format NIL "~A; ~A tag~P" (datum-kind d) nt nt))
                   ,(handler-case
                        `(:img :src ,(let ((thumbnailer:*thumbnail-cache-dir*
                                             (library-thumbnail-cache-dir l)))
                                       (format NIL "/thumbnail?path=~A"
-                                              (hunchentoot:url-encode
-                                               (uiop:native-namestring
-                                                (thumbnailer:get-thumbnail
-                                                 (datum-id d) (datum-kind d)))))))
+                                              (url (uiop:native-namestring
+                                                    (thumbnailer:get-thumbnail
+                                                     (datum-id d) (datum-kind d)))))))
                      (thumbnailer:source-file-not-accessible ()
                        `(:p "This file has been moved or deleted on disk!"))
                      (thumbnailer:unsupported-file-type ())
                      (thumbnailer:thumbnail-creation-failed ()))
-                  (:div (:small ,(cl-who:escape-string (datum-title d)))))))
+                  (:div (:small ,(html (datum-title d)))))))
       (:card
        `(:div :class "card"
               (:div :class "card-view" ,@(datum-html-report l d))
               (:hr)
               (:div :class "card-data"
-                    (:h2 ,(cl-who:escape-string (datum-title d)))
-                    (:a :href ,(format NIL "/datum?id=~A"
-                                       (hunchentoot:url-encode (datum-id d)))
-                        (:small ,(cl-who:escape-string (datum-id d)))))))))
+                    (:h2 ,(html (datum-title d)))
+                    (:a :href ,(format NIL "/datum?id=~A" (url (datum-id d)))
+                        (:small ,(html (datum-id d)))))))))
   (:documentation "Return a cl-who XHTML structure displaying a thumbnail preview of
 this datum that links to the full detail page."))
 

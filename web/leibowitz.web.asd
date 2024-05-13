@@ -1,6 +1,7 @@
 
 (asdf:defsystem "leibowitz.web"
   :depends-on (#:leibowitz.core
+               #:leibowitz.util
                #:hunchentoot
                #:easy-routes
                #:cl-who)

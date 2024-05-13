@@ -1,6 +1,7 @@
 
 (defpackage :leibowitz.core
-  (:use #:cl)
+  (:use #:cl
+        #:leibowitz.util)
   ;; Basic administrative API
   (:export #:library
            #:library-thumbnail-cache-dir

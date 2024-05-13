@@ -4,8 +4,7 @@
                #:local-time
                #:osicat
                #:cl-fad
-               #:hunchentoot
-               #:cl-who
+               #:leibowitz.util
                #:thumbnailer)
   :serial t
   :components ((:file "package")

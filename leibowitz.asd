@@ -4,7 +4,8 @@
       do (push dir asdf:*central-registry*))
 
 (asdf:defsystem "leibowitz"
-  :depends-on (#:leibowitz.core
+  :depends-on (#:leibowitz.util
+               #:leibowitz.core
                #:leibowitz.web
                #:leibowitz.cli)
   :components ((:file "package"))
