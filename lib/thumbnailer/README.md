@@ -2,19 +2,22 @@ A file thumbnailing library for Common Lisp
 ===========================================
 
 A simple thumbnail generation library with support for caching on the
-file system.  It works by shelling out Imagemagick and ffmpeg and
-should in theory work for all files with `video/*` or `image/*` mime
-types, as well as `audio/*` files with embedded cover art.  The only
-audio format I've found so far that don't work are flacs with ffmpeg
-6.1.1.  It also works for pdf, postscript, epub, and a handful of
-Microsoft office formats — these require that you have LibreOffice
-installed as ImageMagick calls it under the hood to convert them to
-pdf.
+file system.  It works by shelling out Imagemagick, mutool (provided
+by mupdf) and ffmpeg and should in theory work for all files with
+`video/*` or `image/*` mime types, as well as `audio/*` files with
+embedded cover art.  The only audio format I've found so far that
+don't work are flacs with ffmpeg 6.1.1.  It also works for pdf,
+postscript, epub, mobi, cbz, and theoretically supports fb2, fb3, and
+xps though I haven't had the chance to test those yet.  Additionally
+it supports a handful of Microsoft office formats — these require that
+you have LibreOffice installed as ImageMagick calls it under the hood
+to convert them to pdf.
 
-In order to use it, install ffmpeg, ImageMagick (for best results make
-sure the former has been compiled with support for patent-encumbered
-codecs), and optionally LibreOffice, then clone this repo somewhere
-quicklisp can find it, and finally `(ql:quickload :thumbnailer)`.
+In order to use it, install ffmpeg (for best results make sure it's
+been compiled with support for patent-encumbered codecs), mupdf,
+ImageMagick, and optionally LibreOffice, then clone this repo
+somewhere quicklisp can find it, and finally `(ql:quickload
+:thumbnailer)`.
 
 Once I've satisfied every criterion on the following roadmap I'll
 seperate this project into its own repository and publish it on
@@ -37,10 +40,10 @@ for your application's cache will probably look something like this:
 
 Catching `thumbnailer:unsupported-file-type` and
 `thumbnailer:thumbnail-creation-failed` like this will silently skip
-unsupported or mangled files.  If your ImageMagick or ffmpeg
+unsupported or mangled files.  If your ImageMagick, ffmpeg, or mutool
 executables are not in your `$PATH`, you can set the
-`thumbnailer:*ffmpeg-exe*` or `thumbnailer:*imagemagick-exe*`
-accordingly.
+`thumbnailer:*ffmpeg-exe*`, `thumbnailer:*imagemagick-exe*`, or
+`*thumbnailer:*mutool-exe*` accordingly.
 
 Roadmap
 -------
@@ -58,7 +61,8 @@ Required before I submit to quicklisp:
 - [ ] Verify support for audio WITHOUT embedded cover art
 - [X] Support PDF and Postscript
 - [ ] Support plain text
-- [ ] Support MOBI, CBZ, and other ebook formats
+- [X] Support MOBI, CBZ, and other ebook formats
+  - [ ] Verify that fb2, fb3, and xps files actually work.
 - [ ] Optionally fall back to looking for generic file icons using the
       OS/DE appropriate mechanisms, optionally respecting the user's
       theme.
