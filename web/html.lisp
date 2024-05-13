@@ -64,13 +64,13 @@
   (setf (hunchentoot:return-code*) 404)
   (make-page lib :here ""
                  :title "404 Not Found | Leibowitz Web"
-                 :body `((:section (:p ,(cl-who:escape-string msg))))))
+                 :body `((:section (:p ,(html msg))))))
 
 (defun return-400 (lib &optional msg)
   (setf (hunchentoot:return-code*) 400)
   (make-page lib :here ""
                  :title "400 Bad Request | Leibowitz Web"
-                 :body `((:section (:p ,(cl-who:escape-string msg))))))
+                 :body `((:section (:p ,(html msg))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -85,10 +85,8 @@
      ;; FIXME: add an argument to list-tags to return only the top N.
      (:ul ,@(loop for tag in (list-tags lib)
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
-                                                   (cl-who:escape-string
-                                                    (hunchentoot:url-encode
-                                                     (tag-name tag))))
-                                    ,(cl-who:escape-string (tag-name tag)))
+                                                   (html (url (tag-name tag))))
+                                    ,(html (tag-name tag)))
                                 (:span :class "tag-count"
                                        ,(format nil "(~a)" (tag-count tag)))))))
     (:section
@@ -136,7 +134,7 @@ listing.  Key arguments are passed unmodified to that method."
   `((:section
      (:ul ,@(loop for tag in (apply #'list-tags (nconc (list lib) options))
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
-                                                   (hunchentoot:url-encode (tag-name tag)))
+                                                   (url (tag-name tag)))
                                     ,(tag-name tag))
                                 (:span :class "tag-count"
                                        ,(format nil "(~a)" (tag-count tag)))
@@ -155,8 +153,7 @@ listing.  Key arguments are passed unmodified to that method."
                   when (stringp part)
                     collect `(:li
                               (:a :href ,(format NIL "/tree?dir=~A"
-                                                 (hunchentoot:url-encode
-                                                  path-so-far))
+                                                 (url path-so-far))
                                   ,part)))))))
 
 (defun make-tree-sidebar (dir)
@@ -175,9 +172,9 @@ listing.  Key arguments are passed unmodified to that method."
      (:ul ,@(loop for sd in (reverse (uiop:subdirectories dir))
                   for name = (car (last (pathname-directory sd)))
                   collect `(:li (:a :href ,(format NIL "/tree?dir=~A"
-                                                   (hunchentoot:url-encode
+                                                   (url
                                                     (namestring sd)))
-                                    ,(cl-who:escape-string name))))))))
+                                    ,(html name))))))))
 
 
 (defun list-contents-of-directory (lib dir)
@@ -203,9 +200,9 @@ listing.  Key arguments are passed unmodified to that method."
         ,@(loop for f in unindexed
                 collect `(:div :class "tile"
                                (:a :href ,(format NIL "/raw?id=~A"
-                                                  (hunchentoot:url-encode
+                                                  (url
                                                    (namestring f)))
-                                   ,(cl-who:escape-string
+                                   ,(html
                                      (uiop:native-namestring
                                       (pathname-name (uiop:parse-unix-namestring f))))))))))))
 
@@ -267,12 +264,12 @@ listing.  Key arguments are passed unmodified to that method."
           (:li (:span :class "sidebar-metadata-key"
                       "Label")
                (:span :class "sidebar-metadata-var"
-                      ,(cl-who:escape-string (tag-label tag))))))
+                      ,(html (tag-label tag))))))
     (:section
      (:h2 "Automatically Adds")
      (:ul ,@(loop for tag in (get-tag-predicates lib tag)
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
-                                                   (hunchentoot:url-encode (tag-name tag)))
+                                                   (url (tag-name tag)))
                                     ,(tag-name tag))
                                 (:span :class "tag-count"
                                        ,(format nil "(~a)" (tag-count tag)))))))
@@ -280,7 +277,7 @@ listing.  Key arguments are passed unmodified to that method."
      (:h2 "Automatically Added By")
      (:ul ,@(loop for tag in (get-tag-predicands lib tag)
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
-                                                   (hunchentoot:url-encode (tag-name tag)))
+                                                   (url (tag-name tag)))
                                     ,(tag-name tag))
                                 (:span :class "tag-count"
                                        ,(format nil "(~a)" (tag-count tag)))))))
@@ -402,6 +399,6 @@ listing.  Key arguments are passed unmodified to that method."
   `(:form :method "post" :action "/index" :id "index-files-form"
             (:div :class "form-row"
                   (:input :type "text" :name "path"
-                          :value ,(cl-who:escape-string (namestring path))))
+                          :value ,(html (namestring path))))
             (:div :class "form-row"
                   (:input :type "submit" :value ,msg)0)))

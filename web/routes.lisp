@@ -299,6 +299,6 @@
         (hunchentoot:redirect (format NIL "/~A=~A"
                                       (if (uiop:directory-exists-p path)
                                           "tree?dir" "datum?id")
-                                      (hunchentoot:url-encode path))))
+                                      (url path))))
       (return-400 lib "You didn't specify what you want me to index")))
 
