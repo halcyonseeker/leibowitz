@@ -99,13 +99,13 @@ Roadmap to 0.1 version; minimum viable product
 
 - [X] Add more error handling to the web UI!  Right now it is insanely
       easy to get this thing to crash.
-- [ ] Expose the full API functionality in the web frontend:
-  - [ ] Editing data entries:
+- [X] Expose the full API functionality in the web frontend:
+  - [X] Editing data entries:
     - [X] Adding tags
     - [X] Removing tags
     - [X] Moving/renaming
     - [X] Uploading/importing from URL
-    - [ ] Manually reindexing files and directories; useful /tree
+    - [X] Manually reindexing files and directories; useful /tree
     - [X] Deleting
   - [X] Editing tag entries:
     - [X] Removing data
