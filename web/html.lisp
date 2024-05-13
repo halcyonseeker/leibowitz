@@ -199,9 +199,11 @@ listing.  Key arguments are passed unmodified to that method."
         :id "tiles"
         ,@(loop for f in unindexed
                 collect `(:div :class "tile"
-                               (:a :href ,(format NIL "/raw?id=~A"
-                                                  (url (uiop:native-namestring f)))
-                                   ,(html (pathname-name (uiop:parse-unix-namestring f)))))))))))
+                               (:form :method "post" :action "/index"
+                                      (:button :name "path" :value ,(html (url f))
+                                               "Index file")
+                                      (:label ,(html (pathname-name
+                                                      (uiop:parse-unix-namestring f))))))))))))
 
 (defun make-datum-view-page (lib datum)
   (incf (datum-accesses datum))
