@@ -82,13 +82,14 @@
             (:button "Go!")))
     (:section
      (:h2 "Top Tags")
-     ;; FIXME: add an argument to list-tags to return only the top N.
-     (:ul ,@(loop for tag in (list-tags lib)
+     (:ul ,@(loop for tag in (list-tags lib :limit 15)
                   collect `(:li (:a :href ,(format NIL "/tag?name=~A"
                                                    (html (url (tag-name tag))))
                                     ,(html (tag-name tag)))
                                 (:span :class "tag-count"
-                                       ,(format nil "(~a)" (tag-count tag)))))))
+                                       ,(format nil "(~a)" (tag-count tag))))))
+     (:a :href "/tags"
+         (:b ,(format NIL "Show all ~A tags" (library-tag-quantity lib)))))
     (:section
      (:h2 "File Types")
      (:ul ,@(loop for type in (library-all-file-types lib)
