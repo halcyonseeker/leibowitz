@@ -187,7 +187,9 @@ listing.  Key arguments are passed unmodified to that method."
                                                     (namestring sd)))
                                     ,(html name))))))))
 
-
+;;; FIXME: Once library-list-files-in-dir is merged into list-data
+;;; we'll need to support all the same filtering and sorting here as
+;;; in normal data listings
 (defun list-contents-of-directory (lib dir)
   (let ((indexed NIL)
          (unindexed NIL))
@@ -197,10 +199,6 @@ listing.  Key arguments are passed unmodified to that method."
                 (pathname (push file unindexed))))
             (library-list-files-in-dir lib dir :include-unindexed T))
     `((:section
-       (:p "FIXME: Add controls to index/reindex individual files or the whole directory")
-       (:p "FIXME: Rework the core so I can have list-data controls here too!")
-       (:p "FIXME: Eventually query will also need to be able to filter by directory..."))
-      (:section
        (:h2 "Indexed files")
        (:div :id "tiles"
              ,@(loop for datum in indexed collect (datum-html-preview lib datum))))
