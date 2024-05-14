@@ -65,7 +65,9 @@
            #:tag-name
            #:tag-label
            #:tag-count
-           #:tag-print-long-report)
+           #:tag-print-long-report
+           #:tag-num-parents
+           #:tag-num-children)
   ;; Mutually-exclusive kinds of data
   (:export #:collection
            #:collection-applicable-p

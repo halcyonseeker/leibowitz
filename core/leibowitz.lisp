@@ -514,6 +514,12 @@ or a UTF-8 string."))
                                           collect (datum-id datum))))
   (:documentation "Print a human-friendly summary of this tag."))
 
+(defgeneric tag-num-parents (library tag-or-name)
+  (:documentation "Return the number of tags this tag automatically adds."))
+
+(defgeneric tag-num-children (library tag-or-name)
+  (:documentation "Return the number of tags that automatically add this tag"))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Collections
 

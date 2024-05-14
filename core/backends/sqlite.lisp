@@ -599,6 +599,16 @@ transaction, hence this little helper function."
     (sqlite-nq l "delete from tag_predicates where iftag = ? and thentag = ?"
                ifname thenname)))
 
+(defmethod tag-num-parents ((l sqlite-library) (tag-or-name tag))
+  (tag-num-parents l (tag-name tag-or-name)))
+(defmethod tag-num-parents ((l sqlite-library) (tag-or-name string))
+  (sqlite-row l "select count(*) from tag_predicates where iftag = ?" tag-or-name))
+
+(defmethod tag-num-children ((l sqlite-library) (tag-or-name tag))
+  (tag-num-children l (tag-name tag-or-name)))
+(defmethod tag-num-children ((l sqlite-library) (tag-or-name string))
+  (sqlite-row l "select count(*) from tag_predicates where thentag = ?" tag-or-name))
+
 ;;; Searching and Listing
 
 ;; FIXME: Improve search!  We should be able to search in different or

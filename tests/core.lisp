@@ -578,6 +578,24 @@
   (false (get-tag-predicates l "science fiction"))
   (false (get-tag-predicands l "entertainment")))
 
+(define-library-test tag-num-parents-gets-predicands-num-children-gets-predicates (l)
+  (is #'= 0 (tag-num-parents l "no such tag"))
+  (is #'= 0 (tag-num-children l "no such tag"))
+  (add-tag-predicate l "Christian Taoism" "Christianity")
+  (add-tag-predicate l "Christian Taoism" "Taoism")
+  (add-tag-predicate l "Christianity" "Religion")
+  (add-tag-predicate l "Taoism" "Religion")
+  (add-tag-predicate l "Taoism" "Philosophy")
+  (is #'= 2 (tag-num-parents l "Christian Taoism"))
+  (is #'= 1 (tag-num-parents l "Christianity"))
+  (is #'= 2 (tag-num-parents l "Taoism"))
+  (is #'= 0 (tag-num-parents l "Religion"))
+  (is #'= 0 (tag-num-parents l "Philosophy"))
+  (is #'= 1 (tag-num-children l "Philosophy"))
+  (is #'= 2 (tag-num-children l "Religion"))
+  (is #'= 1 (tag-num-children l "Taoism"))
+  (is #'= 1 (tag-num-children l "Christianity")))
+
 ;;; Searching and Listing
 
 (define-library-test search-for-string (l path)
