@@ -96,15 +96,34 @@
                  :total (library-data-quantity lib)
                  :limit limit :offset offset)))
 
-(leibowitz-route (type-view-page lib "/type/:major/:minor") ()
-  (let ((type (if minor (format NIL "~A/~A" major minor) major)))
-    (make-page lib
-               :title (format NIL "List of ~A files | Leibowitz Web" type)
-               :sidebar `((:section "Idk yet"))
-               :body `((:p "FIXME: All data listings should be sortable, filterable, and paginated!")
-                       (:section :id "tiles"
-                                 ,@(loop for datum in (list-data lib :type type)
-                                         collect (datum-html-preview lib datum)))))))
+(leibowitz-route (type-view-page lib "/type/:major/:minor")
+                 (limit offset sort-by direction view)
+  (if (and major minor)
+      (let ((type (format NIL "~A/~A" major minor))
+            (limit (if limit (parse-integer limit) 50))
+            (offset (if offset (parse-integer offset) 0))
+            (sort-by (if sort-by (intern (string-upcase sort-by) :keyword)
+                         :modified))
+            (direction (if direction (intern (string-upcase direction) :keyword)
+                           :descending))
+            (view (if view (intern (string-upcase view) :keyword)
+                      :tile)))
+        (make-page lib
+                   :here (format NIL "/type/~A" type)
+                   :title (format NIL "List of ~A files | Leibowitz Web" type)
+                   :sidebar `((:section ""))
+                   :body (list-data-as-html lib view
+                                            :sort-by sort-by
+                                            :direction direction
+                                            :limit limit
+                                            :offset offset
+                                            :type type)
+                   :total (let ((total (find-if (lambda (c) (equal (car c) type))
+                                                (library-all-file-types lib))))
+                            (if total (cdr total) 0))
+                   :limit limit
+                   :offset offset))
+      (return-404 lib (format NIL "Invalid mime type requested: ~A/~A" major minor))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Uploading data
