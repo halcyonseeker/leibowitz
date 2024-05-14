@@ -32,9 +32,10 @@ layer over the Unix file system providing the following features:
   conventions of Unix-like systems.
 * **A web interface** that consists of a somewhat primitive GUI for a
   browsing and managing a knowledge base.  It does NOT yet have any
-  concept of permissions so I would strongly recommend exposing it
-  over a network unless you trust every device connected to it or gate
-  it behind HTTP basic authentication with a reverse proxy.
+  concept of permissions so I would strongly recommend against
+  exposing it over a network unless you trust every device connected
+  to it or gate it behind HTTP basic authentication with a reverse
+  proxy.
 
 ![A screenshot of the Leibowitz web view showing the main file listing](docs/web_main_file_listing.png)
 
