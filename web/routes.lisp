@@ -103,8 +103,7 @@
                :sidebar `((:section "Idk yet"))
                :body `((:p "FIXME: All data listings should be sortable, filterable, and paginated!")
                        (:section :id "tiles"
-                                 ,@(loop for datum in (library-list-files-by-type
-                                                       lib type)
+                                 ,@(loop for datum in (list-data lib :type type)
                                          collect (datum-html-preview lib datum)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -60,14 +60,7 @@ used to populate the :collection slot when instantiating a datum."))
   (:documentation "Return a list of cons cells where the car is each unique file type in
 the library and where the cdrs is the quantity of data with that type."))
 
-;; FIXME: unify searching and listing files into a single method!
-;; FIXME: consider adding support for matching the major/ and + parts
-;; of the mime type.
-(defgeneric library-list-files-by-type (library type)
-  (:documentation "Return a list of data whose `datum-kind' slot matches TYPE."))
-
-;; FIXME: Like the method right above, this method really needs to be
-;; merged in with list-data once I figure out how to pass SQLite a
+;; FIXME: merge with list-data once I figure out how to pass SQLite a
 ;; parameter into a LIKE match without getting a gaping huge SQL
 ;; injection.  For now this suffices...  Also note that since we're
 ;; working against the filesystem for this right now this will fail to
@@ -232,7 +225,7 @@ data."))
 in descending order.  Returns all by default."))
 
 ;; FIXME: unify searching and listing files into a single method!
-(defgeneric list-data (library &key direction sort-by offset limit tags)
+(defgeneric list-data (library &key direction sort-by offset limit tags type)
   (:documentation
    "Return a list of data.  :direction may be either :ascending or
 :descending and controls the manner in which the data are returned; it
@@ -240,7 +233,8 @@ defaults to :descending.  :sort-by controls the sorting criterion and
 may be one of :modified, :birth, or :accesses, defaulting to
 :modified.  :limit and :offset may be used for pagination and are set
 to NIL by default.  If :tags is a list of tags, only data in the union
-of those tags will be returned.
+of those tags will be returned.  If :type is a string containing a
+mime type only data that matches it will be returned.
 
 That is all to say that calling this method without any keys will
 return a list of all data sorted from the most recently modified to

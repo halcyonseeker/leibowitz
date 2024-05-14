@@ -718,19 +718,27 @@
     (destructuring-bind (d1 d2) data
       (true (<= (datum-birth d1) (datum-birth d2))))))
 
-
-(define-library-test list-files-by-type (l p1 p2)
+(define-library-test list-data-by-type (l p1 p2)
   (with-open-file (s p1 :direction :output :if-exists :supersede)
     (format s "hi :3~%"))
   (with-open-file (s p2 :direction :output :if-exists :supersede)
     (format s "<!DOCTYPE html>~%"))
   (index l (list p1 p2))
-  (let ((res (library-list-files-by-type l "text/plain")))
+  (let ((res (list-data l :type "text/plain")))
     (is #'= 1 (length res))
     (is #'equal (namestring p1) (datum-id (car res))))
-  (let ((res (library-list-files-by-type l "text/plain")))
+  (let ((res (list-data l :type "text/plain")))
     (is #'= 1 (length res))
     (is #'equal (namestring p1) (datum-id (car res)))))
+
+(define-library-test list-data-by-type-and-tag (l p1 p2)
+  (with-open-file (s p1 :direction :output :if-exists :supersede)
+    (format s "hi :3~%"))
+  (index l (list p1 p2))
+  (add-datum-tags l p2 '("tag"))
+  (is #'= 0 (length (list-data l :type "text/plain" :tags '("tag"))))
+  (add-datum-tags l p1 '("tag"))
+  (is #'= 1 (length (list-data l :type "text/plain" :tags '("tag")))))
 
 (define-library-test list-tags (l p1 p2)
   (add-datum-tags l (car (index l p1)) '("tag one" "tag two"))

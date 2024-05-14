@@ -112,16 +112,6 @@ end")))
                        l "select count(*) from data where type = ?"
                        (car type)))))
 
-(defmethod library-list-files-by-type ((l sqlite-library) (type string))
-  (mapcar
-   (lambda (row)
-     (destructuring-bind (id accesses kind birth modified terms) row
-       (make-instance 'datum :id id :accesses accesses :kind kind
-                             :birth birth :modified modified
-                             :terms terms
-                             :collection (library-get-datum-collection l id))))
-   (sqlite-rows l "select * from data where type = ?" type)))
-
 (defmethod library-list-files-in-dir ((l sqlite-library) (dir pathname)
                                       &key (include-unindexed NIL))
   (let ((ret NIL))
@@ -629,15 +619,18 @@ transaction, hence this little helper function."
                   (make-instance 'tag :name name :count count :label label))))
 
 ;; FIXME: Track datum tag-count so we can sort by them
-(defmethod list-data ((l sqlite-library) &key (sort-by :modified) (direction :descending)
-                                           (limit NIL) (offset NIL) (tags NIL))
+(defmethod list-data ((l sqlite-library) &key (sort-by :modified)
+                                           (direction :descending)
+                                           (limit NIL) (offset NIL)
+                                           (tags NIL) (type NIL))
   (assert (member sort-by '(:modified :birth :accesses)))
   (assert (member direction '(:descending :ascending)))
   (check-type limit (or null integer))
   (check-type offset (or null integer))
   (check-type tags list)
+  (check-type type (or null string))
   (when (or limit offset) (assert (and limit offset)))
-  (let ((query (format NIL "~A select * from ~A order by ~A ~A ~A"
+  (let ((query (format NIL "~A select * from ~A ~A order by ~A ~A ~A"
                        (if tags
                            (format NIL "with tagged as ~
                                         (select data.* from data ~
@@ -647,6 +640,7 @@ transaction, hence this little helper function."
                                    (length tags) tags)
                            "")
                        (if tags "tagged" "data")
+                       (if type "where type = ?" "")
                        (case sort-by
                          (:modified "modified")
                          (:birth "birth")
@@ -658,7 +652,8 @@ transaction, hence this little helper function."
                            (format NIL "limit ~A offset ~A" limit offset)
                            ""))))
     (loop for row in (apply #'sqlite-rows (nconc (list l query)
-                                                 (mapcar #'%need-tag-name tags)))
+                                                 (mapcar #'%need-tag-name tags)
+                                                 (when type (list type))))
           collect (destructuring-bind (id accesses kind birth modified terms) row
                     (make-instance 'datum :id id :accesses accesses :kind kind
                                           :birth birth :modified modified
