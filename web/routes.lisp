@@ -83,7 +83,7 @@
       (make-page lib
                  :here "/search"
                  :title "Search | Leibowitz Web"
-                 :sidebar `((:section "Idk yet"))
+                 :sidebar `((:section ""))
                  :body (if q
                            (list-search-results-as-html
                             lib q limit offset sort-by direction view)
