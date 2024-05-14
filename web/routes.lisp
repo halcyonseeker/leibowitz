@@ -55,7 +55,7 @@
   (make-page lib
              :here "/tags"
              :title "Tags | Leibowitz Web"
-             :sidebar `((:section "Idk yet"))
+             :sidebar `((:section ""))
              :body (list-tags-as-html lib)))
 
 (leibowitz-route (tree-page lib "/tree") (dir)
