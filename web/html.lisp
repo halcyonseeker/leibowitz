@@ -130,17 +130,27 @@ listing.  Key arguments are passed unmodified to that method."
                            (:small "FIXME: add tag, collection, and kind filters here; improve style!"))
                      (:input :class "form-row" :type "submit" :value "Go!")))))
 
-(defun list-tags-as-html (lib &rest options &key &allow-other-keys)
+(defun list-tags-as-html (lib)
   (check-type lib library)
-  `((:section
-     (:ul ,@(loop for tag in (apply #'list-tags (nconc (list lib) options))
-                  collect `(:li (:a :href ,(format NIL "/tag?name=~A"
-                                                   (url (tag-name tag)))
-                                    ,(tag-name tag))
-                                (:span :class "tag-count"
-                                       ,(format nil "(~a)" (tag-count tag)))
-                                (:span :class "tag-desc"
-                                       ,(tag-label tag))))))))
+  `((:section :id "tiles"
+              ,@(loop for tag in (list-tags lib)
+                      collect `(:div :class "tile"
+                                     (:div :style "padding-bottom: 10px; font-size: large"
+                                            (:a :href ,(format NIL "/tag?name=~A"
+                                                               (url (tag-name tag)))
+                                                ,(tag-name tag)))
+                                     (:div ;; This'll be fun to localize lol
+                                      (:span :style "white-space: nowrap"
+                                             ,(format NIL "~A File~:P;"
+                                                      (tag-count tag)))
+                                      (:span :style "white-space: nowrap"
+                                             ,(format NIL " ~A Parent~:P;"
+                                                      (tag-num-parents lib tag)))
+                                      (:span :style "white-space: nowrap"
+                                             ,(format NIL " ~A Child~0@*~[ren~;~:;ren~]"
+                                                      (tag-num-children lib tag))))
+                                     ,@(let ((desc (tag-label tag)))
+                                         (when desc `((:hr) ,(html desc)))))))))
 
 (defun make-tree-breadcrumbs (title absolute-path)
   `((:h1 ,title)
