@@ -29,7 +29,6 @@
            #:get-datum-tags
            #:add-datum-tags
            #:del-datum-tags
-           #:get-tag-data
            #:add-tag-predicate
            #:get-tag-predicates
            #:get-tag-predicands

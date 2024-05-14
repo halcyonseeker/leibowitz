@@ -206,6 +206,7 @@
                        :sidebar (make-tag-view-sidebar lib tag)
                        :body (make-tag-view-page
                               lib tag (intern (string-upcase view) :keyword)
+                              :tags (list tag)
                               :sort-by (intern (string-upcase sort-by) :keyword)
                               :direction (intern (string-upcase direction) :keyword)
                               :limit limit

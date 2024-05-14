@@ -238,12 +238,12 @@
     (let ((tag (car (get-datum-tags l d))))
       (is #'equal "tag" (tag-name tag))
       (is #'= 1 (tag-count tag)))
-    (is #'equal (datum-id d) (datum-id (car (get-tag-data l "tag"))))
+    (is #'equal (datum-id d) (datum-id (car (list-data l :tags '("tag")))))
     (is #'= 1 (datum-num-tags l d))
     (del-datum-tags l d '("tag"))
     (is #'= 0 (datum-num-tags l d))
     (false (get-datum-tags l d))
-    (false (get-tag-data l "tag"))
+    (false (list-data l :tags '("tag")))
     (is #'leibowitz.core::%datum-equal d (get-datum l (datum-id d)))))
 
 (define-library-test replace-datum-tags (l path)
@@ -292,10 +292,10 @@
     (add-datum l d2)
     (add-datum-tags l d1 '("tag"))
     (add-datum-tags l d2 '("tag"))
-    (is #'= 2 (length (get-tag-data l "tag")))
+    (is #'= 2 (length (list-data l :tags '("tag"))))
     (is #'= 2 (tag-count (get-tag l "tag")))
     (del-datum l d1)
-    (is #'= 1 (length (get-tag-data l "tag")))
+    (is #'= 1 (length (list-data l :tags '("tag"))))
     (is #'= 1 (tag-count (get-tag l "tag")))))
 
 (define-library-test removing-tag-removes-all-its-associations (l path1 path2)
@@ -306,7 +306,7 @@
     (add-datum-tags l d1 '("tag"))
     (add-datum-tags l d2 '("tag"))
     (del-tag l "tag")
-    (false (get-tag-data l "tag"))
+    (false (list-data l :tags '("tag")))
     (false (get-datum-tags l d1))
     (false (get-datum-tags l d2))))
 
@@ -334,10 +334,10 @@
   (add-tag-predicate l "some tag" "also add" :retroactive T)
   (move-tag l "some tag" "new")
   (false (get-tag l "some tag"))
-  (false (get-tag-data l "some tag"))
+  (false (list-data l :tags '("some tag")))
   (false (get-tag-predicates l "some tag"))
   (true (get-tag l "new"))
-  (is #'= 2 (length (get-tag-data l "new")))
+  (is #'= 2 (length (list-data l :tags '("new"))))
   (is #'= 2 (length (get-datum-tags l p1)))
   (is #'= 2 (length (get-datum-tags l p2)))
   (is #'equal "also add" (tag-name (car (get-tag-predicates l "new")))))
@@ -407,9 +407,9 @@
   (is #'= 2 (length (get-tag-predicands l "me too")))
   (is #'= 1 (length (get-tag-predicates l "tag")))
   (is #'= 1 (length (get-tag-predicates l "new")))
-  (is #'= 2 (length (get-tag-data l "new")))
-  (is #'= 2 (length (get-tag-data l "tag")))
-  (is #'= 2 (length (get-tag-data l "me too")))
+  (is #'= 2 (length (list-data l :tags '("new"))))
+  (is #'= 2 (length (list-data l :tags '("tag"))))
+  (is #'= 2 (length (list-data l :tags '("me too"))))
   (is #'= 3 (length (get-datum-tags l p1)))
   (is #'= 3 (length (get-datum-tags l p2))))
 
@@ -688,30 +688,36 @@
   (is #'equal (datum-id (get-datum l p6))
       (datum-id (car (list-data l :offset 5 :limit 1)))))
 
-(define-library-test get-tag-data-test-sort-and-direction (l p1 p2)
-  (index l p1)
+(define-library-test list-data-in-union-of-tags-test-sort-and-direction (l p0 p1 p2)
+  (index l (list p0 p1))
     (sleep 1) ;; timestamps have a granularity of 1 second smh
   (with-open-file (s p2 :direction :output :if-exists :supersede)
     (format s "hi :3~%"))
   (index l p2)
+  (add-datum-tags l p0 '("alone1"))
   (add-datum-tags l p1 '("tag"))
-  (add-datum-tags l p2 '("tag"))
+  (add-datum-tags l p2 '("tag" "alone2"))
   ;; most recently modified first
-  (destructuring-bind (d1 d2)
-      (get-tag-data l "tag" :sort-by :modified :direction :descending)
-    (true (>= (datum-modified d1) (datum-modified d2))))
+  (let ((data (list-data l :tags '("tag") :sort-by :modified :direction :descending)))
+    (is #'= 2 (length data))
+    (destructuring-bind (d1 d2) data
+      (true (>= (datum-modified d1) (datum-modified d2)))))
   ;; least recently modified first
-  (destructuring-bind (d1 d2)
-      (get-tag-data l "tag" :sort-by :modified :direction :ascending)
-    (true (<= (datum-modified d1) (datum-modified d2))))
+  (let ((data (list-data l :tags '("tag") :sort-by :modified :direction :ascending)))
+    (is #'= 2 (length data))
+    (destructuring-bind (d1 d2) data
+      (true (<= (datum-modified d1) (datum-modified d2)))))
   ;; most recently created first
-  (destructuring-bind (d1 d2)
-      (get-tag-data l "tag" :sort-by :birth :direction :descending)
-    (true (>= (datum-birth d1) (datum-birth d2))))
-  ;; least recently created first
-  (destructuring-bind (d1 d2)
-      (get-tag-data l "tag" :sort-by :birth :direction :ascending)
-    (true (<= (datum-birth d1) (datum-birth d2)))))
+  (let ((data (list-data l :tags '("tag") :sort-by :birth :direction :descending)))
+    (is #'= 2 (length data))
+    (destructuring-bind (d1 d2) data
+      (true (>= (datum-birth d1) (datum-birth d2)))))
+  ;; least recently created first; select from disjoint union
+  (let ((data (list-data l :tags '("alone1" "alone2") :sort-by :birth :direction :ascending)))
+    (is #'= 2 (length data))
+    (destructuring-bind (d1 d2) data
+      (true (<= (datum-birth d1) (datum-birth d2))))))
+
 
 (define-library-test list-files-by-type (l p1 p2)
   (with-open-file (s p1 :direction :output :if-exists :supersede)
@@ -725,7 +731,6 @@
   (let ((res (library-list-files-by-type l "text/plain")))
     (is #'= 1 (length res))
     (is #'equal (namestring p1) (datum-id (car res)))))
-
 
 (define-library-test list-tags (l p1 p2)
   (add-datum-tags l (car (index l p1)) '("tag one" "tag two"))

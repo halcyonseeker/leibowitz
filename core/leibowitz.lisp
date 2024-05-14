@@ -192,11 +192,6 @@ orphaned they will be removed unless they're stored with a label.  If
 be removed.  Signals `datum-not-indexed' if the requested datum cannot
 be found."))
 
-;; FIXME: unify searching and listing files into a single method!
-(defgeneric get-tag-data (library tag-or-name &key sort-by direction limit offset)
-  (:documentation "Return a list of the data associated with a tag or NIL if there isn't
-any.  Keyword arguments function the same as `list-data' and `query'"))
-
 ;;; Reading and writing tag hierarchies
 
 (defgeneric add-tag-predicate (library iftag-or-name thentags-or-names
@@ -237,15 +232,20 @@ data."))
 in descending order.  Returns all by default."))
 
 ;; FIXME: unify searching and listing files into a single method!
-(defgeneric list-data (library &key direction sort-by offset limit)
-  (:documentation "Return a list of data.  :direction may be either :ascending or
+(defgeneric list-data (library &key direction sort-by offset limit tags)
+  (:documentation
+   "Return a list of data.  :direction may be either :ascending or
 :descending and controls the manner in which the data are returned; it
 defaults to :descending.  :sort-by controls the sorting criterion and
 may be one of :modified, :birth, or :accesses, defaulting to
 :modified.  :limit and :offset may be used for pagination and are set
-to NIL by default.  That is all to say that calling this method
-without any keys will return a list of all data sorted from the most
-recently modified to the least recently modified."))
+to NIL by default.  If :tags is a list of tags, only data in the union
+of those tags will be returned.
+
+That is all to say that calling this method without any keys will
+return a list of all data sorted from the most recently modified to
+the least recently modified.  If a single tag is specified, only data
+with that tag will be returned."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Data stored in the library
@@ -510,7 +510,7 @@ or a UTF-8 string."))
   (:method ((l library) (tag tag))
     (format T "  Tag: ~A~%" (tag-name tag))
     (format T "Label: ~A~%" (tag-label tag))
-    (format T " Data: ~{~S~^, ~}~%" (loop for datum in (get-tag-data l tag)
+    (format T " Data: ~{~S~^, ~}~%" (loop for datum in (list-data l :tags (list tag))
                                           collect (datum-id datum))))
   (:documentation "Print a human-friendly summary of this tag."))
 

@@ -296,13 +296,11 @@ listing.  Key arguments are passed unmodified to that method."
 (defun make-tag-view-page (lib tag view &rest options &key &allow-other-keys)
   (check-type lib library)
   (check-type tag tag)
-  `(,@(let ((data (loop for datum in (apply #'get-tag-data (nconc (list lib tag) options))
+  `(,@(let ((data (loop for datum in (apply #'list-data (nconc (list lib) options))
                         collect (datum-html-preview lib datum :view view))))
         `(,@(make-datum-listing-filter-bar view
                                            (getf options :sort-by)
                                            (getf options :direction))
-          (:small "FIXME get-tag-data should support sort-by/direction/limit/offset!")
-          (:small "FIXME get-tag-data should support pagination!")
           ,(cond ((eql view :tile) `(:section :id "tiles" ,@data))
                  ((eql view :card) `(:section :id "cards" ,@data)))))
     (:section

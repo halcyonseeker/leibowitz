@@ -396,7 +396,7 @@ end")))
             (let* ((predicates (%cascade-down-predicate-tree l new))
                    (tags (loop for tag being each hash-key of predicates
                                collect tag)))
-              (loop for datum in (get-tag-data l old)
+              (loop for datum in (list-data l :tags (list old))
                     do (%add-datum-tags-inner-transaction l datum tags))))
           (sqlite-nq l "update tags set name = ? where name = ?" new old))
       (sqlite-nq l "update tag_datum_junctions set tag_name = ? where tag_name = ?" new old)
@@ -426,7 +426,7 @@ end")))
         (%add-tag-inner-transaction l new-tag))
       (loop for predicate in (get-tag-predicates l old)
             do (%add-tag-predicate-inner-transaction l new (list predicate)))
-      (loop for datum in (get-tag-data l old)
+      (loop for datum in (list-data l :tags (list old))
             do (%add-datum-tags-inner-transaction l datum (list new))))
     ;; FIXME: with-sqlite-tx clobbers return values
     (get-tag l new)))
@@ -502,34 +502,6 @@ transaction, hence this little helper function."
   (with-sqlite-tx (l)
     (%del-datum-tags-inner-transaction l datum-or-id tags :cascade cascade)))
 
-(defmethod get-tag-data ((l sqlite-library) tag-or-name
-                         &key (sort-by :modified) (direction :descending)
-                           (limit NIL) (offset NIL))
-  (assert (member sort-by '(:modified :birth :accesses)))
-  (assert (member direction '(:descending :ascending)))
-  (check-type limit (or null integer))
-  (check-type offset (or null integer))
-  (check-type tag-or-name (or string tag))
-  (when (or limit offset) (assert (and limit offset)))
-  (loop for row in (sqlite-rows l (format NIL (ccat "select data.* from data "
-                                                    "inner join tag_datum_junctions on "
-                                                    "datum_id = data.id where tag_name = ? "
-                                                    "order by ~A ~A ~A")
-                                          (cond ((eql sort-by :modified) "modified")
-                                                ((eql sort-by :birth) "birth")
-                                                ((eql sort-by :accesses) "accesses"))
-                                          (cond ((eql direction :descending) "desc")
-                                                ((eql direction :ascending) "asc"))
-                                          (if (and limit offset)
-                                              (format NIL "limit ~A offset ~A" limit offset)
-                                              ""))
-                                (%need-tag-name tag-or-name))
-        collect (destructuring-bind (id accesses kind birth modified terms) row
-                  (make-instance 'datum :id id :accesses accesses :kind kind
-                                        :birth birth :modified modified
-                                        :terms terms
-                                        :collection (library-get-datum-collection l id)))))
-
 ;;; Reading and writing tag hierarchies
 
 (defun %add-tag-predicate-inner-transaction (l iftag-or-name thentags-or-names
@@ -554,7 +526,7 @@ transaction, hence this little helper function."
                  ;; Big O of deez nuts
                  (let ((predicates (%cascade-down-predicate-tree l iftag-or-name)))
                    (loop for tag being each hash-key of predicates
-                         do (loop for datum in (get-tag-data l tag)
+                         do (loop for datum in (list-data l :tags (list tag))
                                   do (%add-datum-tags-inner-transaction
                                       l datum (list thenname)))))))))
     ;; FIXME: refactor del-tag-predicate to optionally take a list
@@ -658,27 +630,40 @@ transaction, hence this little helper function."
 
 ;; FIXME: Track datum tag-count so we can sort by them
 (defmethod list-data ((l sqlite-library) &key (sort-by :modified) (direction :descending)
-                                           (limit NIL) (offset NIL))
+                                           (limit NIL) (offset NIL) (tags NIL))
   (assert (member sort-by '(:modified :birth :accesses)))
   (assert (member direction '(:descending :ascending)))
   (check-type limit (or null integer))
   (check-type offset (or null integer))
+  (check-type tags list)
   (when (or limit offset) (assert (and limit offset)))
-  (loop for row in (sqlite-rows
-                    l (format NIL "select * from data order by ~A ~A ~A"
-                              (cond ((eql sort-by :modified) "modified")
-                                    ((eql sort-by :birth) "birth")
-                                    ((eql sort-by :accesses) "accesses"))
-                              (cond ((eql direction :descending) "desc")
-                                    ((eql direction :ascending) "asc"))
-                              (if (and limit offset)
-                                  (format NIL "limit ~A offset ~A" limit offset)
-                                  "")))
-        collect (destructuring-bind (id accesses kind birth modified terms) row
-                  (make-instance 'datum :id id :accesses accesses :kind kind
-                                        :birth birth :modified modified
-                                        :terms terms
-                                        :collection (library-get-datum-collection l id)))))
+  (let ((query (format NIL "~A select * from ~A order by ~A ~A ~A"
+                       (if tags
+                           (format NIL "with tagged as ~
+                                        (select data.* from data ~
+                                         inner join tag_datum_junctions ~
+                                         on datum_id = data.id where ~
+                                         ~v{tag_name = ?~*~^ or ~})"
+                                   (length tags) tags)
+                           "")
+                       (if tags "tagged" "data")
+                       (case sort-by
+                         (:modified "modified")
+                         (:birth "birth")
+                         (:accesses "accesses"))
+                       (case direction
+                         (:descending "desc")
+                         (:ascending "asc"))
+                       (if (and limit offset)
+                           (format NIL "limit ~A offset ~A" limit offset)
+                           ""))))
+    (loop for row in (apply #'sqlite-rows (nconc (list l query)
+                                                 (mapcar #'%need-tag-name tags)))
+          collect (destructuring-bind (id accesses kind birth modified terms) row
+                    (make-instance 'datum :id id :accesses accesses :kind kind
+                                          :birth birth :modified modified
+                                          :terms terms
+                                          :collection (library-get-datum-collection l id))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Additional Methods
