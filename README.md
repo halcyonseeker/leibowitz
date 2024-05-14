@@ -268,3 +268,5 @@ Notes
   from gpslogger), and maybe various GIS formats.  Will be harder in
   native though I could probably cheat by XEmbed'ing mepo or
   something.
+* Interesting article about categorizing data:
+  https://web.archive.org/web/20050601013309/http://shirky.com/writings/ontology_overrated.html
