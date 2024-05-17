@@ -39,6 +39,8 @@ layer over the Unix file system providing the following features:
 
 ![A screenshot of the Leibowitz web view showing the main file listing](docs/web_main_file_listing.png)
 
+Usage
+-----
 
 ```
 NAME:
@@ -279,3 +281,5 @@ Notes
   something.
 * Interesting article about categorizing data:
   https://web.archive.org/web/20050601013309/http://shirky.com/writings/ontology_overrated.html
+* [Memento web protocol](http://www.mementoweb.org/about/) for
+  managing web page archives
