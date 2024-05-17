@@ -99,7 +99,30 @@
                    :flag
                    :description "Print markdown usage docs to stdout."
                    :long-name "markdown-documentation"
-                   :key :markdown-documentation))))
+                   :key :markdown-documentation)
+                  (clingon:make-option
+                   :flag
+                   :description "Run a slynk server for interactive debugging."
+                   :short-name #\s
+                   :long-name "slynk"
+                   :env-vars '("LEIBOWITZ_RUN_SLYNK")
+                   :key :slynk)
+                  (clingon:make-option
+                   :integer
+                   :description "Specify the port slynk will listen in."
+                   :short-name #\p
+                   :long-name "slynk-port"
+                   :env-vars '("LEIBOWITZ_SLYNK_PORT")
+                   :initial-value 4005
+                   :key :slynk-port)
+                  (clingon:make-option
+                   :flag
+                   :description "Wait for a slynk/swank client to connect before doing anything."
+                   :short-name #\w
+                   :long-name "slynk-wait"
+                   :env-vars '("LEIBOWITZ_SLYNK_WAIT")
+                   :key :slynk-wait)
+                  )))
 
 (defun toplevel/handler (cmd)
   (when (clingon:getopt cmd :help)
@@ -116,6 +139,14 @@
       (setf *base-directory* root)
       (setf *data-directory* (merge-pathnames ".leibowitz/" root))
       (setf *cache-directory* (merge-pathnames ".leibowitz/cache/" root))))
+  (when (clingon:getopt cmd :slynk)
+    (let ((slynk-port (clingon:getopt cmd :slynk-port))
+          (slynk::*slynk-debug-p* NIL))
+      (format T "Running debug server on localhost:~A...~%" slynk-port)
+      (slynk:create-server :port slynk-port)
+      (when (clingon:getopt cmd :slynk-wait)
+        (format T "Waiting for a slynk/swank connection, press ENTER when ready.~%")
+        (loop until (and (eql (read-char) #\Newline) slynk::*connections*)))))
   (setf *library*
         (make-instance
          'sqlite-library
