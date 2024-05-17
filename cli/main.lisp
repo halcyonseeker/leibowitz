@@ -8,6 +8,7 @@
 (defvar *data-directory*)
 (defvar *cache-directory*)
 (defvar *base-directory*)
+(defvar *config-file*)
 (defvar *library*)
 (defvar *webserver*)
 (defvar *interactive-session-p* T
@@ -15,6 +16,9 @@
 hacking or running with a slynk server.  It determines how errors are
 presented to the user; either by printing a message/returning an error
 page or by promoting it in the hope that there is a debugger waiting.")
+(defvar *load-config-p* T
+  "Disables loading the config file for certain subcommands (help,
+version) or when -q is passed.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Make me type less
@@ -23,11 +27,11 @@ page or by promoting it in the hope that there is a debugger waiting.")
   `(progn
      (defun ,(read-from-string (format NIL "~A/definition" name)) ()
        (clingon:make-command
+        :pre-hook #'%subcommand-pre-hook
         :name ,(string-downcase (format NIL "~A" name))
         :handler (quote ,(read-from-string (format NIL "~A/handler" name)))
         ,@definition))
      (defun ,(read-from-string (format NIL "~A/handler" name)) (,cmd)
-       (handle-toplevel-args ,cmd)
        ,@handler)))
 
 (defmacro need-two-arguments
@@ -43,6 +47,18 @@ page or by promoting it in the hope that there is a debugger waiting.")
         until (eq line 'eof)
         collect line))
 
+(defun %subcommand-pre-hook (cmd)
+  "This function is run before the subcommand handlers are invoked.  It
+calls the handler function for the top-level arguments (which clingon
+doesn't seem to call by default).  We're using those to configure very
+fundamental aspects of our run time state so that's pretty important.
+Once the top-level arguments have been processed and before the
+relevant subcommand is run, it loads the config file."
+  (let ((top-level-cmd (clingon:command-parent cmd)))
+    (funcall (clingon:command-handler top-level-cmd) top-level-cmd))
+  (when (and *load-config-p* (not (equal (clingon:command-name cmd) "help")))
+    (load *config-file* :if-does-not-exist NIL)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entrypoints
 
@@ -50,6 +66,7 @@ page or by promoting it in the hope that there is a debugger waiting.")
   (setf *base-directory* (user-homedir-pathname))
   (setf *data-directory* (uiop:xdg-data-home "leibowitz/"))
   (setf *cache-directory* (uiop:xdg-cache-home "leibowitz/"))
+  (setf *config-file* (uiop:xdg-config-home "leibowitz/config.lisp"))
   ;; FIXME: clingon catches all condition and prints them to stderr.
   ;; They're often not very informative, figure out a way to bypass
   ;; this and handle them here, printing more friendly error messages
@@ -127,6 +144,19 @@ page or by promoting it in the hope that there is a debugger waiting.")
                    :long-name "slynk-wait"
                    :env-vars '("LEIBOWITZ_SLYNK_WAIT")
                    :key :slynk-wait)
+                  (clingon:make-option
+                   :filepath
+                   :description "Specify an alternate config file."
+                   :short-name #\c
+                   :long-name "config"
+                   :env-vars '("LEIBOWITZ_CONFIG")
+                   :key :config)
+                  (clingon:make-option
+                   :flag
+                   :description "Disable loading config file."
+                   :short-name #\n
+                   :long-name "no-config"
+                   :key :no-config)
                   )))
 
 (defun toplevel/handler (cmd)
@@ -143,7 +173,8 @@ page or by promoting it in the hope that there is a debugger waiting.")
       (setf root (truename root))
       (setf *base-directory* root)
       (setf *data-directory* (merge-pathnames ".leibowitz/" root))
-      (setf *cache-directory* (merge-pathnames ".leibowitz/cache/" root))))
+      (setf *cache-directory* (merge-pathnames ".leibowitz/cache/" root))
+      (setf *config-file* (merge-pathnames ".leibowitz/config.lisp" root))))
   (when (clingon:getopt cmd :slynk)
     (let ((slynk-port (clingon:getopt cmd :slynk-port))
           (slynk::*slynk-debug-p* NIL))
@@ -156,6 +187,9 @@ page or by promoting it in the hope that there is a debugger waiting.")
   ;; instead of SLY!
   (unless slynk::*connections*
     (setf *interactive-session-p* NIL))
+  (let ((config (clingon:getopt cmd :config)))
+    (when config (setf *config-file* config)))
+  (when (clingon:getopt cmd :no-config) (setf *load-config-p* NIL))
   (setf *library*
         (make-instance
          'sqlite-library
@@ -163,22 +197,13 @@ page or by promoting it in the hope that there is a debugger waiting.")
          :thumbnail-cache-dir (merge-pathnames "thumbnails/" *cache-directory*)
          :homedir *base-directory*)))
 
-(defun handle-toplevel-args (cmd)
-  "By default clingon doesn't call the handler function for the
-top-level command when a subcommand is invoked.  Since we're using the
-top-level arguments to configure application state, we need to process
-them before running any subcommand handler.  The first thing all
-subcommand handlers should do is call this function on their
-argument."
-  (let ((top-level-cmd (clingon:command-parent cmd)))
-    (funcall (clingon:command-handler top-level-cmd) top-level-cmd)))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: help
 
 (defsubcmd help (cmd)
     (:description "Another way to print help info."
      :usage "[subcommand]")
+  (setf *load-config-p* NIL)
   (let ((args (clingon:command-arguments cmd)))
     (if args
         (let ((subcmd-to-print (find-if (lambda (cmd)
