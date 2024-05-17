@@ -10,6 +10,11 @@
 (defvar *base-directory*)
 (defvar *library*)
 (defvar *webserver*)
+(defvar *interactive-session-p* T
+  "This variable should be T when we're hooked up to a REPL, either while
+hacking or running with a slynk server.  It determines how errors are
+presented to the user; either by printing a message/returning an error
+page or by promoting it in the hope that there is a debugger waiting.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Make me type less
@@ -147,6 +152,10 @@
       (when (clingon:getopt cmd :slynk-wait)
         (format T "Waiting for a slynk/swank connection, press ENTER when ready.~%")
         (loop until (and (eql (read-char) #\Newline) slynk::*connections*)))))
+  ;; FIXME: this will be inconvenient for hackers who use SLIME
+  ;; instead of SLY!
+  (unless slynk::*connections*
+    (setf *interactive-session-p* NIL))
   (setf *library*
         (make-instance
          'sqlite-library
@@ -223,6 +232,12 @@ argument."
                      :initial-value 5000
                      :key :port)))
   (let ((port (clingon:getopt cmd :port)))
+    (if *interactive-session-p*
+        (setf hunchentoot:*catch-errors-p* NIL)
+        (progn
+          (setf hunchentoot:*catch-errors-p* T)
+          (setf hunchentoot:*show-lisp-errors-p* T)
+          (setf hunchentoot:*show-lisp-backtraces-p* T)))
     (format T "Running webserver on localhost:~A...~%" port)
     (setf *webserver* (make-instance 'webserver :port port :library *library*))
     (webserver-run *webserver*)
