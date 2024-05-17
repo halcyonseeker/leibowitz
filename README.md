@@ -39,8 +39,8 @@ layer over the Unix file system providing the following features:
 
 ![A screenshot of the Leibowitz web view showing the main file listing](docs/web_main_file_listing.png)
 
+
 ```
-% leibowitz help
 NAME:
   leibowitz - A lispy object-storage layer for unix file systems.
 
@@ -52,8 +52,16 @@ OPTIONS:
       --markdown-documentation  Print markdown usage docs to stdout.
       --version                 display version and exit
       --zsh-completions         Print zsh-completions to stdout.
+  -c, --config <PATH>           Specify an alternate config file. [env: $LEIBOWITZ_CONFIG]
+  -n, --no-config               Disable loading config file.
+  -p, --slynk-port <INT>        Specify the port slynk will listen in. [default: 4005] [env:
+                                $LEIBOWITZ_SLYNK_PORT]
   -r, --root <PATH>             Specify a directory in which to run in root mode. [env:
                                 $LEIBOWITZ_ROOT]
+  -s, --slynk                   Run a slynk server for interactive debugging. [env:
+                                $LEIBOWITZ_RUN_SLYNK]
+  -w, --slynk-wait              Wait for a slynk/swank client to connect before doing anything. [env:
+                                $LEIBOWITZ_SLYNK_WAIT]
 
 COMMANDS:
   help      Another way to print help info.
@@ -80,6 +88,7 @@ COMMANDS:
   cp-tag    Copy a tag.
   rm-tag    Remove a tag, leaving associated data intact.
   ls-tag    List all tags.
+  edit-tag
 ```
 
 IMPORTANT NOTE
