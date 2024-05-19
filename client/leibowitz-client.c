@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
+#include "utils.h"
 int
 slynk_connect(char *host, char *port)
 {
@@ -22,7 +23,7 @@ slynk_connect(char *host, char *port)
 		return -1;
 	}
 	if (servinfo == NULL) {
-		fprintf(stderr, "getaddrinfo didn't return anything\n");
+		WARN("getaddrinfo didn't return anything\n");
 		return -1;
 	}
 	for (struct addrinfo *i = servinfo; i != NULL; i = i->ai_next) {
@@ -46,7 +47,7 @@ slynk_send(int sock, char *msg)
 {
 	char *raw;
 	asprintf(&raw, "%06x%s", (int)strlen(msg), msg);
-	printf("Sending %s\n", raw);
+	INFO("Sending %s\n", raw);
 	if (send(sock, raw, strlen(raw), 0) == -1) {
 		perror("send");
 		exit(1);
@@ -64,14 +65,12 @@ slynk_recv(int sock)
 		exit(1);
 	}
 	if (bytes != hdr_len)
-		fprintf(stderr,
-		    "Received invalid header of length %li \"%s\", expected %li bytes\n",
-		    bytes, hdr, hdr_len);
+		WARN("Received invalid header of length %li \"%s\", expected %li bytes\n",
+		     bytes, hdr, hdr_len);
 	body_len = strtol(hdr, NULL, 16);
 	if (errno)
-		fprintf(stderr, "Received invalid header \"%s\" (strtol: %s)\n",
-		    hdr, strerror(errno));
-	printf("Received header of %li bytes \"%s\" (%li)\n", bytes, hdr, body_len);
+		WARN("Received invalid header \"%s\" (strtol: %s)\n",
+		     hdr, strerror(errno));
 	if ((body = (char *)calloc(body_len + 1, sizeof(char))) == NULL) {
 		perror("calloc");
 		exit(1);
@@ -81,11 +80,10 @@ slynk_recv(int sock)
 		free(body);
 		exit(1);
 	}
-	bytes == body_len
-		? printf("Received body of %li bytes\n", bytes)
-		: fprintf(stderr,
-			  "Received invalid body of %li bytes, expected %li\n", bytes,
-			  body_len);
+	if (bytes != body_len)
+		WARN("Received invalid body of %li bytes, expected %li\n", bytes,
+		     body_len);
+
 	printf("%.80s", body);
 	bytes > 80 ? printf("[elided %li]\n", bytes - 80) : puts("");
 	free(body);
@@ -94,7 +92,7 @@ slynk_recv(int sock)
 void
 slynk_disconnect(int sock)
 {
-	printf("Disconnecting...\n");
+	INFO("Disconnecting...\n");
 	slynk_send(sock, "(:emacs-channel-send 1 (:teardown))");
 }
 
@@ -111,7 +109,7 @@ main(int argc, char **argv)
 {
 	int sock;
 	char *host = "127.0.0.1", *port = "4005";
-	printf("Connecting to %s:%s\n", host, port);
+	INFO("Connecting to %s:%s\n", host, port);
 
 	if ((sock = slynk_connect(host, port)) < 0) {
 		fprintf(stderr, "Failed to connect to %s:%s\n", host, port);
