@@ -1,8 +1,11 @@
 CFLAGS = -Wall -Werror -Wpedantic
 CC ?= cc
-SRC = *c
+SOURCES = *.c *.h
 
 all: leibowitz-client
 
-leibowitz-client: $(SRC)
-	$(CC) -o $@ $(CFLAGS) $<
+leibowitz-client: $(SOURCES)
+	$(CC) $(CFLAGS) -o $@ $^
+
+clean:
+	rm -f leibowitz-client
