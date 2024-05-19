@@ -1,5 +1,6 @@
 /* Main function and core logic leibowitz-client */
 
+#include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,13 +57,38 @@ slynk_send(int sock, char *msg)
 void
 slynk_recv(int sock)
 {
-	size_t bytes , len = 4096;
-	char buf[len];
-	if ((bytes = recv(sock, buf, len, 0)) == -1) {
+	size_t bytes , hdr_len = 6, body_len = 0;
+	char hdr[hdr_len + 1], *body = NULL;
+	if ((bytes = recv(sock, hdr, hdr_len, 0)) == -1) {
 		perror("recv");
 		exit(1);
 	}
-	puts(buf);
+	if (bytes != hdr_len)
+		fprintf(stderr,
+		    "Received invalid header of length %li \"%s\", expected %li bytes\n",
+		    bytes, hdr, hdr_len);
+	body_len = strtol(hdr, NULL, 16);
+	if (errno)
+		fprintf(stderr, "Received invalid header \"%s\" (strtol: %s)\n",
+		    hdr, strerror(errno));
+	printf("Received header of %li bytes \"%s\" (%li)\n", bytes, hdr, body_len);
+	if ((body = (char *)calloc(body_len + 1, sizeof(char))) == NULL) {
+		perror("calloc");
+		exit(1);
+	}
+	if ((bytes = recv(sock, body, body_len, 0)) == -1) {
+		perror("recv");
+		free(body);
+		exit(1);
+	}
+	bytes == body_len
+		? printf("Received body of %li bytes\n", bytes)
+		: fprintf(stderr,
+			  "Received invalid body of %li bytes, expected %li\n", bytes,
+			  body_len);
+	printf("%.80s", body);
+	bytes > 80 ? printf("[elided %li]\n", bytes - 80) : puts("");
+	free(body);
 }
 
 void
