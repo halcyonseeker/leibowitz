@@ -93,7 +93,10 @@ void
 slynk_disconnect(int sock)
 {
 	INFO("Disconnecting...\n");
+	slynk_send(sock, "(:emacs-rex (cl:format T \"Goodbye, cruel world~%\") nil t 1)");
+	slynk_recv(sock);
 	slynk_send(sock, "(:emacs-channel-send 1 (:teardown))");
+	slynk_recv(sock);
 }
 
 /*
