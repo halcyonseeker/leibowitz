@@ -119,7 +119,7 @@ main(int argc, char **argv)
 		return 1;
 	}
 	slynk_send(sock, "(:emacs-rex (cl:format T \"Hello, world!~%\") nil t 1)");
-	/* slynk_recv(sock); */
+	slynk_recv(sock);
 	sleep(5);
 	slynk_disconnect(sock);
 
