@@ -1,6 +1,5 @@
 /* Main function and core logic leibowitz-client */
 
-#include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,14 +66,8 @@ slynk_recv(int sock)
 	if (bytes != hdr_len)
 		WARN("Received invalid header of length %li \"%s\", expected %li bytes\n",
 		     bytes, hdr, hdr_len);
-	body_len = strtol(hdr, NULL, 16);
-	if (errno)
-		WARN("Received invalid header \"%s\" (strtol: %s)\n",
-		     hdr, strerror(errno));
-	if ((body = (char *)calloc(body_len + 1, sizeof(char))) == NULL) {
-		perror("calloc");
-		exit(1);
-	}
+	body_len = xstrtol(hdr, NULL, 16, "Header is not a valid hex number");
+	body = (char *)xcalloc(body_len + 1, sizeof(char), NULL);
 	if ((bytes = recv(sock, body, body_len, 0)) == -1) {
 		perror("recv");
 		free(body);
