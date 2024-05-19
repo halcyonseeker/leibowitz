@@ -9,6 +9,15 @@
 #include <netdb.h>
 
 #include "utils.h"
+
+void
+slynk_parse_message(char *msg)
+{
+	printf("%.80s", msg);
+	strlen(msg) > 80 ? printf("[elided %li]\n", strlen(msg) - 80) : puts("");
+	free(msg);
+}
+
 int
 slynk_connect(char *host, char *port)
 {
@@ -54,7 +63,7 @@ slynk_send(int sock, char *msg)
 	free(raw);
 }
 
-void
+char *
 slynk_recv(int sock)
 {
 	size_t bytes , hdr_len = 6, body_len = 0;
@@ -76,10 +85,7 @@ slynk_recv(int sock)
 	if (bytes != body_len)
 		WARN("Received invalid body of %li bytes, expected %li\n", bytes,
 		     body_len);
-
-	printf("%.80s", body);
-	bytes > 80 ? printf("[elided %li]\n", bytes - 80) : puts("");
-	free(body);
+	return body;
 }
 
 void
@@ -87,9 +93,9 @@ slynk_disconnect(int sock)
 {
 	INFO("Disconnecting...\n");
 	slynk_send(sock, "(:emacs-rex (cl:format T \"Goodbye, cruel world~%\") nil t 1)");
-	slynk_recv(sock);
+	slynk_parse_message(slynk_recv(sock));
 	slynk_send(sock, "(:emacs-channel-send 1 (:teardown))");
-	slynk_recv(sock);
+	slynk_parse_message(slynk_recv(sock));
 }
 
 /*
@@ -112,7 +118,7 @@ main(int argc, char **argv)
 		return 1;
 	}
 	slynk_send(sock, "(:emacs-rex (cl:format T \"Hello, world!~%\") nil t 1)");
-	slynk_recv(sock);
+	slynk_parse_message(slynk_recv(sock));
 	sleep(5);
 	slynk_disconnect(sock);
 
