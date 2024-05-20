@@ -1,6 +1,8 @@
 /* Main function and core logic leibowitz-client */
 
-#include <errno.h>
+/* Required to use getaddrinfo(3) API with -std=c11 */
+#define _POSIX_C_SOURCE 200112L
+
 #include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -11,6 +13,7 @@
 #include <netdb.h>
 #include <ctype.h>
 
+#include "asprintf.h"
 #include "utils.h"
 
 /* Return the offset to the first non-space character in buf. */
