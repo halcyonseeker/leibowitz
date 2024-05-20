@@ -15,7 +15,7 @@
 
 /* Return the offset to the first non-space character in buf. */
 size_t
-chomp(char *buf)
+chomp(const char *const buf)
 {
 	size_t i;
 	for (i = 0; isspace(buf[i]) && buf[i] != '\0'; i++);
@@ -25,7 +25,7 @@ chomp(char *buf)
 /* Given buf as a pointer to the first char in an atom, return the
  * offset to the final char of the atom. */
 size_t
-chomp_atom(char *buf)
+chomp_atom(const char *const buf)
 {
 	size_t i;
 	/* FIXME: handle quoted forms! */
@@ -40,7 +40,7 @@ chomp_atom(char *buf)
 /* Given buf as a pointer to the beginning " of a string, return the
  * offset to the terminating " */
 size_t
-chomp_string(char *buf)
+chomp_string(const char *const buf)
 {
 	size_t i = 1; /* Skip initial " */
 	while (buf[i] != '"' && buf[i] != '\0')
@@ -53,9 +53,9 @@ chomp_string(char *buf)
 }
 
 void
-slynk_parse_message(char *msg)
+slynk_parse_message(char *const _msg)
 {
-	msg = "(:new-features (:slynk :plump-utf-32 :osicat-fd-streams :cl-who :hunchentoot :sbcl-debug-print-variable-alist :split-sequence :flexi-streams :cl-ppcre :cl-fad :bordeaux-threads :global-vars :chunga cffi-features:flat-namespace cffi-features:x86-64 cffi-features:unix :cffi cffi-sys::flat-namespace alexandria::sequence-emptyp :thread-support :quicklisp :asdf3.3 :asdf3.2 :asdf3.1 :asdf3 :asdf2 :asdf :os-unix :non-base-chars-exist-p :asdf-unicode :arena-allocator :x86-64 :gencgc :64-bit :ansi-cl :common-lisp :elf :ieee-floating-point :linux :little-endian :package-local-nicknames :sb-ldb :sb-package-locks :sb-thread \"An interleaved string!\" :sb-unicode :sbcl :unix \"Another string!\")) \"parse error";
+	char msg[] = "(:new-features (:slynk :plump-utf-32 :osicat-fd-streams :cl-who :hunchentoot :sbcl-debug-print-variable-alist :split-sequence :flexi-streams :cl-ppcre :cl-fad :bordeaux-threads :global-vars :chunga cffi-features:flat-namespace cffi-features:x86-64 cffi-features:unix :cffi cffi-sys::flat-namespace alexandria::sequence-emptyp :thread-support :quicklisp :asdf3.3 :asdf3.2 :asdf3.1 :asdf3 :asdf2 :asdf :os-unix :non-base-chars-exist-p :asdf-unicode :arena-allocator :x86-64 :gencgc :64-bit :ansi-cl :common-lisp :elf :ieee-floating-point :linux :little-endian :package-local-nicknames :sb-ldb :sb-package-locks :sb-thread \"An interleaved string!\" :sb-unicode :sbcl :unix \"Another string!\")) \"parse error";
 	char *cursor = msg + (uintptr_t)chomp(msg);
 	while (*cursor != '\0') {
 		/* hurr durr label followed by declaration is a c23
@@ -96,7 +96,7 @@ slynk_parse_message(char *msg)
 }
 
 int
-slynk_connect(char *host, char *port)
+slynk_connect(const char *host, const char *port)
 {
 	int sock, rc;
 	struct addrinfo *servinfo, hints = {
@@ -128,7 +128,7 @@ slynk_connect(char *host, char *port)
 }
 
 void
-slynk_send(int sock, char *msg)
+slynk_send(const int sock, const char *msg)
 {
 	char *raw;
 	asprintf(&raw, "%06x%s", (int)strlen(msg), msg);
@@ -141,11 +141,11 @@ slynk_send(int sock, char *msg)
 }
 
 char *
-slynk_recv(int sock)
+slynk_recv(const int sock)
 {
-	size_t bytes , hdr_len = 6, body_len = 0;
+	size_t bytes, hdr_len = 6, body_len = 0;
 	char hdr[hdr_len + 1], *body = NULL;
-	if ((bytes = recv(sock, hdr, hdr_len, 0)) == -1) {
+	if ((bytes = recv(sock, hdr, hdr_len, 0)) == (size_t)-1) {
 		perror("recv");
 		exit(1);
 	}
@@ -154,7 +154,7 @@ slynk_recv(int sock)
 		     bytes, hdr, hdr_len);
 	body_len = xstrtol(hdr, NULL, 16, "Header is not a valid hex number");
 	body = (char *)xcalloc(body_len + 1, sizeof(char), NULL);
-	if ((bytes = recv(sock, body, body_len, 0)) == -1) {
+	if ((bytes = recv(sock, body, body_len, 0)) == (size_t)-1) {
 		perror("recv");
 		free(body);
 		exit(1);
@@ -187,7 +187,7 @@ int
 main(int argc, char **argv)
 {
 	int sock;
-	char *host = "127.0.0.1", *port = "4005";
+	const char *const host = "127.0.0.1", *const port = "4005";
 	INFO("Connecting to %s:%s\n", host, port);
 
 	if ((sock = slynk_connect(host, port)) < 0) {

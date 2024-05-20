@@ -6,7 +6,7 @@
 #include "utils.h"
 
 void *
-xcalloc(size_t nmemb, size_t size, char *extra_msg)
+xcalloc(size_t nmemb, size_t size, const char *const extra_msg)
 {
 	void *p = calloc(nmemb, size);
 	if (!p) {
@@ -18,7 +18,8 @@ xcalloc(size_t nmemb, size_t size, char *extra_msg)
 }
 
 long
-xstrtol(const char *nptr, char **endptr, int base, char *extra_msg)
+xstrtol(const char *const nptr, char **endptr, const int base,
+    const char *const extra_msg)
 {
 	long r = strtol(nptr, endptr, base);
 	if (errno) {

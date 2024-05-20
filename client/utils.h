@@ -17,11 +17,12 @@
 		fprintf(stderr, __VA_ARGS__);                   \
 	} while (0)
 
-extern void *
-xcalloc(size_t nmemb, size_t size, char *extra_msg);
+extern void *xcalloc(size_t nmemb, size_t size, const char *const extra_msg);
 
-extern long
-xstrtol(const char *nptr, char **endptr, int base, char *extra_msg);
+
+extern long xstrtol(const char *const nptr, char **endptr, int base,
+    const char *const extra_msg);
+
 
 
 #endif	/* __UTILS */
