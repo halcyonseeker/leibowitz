@@ -1,7 +1,14 @@
 ERR_FLAGS = -Wall -Werror -Wpedantic -Wextra -Wformat=2 -Wno-unused-parameter \
 	-Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
 	-Wredundant-decls -Wnested-externs -Wmissing-include-dirs
-SAN_FLAGS = -fsanitize=address -fsanitize=undefined
+SAN_FLAGS = -fsanitize=address -fsanitize=alignment -fsanitize=bool \
+	-fsanitize=bounds -fsanitize=enum -fsanitize=float-cast-overflow \
+	-fsanitize=float-divide-by-zero -fsanitize=integer-divide-by-zero \
+	-fsanitize=nonnull-attribute -fsanitize=null -fsanitize=object-size \
+	-fsanitize=vla-bound -fsanitize=returns-nonnull-attribute \
+	-fsanitize=shift -fsanitize=signed-integer-overflow -fsanitize=vptr \
+	-fsanitize=unreachable -fsanitize=pointer-overflow -fsanitize=return
+
 CC ?= cc
 SOURCES = *.c *.h
 
