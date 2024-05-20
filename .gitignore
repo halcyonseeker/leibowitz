@@ -16,3 +16,5 @@
 /docs/core_paper/*.css
 /docs/core_paper/*.html
 /build
+/client/*.o
+/client/leibowitz-client
