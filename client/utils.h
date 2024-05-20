@@ -13,7 +13,7 @@
 
 #define WARN(...)                                               \
 	do {                                                    \
-		fprintf(stderr, "\033[1;38;5;1mFATAL\033[m: "); \
+		fprintf(stderr, "\033[1;38;5;1mWARN\033[m: ");  \
 		fprintf(stderr, __VA_ARGS__);                   \
 	} while (0)
 
