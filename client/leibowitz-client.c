@@ -1,5 +1,7 @@
 /* Main function and core logic leibowitz-client */
 
+#include <errno.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,15 +9,90 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <ctype.h>
 
 #include "utils.h"
+
+/* Return the offset to the first non-space character in buf. */
+size_t
+chomp(char *buf)
+{
+	size_t i;
+	for (i = 0; isspace(buf[i]) && buf[i] != '\0'; i++);
+	return i;
+}
+
+/* Given buf as a pointer to the first char in an atom, return the
+ * offset to the final char of the atom. */
+size_t
+chomp_atom(char *buf)
+{
+	size_t i;
+	/* FIXME: handle quoted forms! */
+	for (i = 0; !isspace(buf[i])
+		     && buf[i] != '\0'
+		     && buf[i] != '('
+		     && buf[i] != ')';
+	     i++);
+	return i;
+}
+
+/* Given buf as a pointer to the beginning " of a string, return the
+ * offset to the terminating " */
+size_t
+chomp_string(char *buf)
+{
+	size_t i = 1; /* Skip initial " */
+	while (buf[i] != '"' && buf[i] != '\0')
+		i += (buf[i] == '\\' && buf[i + 1] == '"') ? 2 : 1;
+	if (buf[i] == '\0') {
+		WARN("parser error: unterminated string\n");
+		exit(1);
+	}
+	return i;
+}
 
 void
 slynk_parse_message(char *msg)
 {
-	printf("%.80s", msg);
-	strlen(msg) > 80 ? printf("[elided %li]\n", strlen(msg) - 80) : puts("");
-	free(msg);
+	msg = "(:new-features (:slynk :plump-utf-32 :osicat-fd-streams :cl-who :hunchentoot :sbcl-debug-print-variable-alist :split-sequence :flexi-streams :cl-ppcre :cl-fad :bordeaux-threads :global-vars :chunga cffi-features:flat-namespace cffi-features:x86-64 cffi-features:unix :cffi cffi-sys::flat-namespace alexandria::sequence-emptyp :thread-support :quicklisp :asdf3.3 :asdf3.2 :asdf3.1 :asdf3 :asdf2 :asdf :os-unix :non-base-chars-exist-p :asdf-unicode :arena-allocator :x86-64 :gencgc :64-bit :ansi-cl :common-lisp :elf :ieee-floating-point :linux :little-endian :package-local-nicknames :sb-ldb :sb-package-locks :sb-thread \"An interleaved string!\" :sb-unicode :sbcl :unix \"Another string!\")) \"parse error";
+	char *cursor = msg + (uintptr_t)chomp(msg);
+	while (*cursor != '\0') {
+		/* hurr durr label followed by declaration is a c23
+		 * extension */
+		size_t offset = 0;
+		switch (*cursor) {
+		case '(':
+			puts("{");
+			break;
+		case ')':
+			puts("}");
+			break;
+		case ' ':
+			cursor += (uintptr_t)chomp(cursor);
+			puts("");
+			goto continue_no_increment;
+		case '"':
+			if ((offset = chomp_string(cursor)) == '\0')
+				goto continue_no_increment;
+			printf("``%.*s''\n", (int)--offset, ++cursor);
+			cursor += (uintptr_t)offset;
+			break;
+		/* case '.': */
+		default:
+			offset = chomp_atom(cursor);
+			for (size_t i = 0; i < offset; i++)
+				putchar(cursor[i]);
+			cursor += (uintptr_t)offset;
+			goto continue_no_increment;
+		}
+		++cursor;
+	continue_no_increment:
+		/* drrrrrr label at the end of a compound statement is
+		 * a c23 extension */
+		continue;
+	}
+	/* free(msg); */
 }
 
 int
