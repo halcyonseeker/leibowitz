@@ -197,10 +197,11 @@ main(int argc, char **argv)
 		fprintf(stderr, "Failed to connect to %s:%s\n", host, port);
 		return 1;
 	}
-	slynk_send(sock, "(:emacs-rex (cl:format T \"Hello, world!~%\") nil t 1)");
-	slynk_parse_message(slynk_recv(sock));
-	sleep(5);
-	slynk_disconnect(sock);
+	slynk_parse_message(NULL);
+	/* slynk_send(sock, "(:emacs-rex (cl:format T \"Hello, world!~%\") nil t 1)"); */
+	/* slynk_parse_message(slynk_recv(sock)); */
+	/* sleep(5); */
+	/* slynk_disconnect(sock); */
 
 	close(sock);
 	return 0;
