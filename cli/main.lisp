@@ -98,19 +98,10 @@ relevant subcommand is run, it loads the config file."
                        (web/definition)
                        (find/definition)
                        (show/definition)
-                       (tag/definition)
-                       (tags/definition)
-                       (untag/definition)
-                       (untags/definition)
                        (mv/definition)
                        (cp/definition)
                        (rm/definition)
                        (ls/definition)
-                       (show-tag/definition)
-                       (mv-tag/definition)
-                       (cp-tag/definition)
-                       (rm-tag/definition)
-                       (ls-tag/definition)
                        )
    :options (list (clingon:make-option
                    :filepath
@@ -320,85 +311,6 @@ relevant subcommand is run, it loads the config file."
         do (datum-print-long-report *library* (get-datum *library* path :error T))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Subcommand: tag
-
-(defsubcmd tag (cmd)
-    (:description "Apply a tag to one or more files, read from stdin if none are
-specified."
-     :usage "[tag] [paths...]")
-  (when (zerop (length (clingon:command-arguments cmd)))
-    (error "No tag specified."))
-  (let ((tag (car (clingon:command-arguments cmd)))
-        (paths (if (= (length (clingon:command-arguments cmd)) 1)
-                   (%collect-stdin-lines)
-                   (cdr (clingon:command-arguments cmd)))))
-    (loop for path in paths
-          do (format T "Adding tag ~S to ~A~%" tag path)
-             (add-datum-tags *library* path (list tag)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Subcommand: tags
-
-(defsubcmd tags (cmd)
-    (:description "Apply one or more tags to a datum, reading from stdin if no tags are
-specified."
-     :usage "[path] [tags...]")
-  (when (zerop (length (clingon:command-arguments cmd)))
-    (error "No file specified."))
-  (let ((path (car (clingon:command-arguments cmd)))
-        (tags (if (= (length (clingon:command-arguments cmd)) 1)
-                  (%collect-stdin-lines)
-                  (cdr (clingon:command-arguments cmd)))))
-    (format t "Adding tags ~S to datum ~A~%" tags path)
-    (add-datum-tags *library* path tags)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Subcommand: untag
-
-(defsubcmd untag (cmd)
-    (:description "Remove a tag from one or more files, reading from stdin if none are
-specified."
-     :usage "[-c|--cascade] [tag] [paths...]"
-     :options (list (clingon:make-option
-                     :flag
-                     :short-name #\c
-                     :long-name "cascade"
-                     :key :cascade
-                     :description "Also remove tags from these data that depend on the supplied tag.")))
-  (when (zerop (length (clingon:command-arguments cmd)))
-    (error "No tag specified."))
-  (let ((tag (car (clingon:command-arguments cmd)))
-        (paths (if (= (length (clingon:command-arguments cmd)) 1)
-                   (%collect-stdin-lines)
-                   (cdr (clingon:command-arguments cmd)))))
-  (loop for path in paths
-        do (format T "Removing tag ~S from ~A~%" tag path)
-           (del-datum-tags *library* path (list tag)
-                           :cascade (clingon:getopt cmd :cascade)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Subcommand: untags
-
-(defsubcmd untags (cmd)
-    (:description "Remove one or more tags from a file, reading tag names from stdin if
-none are specified."
-     :usage "[-c|--cascade] [path] [tags...]"
-     :options (list (clingon:make-option
-                     :flag
-                     :short-name #\c
-                     :long-name "cascade"
-                     :key :cascade
-                     :description "Also remove tags from this file that depend on the supplied tags.")))
-  (when (zerop (length (clingon:command-arguments cmd)))
-    (error "No path specified."))
-  (let ((path (car (clingon:command-arguments cmd)))
-        (tags (if (= (length (clingon:command-arguments cmd)) 1)
-                  (%collect-stdin-lines)
-                  (cdr (clingon:command-arguments cmd)))))
-    (format T "Removing tags ~S from ~A~%" tags path)
-    (del-datum-tags *library* path tags :cascade (clingon:getopt cmd :cascade))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: mv
 
 (defsubcmd mv (cmd)
@@ -498,99 +410,3 @@ none are specified."
                (pathname (format T "UNINDEXED ~A~%"
                                  (uiop:native-namestring
                                   (uiop:enough-pathname file dir))))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Subcommand: show-tag
-
-(defsubcmd show-tag (cmd)
-    (:description "Show information about one or more tags."
-     :usage "[tag names...]")
-  (loop for name in (clingon:command-arguments cmd)
-        do (tag-print-long-report *library* (get-tag *library* name :error T))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Subcommand: ls-tags
-
-(defsubcmd ls-tag (cmd)
-    (:description "List all tags."
-     :usage "")
-  ;; FIXME: add support for different listing formats, etc
-  (loop for tag in (list-tags *library*)
-        do (format T "(~A data) ~A: ~S~%"
-                   (tag-count tag) (tag-name tag) (tag-label tag))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Subcommand: mv-tag
-
-(defsubcmd mv-tag (cmd)
-    (:description "Move or rename a tag."
-     :usage "[-f|--force] [-m|--merge] [src] [dst]"
-     :options (list (clingon:make-option
-                     :flag
-                     :short-name #\f
-                     :long-name "force"
-                     :key :force
-                     :description "Overwrite dst if it already exists.")
-                    (clingon:make-option
-                     :flag
-                     :short-name #\m
-                     :long-name "merge"
-                     :key :merge
-                     :description "Merge src into dst if dst already exists.")))
-  (need-two-arguments (src dst)
-      (:else "You must specify a source name and a destination name")
-    (format T "Moving tag ~A to ~A~%" src dst)
-    (handler-case
-        (move-tag *library* src dst :merge (clingon:getopt cmd :merge)
-                                    :overwrite (clingon:getopt cmd :force))
-      (tag-already-exists ()
-        ;; Catch this error in order to print a more helpful message.
-        (error "Tag ~S already exists, pass -f to overwrite or -m to merge~%" dst)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Subcommand: cp-tag
-
-(defsubcmd cp-tag (cmd)
-    (:description "Copy a tag."
-     :usage "[-f|--force] [-m|--merge] [src] [dst]"
-     :options (list (clingon:make-option
-                     :flag
-                     :short-name #\f
-                     :long-name "force"
-                     :key :force
-                     :description "Overwrite dst if it already exists.")
-                    (clingon:make-option
-                     :flag
-                     :short-name #\m
-                     :long-name "merge"
-                     :key :merge
-                     :description "Merge src into dst if dst already exists.")))
-  (need-two-arguments (src dst)
-      (:else "You must specify a source name and a destination name")
-    (format T "Copying tag ~A to ~A~%" src dst)
-    (handler-case
-        (copy-tag *library* src dst :merge (clingon:getopt cmd :merge)
-                                    :overwrite (clingon:getopt cmd :force))
-      (tag-already-exists ()
-        ;; Catch this error in order to print a more helpful message.
-        (error "Tag ~S already exists, pass -f to overwrite or -m to merge~%"
-               dst)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Subcommand: rm-tag
-
-(defsubcmd rm-tag (cmd)
-    (:description "Remove a tag, leaving associated data intact."
-     :usage "[tag names...]")
-  ;; FIXME yuck 🙀
-  (let ((names (loop for arg in (clingon:command-arguments cmd)
-                     collect (if (get-tag *library* arg)
-                                 arg
-                                 ;; FIXME: `del-tag' should raise this
-                                 ;; condition!
-                                 (error 'no-such-tag :name arg)))))
-    (loop for name in names
-          for tag = (get-tag *library* name)
-          do (format T "Removing tag ~S, leaving ~A data intact~%"
-                     name (tag-count tag))
-             (del-tag *library* name))))
