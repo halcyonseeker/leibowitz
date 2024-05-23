@@ -7,3 +7,9 @@
   (:report (lambda (c s)
              (with-slots (path) c
                (format s "~A is a directory " path)))))
+
+(define-condition no-such-subcommand (friendly-error)
+  ((subcmd :initarg :subcmd))
+  (:report (lambda (c s)
+             (with-slots (subcmd) c
+               (format s "No such subcommand: ~A" subcmd)))))
