@@ -117,6 +117,7 @@ relevant subcommand is run, it loads the config file."
                        (cp/definition)
                        (rm/definition)
                        (ls/definition)
+                       (tag/definition)
                        )
    :options (list (clingon:make-option
                    :filepath
@@ -411,3 +412,36 @@ relevant subcommand is run, it loads the config file."
                (pathname (format T "UNINDEXED ~A~%"
                                  (uiop:native-namestring
                                   (uiop:enough-pathname file dir))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand group: tag
+
+;; Don't use defsubcmd since we don't want the :pre-hook ran until
+;; right before tag subsubcommand handler... though I think that
+;; doesn't make any difference with an empty handler
+(defun tag/definition ()
+  (clingon:make-command
+   :name "tag"
+   :handler #'tag/handler
+   :description "Parent command for all tag operations."
+   :sub-commands (list (tag.help/definition)
+                       ;; (tag-add/definition)
+                       ;; (tag-rm/definition)
+                       ;; (tag-show/definition)
+                       ;; (tag-mv/definition)
+                       ;; (tag-cp/definition)
+                       ;; (tag-ls/definition)
+                       )
+   ))
+
+(defun tag/handler (cmd)
+  (declare (ignore cmd))
+  ;; What, if anything should we do here?  I think I need it at least
+  ;; as a stub on account of how clingon works
+  )
+
+(defsubcmd (tag help) (cmd)
+    (:description "Print help for tag subcommands."
+     :usage "[subcommand]")
+  (setf *load-config-p* NIL)
+  (%print-help-for-subcommand cmd))
