@@ -67,6 +67,21 @@ relevant subcommand is run, it loads the config file."
   (when (and *load-config-p* (not (equal (clingon:command-name cmd) "help")))
     (load *config-file* :if-does-not-exist NIL)))
 
+(defun %print-help-for-subcommand (cmd)
+  (let ((args (clingon:command-arguments cmd))
+        (parent (clingon:command-parent cmd)))
+    (labels ((find-subcmd (arg cmd)
+               (find-if
+                (lambda (c) (equal (clingon:command-name c) arg))
+                (clingon:command-sub-commands (clingon:command-parent cmd)))))
+      (if args
+          (loop for arg in args
+                for subcmd = (find-subcmd arg cmd)
+                do (if subcmd
+                       (clingon:print-usage-and-exit subcmd *standard-output*)
+                       (error 'no-such-subcommand :subcmd arg)))
+          (clingon:print-usage-and-exit parent *standard-output*)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entrypoints
 
@@ -203,21 +218,7 @@ relevant subcommand is run, it loads the config file."
     (:description "Another way to print help info."
      :usage "[subcommand]")
   (setf *load-config-p* NIL)
-  (let ((args (clingon:command-arguments cmd)))
-    (if args
-        (let ((subcmd-to-print (find-if (lambda (cmd)
-                                          (equal (clingon:command-name cmd)
-                                                 (car args)))
-                                        (clingon:command-sub-commands
-                                         (clingon:command-parent cmd)))))
-          (if subcmd-to-print
-              (clingon:print-usage-and-exit subcmd-to-print
-                                            *standard-output*)
-              ;; FIXME: we need to detect invalid subcommands in
-              ;; general and dumb help to stderr, exiting with nonzero
-              (error "No such subcommand")))
-        (clingon:print-usage-and-exit (clingon:command-parent cmd)
-                                      *standard-output*))))
+  (%print-help-for-subcommand cmd))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: info
