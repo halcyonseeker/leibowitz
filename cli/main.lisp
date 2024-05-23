@@ -24,15 +24,23 @@ version) or when -q is passed.")
 ;;; Make me type less
 
 (defmacro defsubcmd (name (cmd) (&rest definition) &body handler)
-  `(progn
-     (defun ,(read-from-string (format NIL "~A/definition" name)) ()
-       (clingon:make-command
-        :pre-hook #'%subcommand-pre-hook
-        :name ,(string-downcase (format NIL "~A" name))
-        :handler (quote ,(read-from-string (format NIL "~A/handler" name)))
-        ,@definition))
-     (defun ,(read-from-string (format NIL "~A/handler" name)) (,cmd)
-       ,@handler)))
+  (labels ((edit-sym (symbol-or-list &optional (fmt "~A"))
+             (read-from-string (format NIL fmt symbol-or-list)))
+           (sym2str (symbol)
+             (string-downcase (format NIL "~A" symbol))))
+    (let ((internal-name
+            (etypecase name (symbol name) (list (edit-sym name "~{~A~^.~}"))))
+          (external-name
+            (sym2str (etypecase name (symbol name) (list (car (last name)))))))
+      `(progn
+         (defun ,(edit-sym internal-name "~A/definition") ()
+           (clingon:make-command
+            :pre-hook #'%subcommand-pre-hook
+            :name ,external-name
+            :handler (quote ,(edit-sym internal-name "~A/handler"))
+            ,@definition))
+         (defun ,(edit-sym internal-name "~A/handler") (,cmd)
+           ,@handler)))))
 
 (defmacro need-two-arguments
     ((arg1 arg2) (&key (else "Two arguments required!")) &body body)
