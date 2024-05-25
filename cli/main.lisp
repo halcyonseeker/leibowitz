@@ -431,10 +431,10 @@ relevant subcommand is run, it loads the config file."
    :sub-commands (list (tag.help/definition)
                        ;; (tag-add/definition)
                        ;; (tag-rm/definition)
-                       ;; (tag-mv/definition)
                        ;; (tag-cp/definition)
                        (tag.show/definition)
                        (tag.ls/definition)
+                       (tag.mv/definition)
                        )
    ))
 
@@ -469,4 +469,31 @@ relevant subcommand is run, it loads the config file."
   (loop for tag in (list-tags *library*)
         do (format T "(~A data) ~A: ~S~%"
                    (tag-count tag) (tag-name tag) (tag-label tag))))
+
+;;;; Subcommand: tag mv
+
+(defsubcmd (tag mv) (cmd)
+    (:description "Move or rename a tag."
+     :usage "[-f|--force] [-m|--merge] [src] [dst]"
+     :options (list (clingon:make-option
+                     :flag
+                     :short-name #\f
+                     :long-name "force"
+                     :key :force
+                     :description "Overwrite dst if it already exists.")
+                    (clingon:make-option
+                     :flag
+                     :short-name #\m
+                     :long-name "merge"
+                     :key :merge
+                     :description "Merge src into dst if dst already exists.")))
+  (need-two-arguments (src dst)
+      (:else "You must specify a source name and a destination name")
+    (format T "Moving tag ~A to ~A~%" src dst)
+    (handler-case
+        (move-tag *library* src dst :merge (clingon:getopt cmd :merge)
+                                    :overwrite (clingon:getopt cmd :force))
+      (tag-already-exists ()
+        ;; Catch this error in order to print a more helpful message.
+        (error "Tag ~S already exists, pass -f to overwrite or -m to merge~%" dst)))))
 
