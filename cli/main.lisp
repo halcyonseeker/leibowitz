@@ -50,15 +50,6 @@ version) or when -q is passed.")
      (destructuring-bind (,arg1 ,arg2) (clingon:command-arguments cmd)
        ,@body)))
 
-(defun %stream-collect-lines (&optional (in *standard-input*))
-  "Given IN being a string, return a list of lines.  FIXME: this should
-be improved to skip blank lines and be merged with the equivalent
-function `leibowitz.web::%parse-post-body-to-list' into
-`leibowitz.utils'."
-  (loop for line = (read-line in nil 'eof)
-        until (eq line 'eof)
-        collect line))
-
 (defun %get-toplevel-command (cmd)
   (let ((parent (clingon:command-parent cmd)))
     (if parent (%get-toplevel-command parent) cmd)))
@@ -115,7 +106,7 @@ relevant subcommand is run, it loads the config file."
             (format NIL "~A ~A" editor (uiop:unix-namestring path))
             :input :interactive :output :interactive :error-output T)
            (with-open-file (s path)
-             (setf final-content (%stream-collect-lines s))))
+             (setf final-content (collect-lines s))))
       (ignore-errors (delete-file path)))
     (format T "returning from editor: ~S~%" final-content)
     final-content))
@@ -294,7 +285,7 @@ relevant subcommand is run, it loads the config file."
   (let ((args (clingon:command-arguments cmd)))
     (if args
         (index *library* args :log T)
-        (index *library* (%stream-collect-lines) :log T))))
+        (index *library* (collect-lines) :log T))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: web

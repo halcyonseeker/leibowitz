@@ -1,6 +1,7 @@
 
 (defpackage :leibowitz.cli
   (:use #:cl
+        #:leibowitz.util
         #:leibowitz.core
         #:leibowitz.web)
   (:export #:main)

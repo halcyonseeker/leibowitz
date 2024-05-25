@@ -2,6 +2,7 @@
 
 (defpackage :leibowitz
   (:use #:cl
+        #:leibowitz.util
         #:leibowitz.core
         #:leibowitz.web
         #:leibowitz.cli))

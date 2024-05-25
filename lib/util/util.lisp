@@ -2,7 +2,8 @@
 (defpackage :leibowitz.util
   (:use #:cl)
   (:export #:url
-           #:html))
+           #:html
+           #:collect-lines))
 
 (in-package :leibowitz.util)
 
@@ -31,3 +32,22 @@
                                do (format s "%~2,'0x" octet)))))))
     (T str)))
 
+(defun collect-lines (&optional (in *standard-input*))
+  "Given IN as either a stream or a string, return a list of all
+non-empty and non-whitespace lines as strings, without the trailing
+newline"
+  (labels ((trim-whitespace (line)
+             ;; FIXME: Add control characters and non-ascii whitespace
+             ;; characters!  `sb-unicode' has some good stuff there.
+             ;; As it stands this behaves like isspace(3)
+             (string-trim '(#\Space #\Return #\Newline #\Page #\Tab #\Vt) line))
+          (collect (s)
+            (loop for line = (read-line s nil 'eof)
+                  until (eq line 'eof)
+                  for content = (trim-whitespace line)
+                  unless (zerop (length content))
+                    collect content)))
+         (etypecase in
+    (null NIL)
+    (stream (collect in))
+    (string (with-input-from-string (s in) (collect s))))))

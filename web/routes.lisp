@@ -16,15 +16,6 @@
   (hunchentoot:handle-static-file
    (merge-pathnames #P"code/leibowitz/web/static/display_pdf.js" (user-homedir-pathname))))
 
-(defun %parse-post-body-to-list (data)
-  (when data
-    (with-input-from-string (s data)
-      (loop for line = (read-line s nil 'eof)
-            until (eq line 'eof)
-            for tag = (string-trim '(#\Space #\Return) line)
-            unless (= 0 (length tag))
-              collect tag))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Top-level pages
 
@@ -241,7 +232,7 @@
 ;; FIXME: for the redirects here, we really should get the full URL so
 ;; that the user doesn't lose their place
 (leibowitz-route (edit-tag lib ("/tag" :method :post)) (name)
-  (let ((predicates (%parse-post-body-to-list (hunchentoot:post-parameter "tags")))
+  (let ((predicates (collect-lines (hunchentoot:post-parameter "tags")))
         ;; FIXME: Add support for recursive deletion to the core!
         ;; (delete-children (hunchentoot:post-parameter "delete-children"))
         ;; (delete-data (hunchentoot:post-parameter "delete-data"))
@@ -284,7 +275,7 @@
   (let ((move-to (hunchentoot:post-parameter "move-to"))
         (copy-to (hunchentoot:post-parameter "copy-to"))
         (delete  (hunchentoot:post-parameter "delete"))
-        (tags    (%parse-post-body-to-list (hunchentoot:post-parameter "tags")))
+        (tags    (collect-lines (hunchentoot:post-parameter "tags")))
         (ajax    (hunchentoot:post-parameter "ajax")))
     ;; FIXME: some validation would be good, though this endpoint
     ;; really should only be used internally
