@@ -133,6 +133,13 @@ relevant subcommand is run, it loads the config file."
                        (tag/definition)
                        )
    :options (list (clingon:make-option
+                   :string
+                   :description "Evaluate a Lisp form in the leibowitz package immediately after setup."
+                   :short-name #\e
+                   :long-name "eval"
+                   :initial-value NIL
+                   :key :eval)
+                  (clingon:make-option
                    :filepath
                    :description "Specify a directory in which to run in root mode."
                    :short-name #\r
@@ -225,7 +232,13 @@ relevant subcommand is run, it loads the config file."
          'sqlite-library
          :db-path (merge-pathnames "ontology.db" *data-directory*)
          :thumbnail-cache-dir (merge-pathnames "thumbnails/" *cache-directory*)
-         :homedir *base-directory*)))
+         :homedir *base-directory*))
+  (let ((form (clingon:getopt cmd :eval))
+        (*package* (find-package :leibowitz)))
+    (when form
+      (with-input-from-string (s form)
+        (print (eval (read s)))
+        (princ #\Newline)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: help
