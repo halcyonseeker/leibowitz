@@ -55,6 +55,10 @@ version) or when -q is passed.")
         until (eq line 'eof)
         collect line))
 
+(defun %get-toplevel-command (cmd)
+  (let ((parent (clingon:command-parent cmd)))
+    (if parent (%get-toplevel-command parent) cmd)))
+
 (defun %subcommand-pre-hook (cmd)
   "This function is run before the subcommand handlers are invoked.  It
 calls the handler function for the top-level arguments (which clingon
@@ -62,7 +66,7 @@ doesn't seem to call by default).  We're using those to configure very
 fundamental aspects of our run time state so that's pretty important.
 Once the top-level arguments have been processed and before the
 relevant subcommand is run, it loads the config file."
-  (let ((top-level-cmd (clingon:command-parent cmd)))
+  (let ((top-level-cmd (%get-toplevel-command cmd)))
     (funcall (clingon:command-handler top-level-cmd) top-level-cmd))
   (when (and *load-config-p* (not (equal (clingon:command-name cmd) "help")))
     (load *config-file* :if-does-not-exist NIL)))
