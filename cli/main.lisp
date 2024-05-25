@@ -585,3 +585,38 @@ relevant subcommand is run, it loads the config file."
   (setf *load-config-p* NIL)
   (%print-help-for-subcommand cmd))
 
+;;; Subcommand: tag add tags
+
+(defsubcmd (tag add tags) (cmd)
+    (:description "Add multiple tags to a single file."
+     :usage "[-r|--replace] [-e|--edit] [path] [tags...]"
+     :options (list (clingon:make-option
+                     :flag
+                     :description "Replace this file's tags rather than add to them."
+                     :short-name #\r
+                     :long-name "replace"
+                     :initial-value NIL
+                     :key :replace)
+                    (clingon:make-option
+                     :flag
+                     :description "Edit the list of tags in $EDITOR, implies -r."
+                     :short-name #\e
+                     :long-name "edit"
+                     :initial-value NIL
+                     :key :edit)))
+  (when (zerop (length (clingon:command-arguments cmd)))
+    (error "No file specified."))
+  (let* ((replace (or (clingon:getopt cmd :replace)
+                      (clingon:getopt cmd :edit)))
+         (path (car (clingon:command-arguments cmd)))
+         (tags (if (clingon:getopt cmd :edit)
+                   (%open-editor-collect-lines
+                    (mapcar #'tag-name (get-datum-tags *library* path)))
+                   (if (= (length (clingon:command-arguments cmd)) 1)
+                       (collect-lines)
+                       (cdr (clingon:command-arguments cmd))))))
+    (if replace
+        (format T "Replacing tags for file ~S with ~S~%" path tags)
+        (format T "Adding tags to file ~S: ~S~%" path tags))
+    (add-datum-tags *library* path tags :replace replace)))
+
