@@ -86,6 +86,11 @@ relevant subcommand is run, it loads the config file."
                        (error 'no-such-subcommand :subcmd arg)))
           (clingon:print-usage-and-exit parent *standard-output*)))))
 
+(defun group-command-handler (cmd)
+  "Handler for commands that are not intended to be called bare."
+  (clingon:print-usage cmd *error-output*)
+  (error "Error: you didn't pass a subcommand."))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entrypoints
 
@@ -179,6 +184,8 @@ relevant subcommand is run, it loads the config file."
                   )))
 
 (defun toplevel/handler (cmd)
+  (when (= (length (uiop:command-line-arguments)) 0)
+    (group-command-handler cmd))
   (when (clingon:getopt cmd :help)
     (clingon:print-usage-and-exit cmd *standard-output*))
   (when (clingon:getopt cmd :zsh-completions)
@@ -426,7 +433,7 @@ relevant subcommand is run, it loads the config file."
 (defun tag/definition ()
   (clingon:make-command
    :name "tag"
-   :handler #'tag/handler
+   :handler #'group-command-handler
    :description "Parent command for all tag operations."
    :sub-commands (list (tag.help/definition)
                        ;; (tag-add/definition)
@@ -438,11 +445,7 @@ relevant subcommand is run, it loads the config file."
                        )
    ))
 
-(defun tag/handler (cmd)
-  (declare (ignore cmd))
-  ;; What, if anything should we do here?  I think I need it at least
-  ;; as a stub on account of how clingon works
-  )
+;;;; Subcommand: tag help
 
 (defsubcmd (tag help) (cmd)
     (:description "Print help for tag subcommands."
