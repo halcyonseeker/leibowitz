@@ -95,6 +95,31 @@ relevant subcommand is run, it loads the config file."
   (clingon:print-usage cmd *error-output*)
   (error "Error: you didn't pass a subcommand."))
 
+(defun %open-editor-collect-lines (&optional (initial-content ""))
+  (let ((initial-content (etypecase initial-content
+                           (string initial-content)
+                           (list (with-output-to-string (s)
+                                   (format s "~{~A~%~}" initial-content)))))
+        (final-content NIL)
+        (path (uiop:tmpize-pathname #P"/tmp/leibowitz_editor_session"))
+        (editor (uiop:getenv "EDITOR")))
+    (when (or (null editor) (zerop (length editor)))
+      (error "Set $EDITOR to a text editor program (eg, emacs) and try again."))
+    (unless (interactive-stream-p *standard-output*)
+      (error "Stdout doesn't appear to be connected to a terminal."))
+    (unwind-protect
+         (progn
+           (with-open-file (s path :direction :output :if-exists :supersede)
+             (format s "~A~%" initial-content))
+           (uiop:run-program
+            (format NIL "~A ~A" editor (uiop:unix-namestring path))
+            :input :interactive :output :interactive :error-output T)
+           (with-open-file (s path)
+             (setf final-content (%stream-collect-lines s))))
+      (ignore-errors (delete-file path)))
+    (format T "returning from editor: ~S~%" final-content)
+    final-content))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entrypoints
 
