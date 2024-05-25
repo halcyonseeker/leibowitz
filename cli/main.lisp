@@ -50,8 +50,12 @@ version) or when -q is passed.")
      (destructuring-bind (,arg1 ,arg2) (clingon:command-arguments cmd)
        ,@body)))
 
-(defun %collect-stdin-lines ()
-  (loop for line = (read-line *standard-input* nil 'eof)
+(defun %stream-collect-lines (&optional (in *standard-input*))
+  "Given IN being a string, return a list of lines.  FIXME: this should
+be improved to skip blank lines and be merged with the equivalent
+function `leibowitz.web::%parse-post-body-to-list' into
+`leibowitz.utils'."
+  (loop for line = (read-line in nil 'eof)
         until (eq line 'eof)
         collect line))
 
@@ -252,7 +256,7 @@ relevant subcommand is run, it loads the config file."
   (let ((args (clingon:command-arguments cmd)))
     (if args
         (index *library* args :log T)
-        (index *library* (%collect-stdin-lines) :log T))))
+        (index *library* (%stream-collect-lines) :log T))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand: web
