@@ -431,10 +431,10 @@ relevant subcommand is run, it loads the config file."
    :sub-commands (list (tag.help/definition)
                        ;; (tag-add/definition)
                        ;; (tag-rm/definition)
-                       ;; (tag-show/definition)
                        ;; (tag-mv/definition)
                        ;; (tag-cp/definition)
-                       ;; (tag-ls/definition)
+                       (tag.show/definition)
+                       (tag.ls/definition)
                        )
    ))
 
@@ -449,3 +449,24 @@ relevant subcommand is run, it loads the config file."
      :usage "[subcommand]")
   (setf *load-config-p* NIL)
   (%print-help-for-subcommand cmd))
+
+;;;; Subcommand: tag show
+
+(defsubcmd (tag show) (cmd)
+    (:description "Show information about one or more tags."
+     :usage "[tag names...]")
+  (loop for name in (clingon:command-arguments cmd)
+        do (tag-print-long-report *library* (get-tag *library* name :error T))))
+
+;;;; Subcommand: tag ls
+
+(defsubcmd (tag ls) (cmd)
+    (:description "List all tags."
+     :usage "")
+  ;; FIXME: add support for different listing formats, etc
+  ;; This is in the README checklist for the end of class, very
+  ;; important!!!!
+  (loop for tag in (list-tags *library*)
+        do (format T "(~A data) ~A: ~S~%"
+                   (tag-count tag) (tag-name tag) (tag-label tag))))
+
