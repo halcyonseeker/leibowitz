@@ -436,12 +436,12 @@ relevant subcommand is run, it loads the config file."
    :handler #'group-command-handler
    :description "Parent command for all tag operations."
    :sub-commands (list (tag.help/definition)
-                       ;; (tag-add/definition)
                        ;; (tag-rm/definition)
                        (tag.show/definition)
                        (tag.ls/definition)
                        (tag.mv/definition)
                        (tag.cp/definition)
+                       (tag.add/definition)
                        )
    ))
 
@@ -527,4 +527,28 @@ relevant subcommand is run, it loads the config file."
         ;; Catch this error in order to print a more helpful message.
         (error "Tag ~S already exists, pass -f to overwrite or -m to merge~%"
                dst)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Subcommand group: tag add
+
+(defun tag.add/definition ()
+  (clingon:make-command
+   :name "add"
+   :handler #'group-command-handler
+   :description "Edit tag files and parents, reading from stdin if arguments are omitted."
+   :sub-commands (list (tag.add.help/definition)
+                       (tag.add.tags/definition)
+                       (tag.add.files/definition)
+                       (tag.add.parents/definition)
+                       (tag.add.children/definition)
+                       )
+   ))
+
+;;;; Subcommand: tag add help
+
+(defsubcmd (tag add help) (cmd)
+    (:description "Print help for tag add subcommands."
+     :usage "[subcommand]")
+  (setf *load-config-p* NIL)
+  (%print-help-for-subcommand cmd))
 
