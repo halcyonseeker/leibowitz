@@ -671,3 +671,41 @@ stdin, or interactively edited by the user at their text editor."
               do (format T "Dropping tag ~S from file ~S~%" tag path)
                  (del-datum-tags *library* path (list tag))))))
 
+;;;; Subcommand: tag add parents
+
+(defsubcmd (tag add parents) (cmd)
+    (:description "Add parent tags to a tag."
+     :usage "[-r|--replace] [-e|--edit] [tag] [parent tags...]"
+     :options (list (clingon:make-option
+                     :flag
+                     :description "Replace this tag's parents rather than add to them."
+                     :short-name #\r
+                     :long-name "replace"
+                     :initial-value NIL
+                     :key :replace)
+                    (clingon:make-option
+                     :flag
+                     :description "Edit the list of parent tags in $EDITOR."
+                     :short-name #\e
+                     :long-name "edit"
+                     :initial-value NIL
+                     :key :edit)))
+  (when (zerop (length (clingon:command-arguments cmd)))
+    (error "No tag specified."))
+  (let* ((replace (or (clingon:getopt cmd :replace)
+                      (clingon:getopt cmd :edit)))
+         (tag (car (clingon:command-arguments cmd)))
+         (parents (%collect-args-stdin-editor
+                   cmd (mapcar #'tag-name (get-tag-predicates *library* tag)))))
+    (loop for parent in parents
+          do (format T "If a file has tag ~S, it now also has ~S~%"
+                     tag parent)
+             (add-tag-predicate *library* tag parent))
+    (when replace
+      (loop for p in (get-tag-predicates *library* tag)
+            for name = (tag-name p)
+            unless (member name parents :test #'equal)
+              do (format T "Files tagged with ~S, will no longer have ~S~%"
+                         tag name)
+                 (del-tag-predicate *library* tag name)))))
+
