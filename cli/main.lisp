@@ -112,6 +112,22 @@ relevant subcommand is run, it loads the config file."
     (format T "Returning from editor with ~A line~:P.~%" (length final-content))
     final-content))
 
+(defun %collect-args-stdin-editor (cmd &optional (editor-preset NIL)
+                                         (stdin-threshold 1))
+  "For multiple subcommands we'd like to be able to read input from the
+command line, from stdin, or pop open an editor so the user can do
+certain batch operations more quickly.  Given a command implementing
+the -e/--edit argument, a list of lines to present in an editor
+window, and an offset into argv at which to look for important
+arguments, this function returns a list of strings to be processed.
+These strings were either retrieved from the command-line, read from
+stdin, or interactively edited by the user at their text editor."
+  (if (clingon:getopt cmd :edit)
+      (%open-editor-collect-lines editor-preset)
+      (if (= (length (clingon:command-arguments cmd)) stdin-threshold)
+          (collect-lines)
+          (subseq (clingon:command-arguments cmd) stdin-threshold))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Entrypoints
 
@@ -610,12 +626,8 @@ relevant subcommand is run, it loads the config file."
   (let* ((replace (or (clingon:getopt cmd :replace)
                       (clingon:getopt cmd :edit)))
          (path (car (clingon:command-arguments cmd)))
-         (tags (if (clingon:getopt cmd :edit)
-                   (%open-editor-collect-lines
-                    (mapcar #'tag-name (get-datum-tags *library* path)))
-                   (if (= (length (clingon:command-arguments cmd)) 1)
-                       (collect-lines)
-                       (cdr (clingon:command-arguments cmd))))))
+         (tags (%collect-args-stdin-editor
+                cmd (mapcar #'tag-name (get-datum-tags *library* path)))))
     (if replace
         (format T "Replacing tags for file ~S with ~S~%" path tags)
         (format T "Adding tags to file ~S: ~S~%" path tags))
@@ -645,13 +657,10 @@ relevant subcommand is run, it loads the config file."
   (let* ((replace (or (clingon:getopt cmd :replace)
                       (clingon:getopt cmd :edit)))
          (tag (car (clingon:command-arguments cmd)))
-         (paths (if (clingon:getopt cmd :edit)
-                    (%open-editor-collect-lines
-                     (mapcar #'datum-id (list-data *library* :tags (list tag))))
-                    (mapcar (lambda (rel) (namestring (uiop:truenamize rel)))
-                            (if (= (length (clingon:command-arguments cmd)) 1)
-                                (collect-lines)
-                                (cdr (clingon:command-arguments cmd)))))))
+         (paths (mapcar (lambda (rel) (namestring (uiop:truenamize rel)))
+                        (%collect-args-stdin-editor
+                         cmd (mapcar #'datum-id
+                                     (list-data *library* :tags (list tag)))))))
     (loop for path in paths
           do (format T "Adding tag ~S to file ~S~%" tag path)
              (add-datum-tags *library* path (list tag)))
