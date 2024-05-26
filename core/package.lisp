@@ -10,7 +10,6 @@
            #:library-data-quantity
            #:library-tag-quantity
            #:library-all-file-types
-           #:library-list-files-in-dir
            #:library-get-datum-collection
            #:library-path-indexable-p)
   (:export #:index

@@ -112,20 +112,6 @@ end")))
                        l "select count(*) from data where type = ?"
                        (car type)))))
 
-(defmethod library-list-files-in-dir ((l sqlite-library) (dir pathname)
-                                      &key (include-unindexed NIL))
-  (let ((ret NIL))
-    (loop for path in (uiop:directory-files (truename dir))
-          for datum = (get-datum l path)
-          do (if datum
-                 (push datum ret)
-                 (when include-unindexed (push path ret))))
-    ret))
-(defmethod library-list-files-in-dir ((l sqlite-library) (dir string)
-                                      &key (include-unindexed NIL))
-  (library-list-files-in-dir l (uiop:parse-native-namestring dir)
-                             :include-unindexed include-unindexed))
-
 (defmethod library-print-info ((l sqlite-library))
   (format T "SQLite Library on ~A with ~A tags and ~A files.~%"
           (namestring (slot-value l 'db-path))
