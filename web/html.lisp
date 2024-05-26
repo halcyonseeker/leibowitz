@@ -105,7 +105,8 @@ listing.  Key arguments are passed unmodified to that method."
                     collect (datum-html-preview lib datum :view view))))
     `(,@(make-datum-listing-filter-bar view
                                        (getf options :sort-by)
-                                       (getf options :direction))
+                                       (getf options :direction)
+                                       (getf options :dir))
       ,(cond ((eql view :tile) `(:section :id "tiles" ,@data))
              ((eql view :card) `(:section :id "cards" ,@data))))))
 
@@ -349,10 +350,13 @@ listing.  Key arguments are passed unmodified to that method."
                                   ,(format NIL "Permanently Delete ~S"
                                            (html (tag-name tag)))))))))))
 
-;; FIXME: Also filter by tags and terms once supported by the core
-(defun make-datum-listing-filter-bar (view sort-by direction)
+;; FIXME: add support for filtering by tags too!  And once query has
+;; been merged into list-tags, unify listing and search pages and add
+;; support for filtering by query terms here!
+(defun make-datum-listing-filter-bar (view sort-by direction &optional (dir NIL))
   `((:nav :id "listing-filter-controls"
           (:form :method "get" :id "datum-listing-filter-form"
+                 ,(when dir `(:input :type "hidden" :name "dir" :value ,dir))
                  (:labal :for "view"
                          "View As")
                  (:select :name "view"
