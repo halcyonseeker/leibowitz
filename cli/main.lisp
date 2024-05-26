@@ -621,3 +621,44 @@ relevant subcommand is run, it loads the config file."
         (format T "Adding tags to file ~S: ~S~%" path tags))
     (add-datum-tags *library* path tags :replace replace)))
 
+;;;; Subcommand: tag add files
+
+(defsubcmd (tag add files) (cmd)
+    (:description "Add a single tag to multiple files."
+     :usage "[-r|--replace] [-e|--edit] [tag] [files...]"
+     :options (list (clingon:make-option
+                     :flag
+                     :description "Replace this tag's files rather than add to them."
+                     :short-name #\r
+                     :long-name "replace"
+                     :initial-value NIL
+                     :key :replace)
+                    (clingon:make-option
+                     :flag
+                     :description "Edit the list of files in $EDITOR, implies -r."
+                     :short-name #\e
+                     :long-name "edit"
+                     :initial-value NIL
+                     :key :edit)))
+  (when (zerop (length (clingon:command-arguments cmd)))
+    (error "No tag specified."))
+  (let* ((replace (or (clingon:getopt cmd :replace)
+                      (clingon:getopt cmd :edit)))
+         (tag (car (clingon:command-arguments cmd)))
+         (paths (if (clingon:getopt cmd :edit)
+                    (%open-editor-collect-lines
+                     (mapcar #'datum-id (list-data *library* :tags (list tag))))
+                    (mapcar (lambda (rel) (namestring (uiop:truenamize rel)))
+                            (if (= (length (clingon:command-arguments cmd)) 1)
+                                (collect-lines)
+                                (cdr (clingon:command-arguments cmd)))))))
+    (loop for path in paths
+          do (format T "Adding tag ~S to file ~S~%" tag path)
+             (add-datum-tags *library* path (list tag)))
+    (when replace
+      (loop for d in (list-data *library* :tags (list tag))
+            for path = (datum-id d)
+            unless (member path paths :test #'equal)
+              do (format T "Dropping tag ~S from file ~S~%" tag path)
+                 (del-datum-tags *library* path (list tag))))))
+
