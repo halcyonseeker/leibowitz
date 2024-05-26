@@ -187,17 +187,11 @@ listing.  Key arguments are passed unmodified to that method."
                                                     (namestring sd)))
                                     ,(html name))))))))
 
-;;; FIXME: Once library-list-files-in-dir is merged into list-data
-;;; we'll need to support all the same filtering and sorting here as
-;;; in normal data listings
+;; FIXME: We're using list-data here now, so support the usual
+;; filtering and sorting options!!!
 (defun list-contents-of-directory (lib dir)
-  (let ((indexed NIL)
-         (unindexed NIL))
-    (mapcar (lambda (file)
-              (etypecase file
-                (datum (push file indexed))
-                (pathname (push file unindexed))))
-            (library-list-files-in-dir lib dir :include-unindexed T))
+  (let ((indexed (list-data lib :dir dir))
+        (unindexed (uiop:directory-files dir)))
     `((:section
        (:h2 "Indexed files")
        (:div :id "tiles"
