@@ -49,8 +49,15 @@
              :sidebar `((:section ""))
              :body (list-tags-as-html lib)))
 
-(leibowitz-route (tree-page lib "/tree") (dir)
-  (let ((dir (if dir dir (user-homedir-pathname))))
+(leibowitz-route (tree-page lib "/tree") (dir view sort-by direction)
+  (let ((dir (if dir dir (user-homedir-pathname)))
+        ;; FIXME: Standardize the parsing of these somewhere!
+        (sort-by (if sort-by (intern (string-upcase sort-by) :keyword)
+                     :modified))
+        (direction (if direction (intern (string-upcase direction) :keyword)
+                       :descending))
+        (view (if view (intern (string-upcase view) :keyword)
+                  :tile)))
     (if (and (uiop:directory-exists-p dir)
              (uiop:absolute-pathname-p (uiop:parse-unix-namestring dir)))
         (make-page lib
@@ -58,7 +65,10 @@
                    :title (format NIL "~A | Leibowitz Web" dir)
                    :header (make-tree-breadcrumbs "Tree | Leibowitz Web" dir)
                    :sidebar (make-tree-sidebar dir)
-                   :body (list-contents-of-directory lib dir))
+                   :body (nconc
+                          (list-data-as-html lib view :dir dir :sort-by sort-by
+                                                      :direction direction)
+                          (make-tree-unindexed-section lib dir)))
         (return-404 lib (format NIL "Directory ~S does not exist" dir)))))
 
 ;; FIXME: parameter validations hould be in the core, just parse here

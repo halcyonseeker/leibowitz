@@ -187,26 +187,19 @@ listing.  Key arguments are passed unmodified to that method."
                                                     (namestring sd)))
                                     ,(html name))))))))
 
-;; FIXME: We're using list-data here now, so support the usual
-;; filtering and sorting options!!!
-(defun list-contents-of-directory (lib dir)
-  (let ((indexed (list-data lib :dir dir))
-        (unindexed (uiop:directory-files dir)))
-    `((:section
-       (:h2 "Indexed files")
-       (:div :id "tiles"
-             ,@(loop for datum in indexed collect (datum-html-preview lib datum))))
-      (:section
-       (:h2 "Unindexed files")
-       (:div
-        :id "tiles"
-        ,@(loop for f in unindexed
-                collect `(:div :class "tile"
-                               (:form :method "post" :action "/index"
-                                      (:button :name "path" :value ,(html (url f))
-                                               "Index file")
-                                      (:label ,(html (pathname-name
-                                                      (uiop:parse-unix-namestring f))))))))))))
+(defun make-tree-unindexed-section (lib dir)
+  `((:section
+     (:h2 "Unindexed files")
+     (:div :id "tiles"
+           ,@(loop for f in (uiop:directory-files dir)
+                   unless (get-datum lib f)
+                     collect `(:div :class "tile"
+                                    (:form :method "post" :action "/index"
+                                           (:button :name "path" :value ,(html (url f))
+                                                    "Index file")
+                                           (:label ,(html (pathname-name
+                                                           (uiop:parse-unix-namestring
+                                                            f)))))))))))
 
 (defun make-datum-view-page (lib datum)
   (incf (datum-accesses datum))
