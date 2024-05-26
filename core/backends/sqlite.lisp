@@ -622,13 +622,17 @@ transaction, hence this little helper function."
 (defmethod list-data ((l sqlite-library) &key (sort-by :modified)
                                            (direction :descending)
                                            (limit NIL) (offset NIL)
-                                           (tags NIL) (type NIL))
+                                           (tags NIL) (type NIL) (dir NIL))
   (assert (member sort-by '(:modified :birth :accesses)))
   (assert (member direction '(:descending :ascending)))
   (check-type limit (or null integer))
   (check-type offset (or null integer))
   (check-type tags list)
   (check-type type (or null string))
+  (check-type dir (or null string pathname))
+  (setf dir (etypecase dir
+              (string (uiop:parse-unix-namestring dir))
+              ((or pathname null) dir)))
   (when (or limit offset) (assert (and limit offset)))
   (let ((query (format NIL "~A select * from ~A ~A order by ~A ~A ~A"
                        (if tags
@@ -654,11 +658,17 @@ transaction, hence this little helper function."
     (loop for row in (apply #'sqlite-rows (nconc (list l query)
                                                  (mapcar #'%need-tag-name tags)
                                                  (when type (list type))))
-          collect (destructuring-bind (id accesses kind birth modified terms) row
-                    (make-instance 'datum :id id :accesses accesses :kind kind
-                                          :birth birth :modified modified
-                                          :terms terms
-                                          :collection (library-get-datum-collection l id))))))
+          ;; FIXME: will this filtering approach break if the database
+          ;; and filesystem are out of sync?  I'd rather do it in SQL
+          when (let* ((id (uiop:parse-unix-namestring (car row)))
+                      (base (make-pathname :name (pathname-name id)
+                                           :type (pathname-type id))))
+                 (if dir (equal id (merge-pathnames base dir)) T))
+            collect (destructuring-bind (id accesses kind birth modified terms) row
+                      (make-instance 'datum :id id :accesses accesses :kind kind
+                                            :birth birth :modified modified
+                                            :terms terms
+                                            :collection (library-get-datum-collection l id))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Additional Methods

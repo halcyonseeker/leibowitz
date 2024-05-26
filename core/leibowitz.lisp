@@ -225,7 +225,7 @@ data."))
 in descending order.  Returns all by default."))
 
 ;; FIXME: unify searching and listing files into a single method!
-(defgeneric list-data (library &key direction sort-by offset limit tags type)
+(defgeneric list-data (library &key direction sort-by offset limit tags type dir)
   (:documentation
    "Return a list of data.  :direction may be either :ascending or
 :descending and controls the manner in which the data are returned; it
@@ -234,7 +234,9 @@ may be one of :modified, :birth, or :accesses, defaulting to
 :modified.  :limit and :offset may be used for pagination and are set
 to NIL by default.  If :tags is a list of tags, only data in the union
 of those tags will be returned.  If :type is a string containing a
-mime type only data that matches it will be returned.
+mime type only data that matches it will be returned.  If :dir is a
+pathname or a string designating an extant directory, only files in it
+will be returned.
 
 That is all to say that calling this method without any keys will
 return a list of all data sorted from the most recently modified to

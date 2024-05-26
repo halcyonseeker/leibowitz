@@ -740,6 +740,17 @@
   (add-datum-tags l p1 '("tag"))
   (is #'= 1 (length (list-data l :type "text/plain" :tags '("tag")))))
 
+(define-library-test list-files-in-dir (l p1 p2)
+  (with-open-file (s p1 :direction :output :if-exists :supersede)
+    (format s "hi :3~%"))
+  (index l (list p1 p2))
+  (add-datum-tags l p2 '("tag"))
+  (let ((dir (directory-namestring p1)))
+    (is #'= 2 (length (list-data l :dir dir)))
+    (is #'= 1 (length (list-data l :dir dir :tags '("tag"))))
+    (is #'= 1 (length (list-data l :dir dir :type "text/plain")))
+    (is #'= 0 (length (list-data l :dir dir :type "text/plain" :tags '("tag"))))))
+
 (define-library-test list-tags (l p1 p2)
   (add-datum-tags l (car (index l p1)) '("tag one" "tag two"))
   (add-datum-tags l (car (index l p2)) '("tag two" "tag three"))
