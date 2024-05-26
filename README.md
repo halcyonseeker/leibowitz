@@ -193,12 +193,13 @@ Roadmap to 0.1 version; minimum viable product
     - [X] Adding data
     - [X] Removing data
     - [X] Renaming tags
-    - [ ] Editing tag description
-    - [ ] Adding parents
-    - [ ] Removing parents
-    - [ ] Adding children
-    - [ ] Removing children
+    - [X] Editing tag description
+    - [X] Adding parents
+    - [X] Removing parents
+    - [X] Adding children
+    - [X] Removing children
     - [X] Viewing tag summaries
+    - [ ] Test `-i|--invert` flag for `tag edit` subcommands
   - [ ] Search and listing:
     - [ ] Support changing the sort order and criterion for all data
           listings
