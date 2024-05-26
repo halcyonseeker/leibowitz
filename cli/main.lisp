@@ -493,6 +493,7 @@ stdin, or interactively edited by the user at their text editor."
                        (tag.ls/definition)
                        (tag.mv/definition)
                        (tag.cp/definition)
+                       (tag.rm/definition)
                        (tag.edit/definition)
                        )
    ))
@@ -590,6 +591,17 @@ stdin, or interactively edited by the user at their text editor."
         ;; Catch this error in order to print a more helpful message.
         (error "Tag ~S already exists, pass -f to overwrite or -m to merge~%"
                dst)))))
+
+;;;; Subcommand: tag rm
+
+(defsubcmd (tag rm) (cmd)
+    (:description "Remove one or more tags."
+     :usage "[tags...]")
+  (loop for tag in (if (clingon:command-arguments cmd)
+                       (clingon:command-arguments cmd)
+                       (collect-lines))
+        do (format T "Removing tag ~S~%" tag)
+           (del-tag *library* tag)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand group: tag edit
