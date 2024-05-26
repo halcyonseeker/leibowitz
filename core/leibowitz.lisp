@@ -502,10 +502,16 @@ or a UTF-8 string."))
 
 (defgeneric tag-print-long-report (library tag)
   (:method ((l library) (tag tag))
-    (format T "  Tag: ~A~%" (tag-name tag))
-    (format T "Label: ~A~%" (tag-label tag))
-    (format T " Data: ~{~S~^, ~}~%" (loop for datum in (list-data l :tags (list tag))
-                                          collect (datum-id datum))))
+    (format T "Summary for tag: ~S (~A file~:P, ~
+               ~A parent~:P, ~A child~:*~[ren~;~:;ren~])~%" (tag-name tag)
+               (tag-count tag) (tag-num-parents l tag) (tag-num-children l tag))
+    (format T "  (~:[tag not labeled~;~:*~A~])~%" (tag-label tag))
+    (format T "   Parents~{~11T: ~S~^~%~}~%"
+            (mapcar #'tag-name (get-tag-predicates l tag)))
+    (format T "  Children~{~11T: ~S~^~%~}~%"
+            (mapcar #'tag-name (get-tag-predicands l tag)))
+    (format T "     Files~{~11T: ~S~^~%~}~%"
+            (mapcar #'datum-id (list-data l :tags (list tag)))))
   (:documentation "Print a human-friendly summary of this tag."))
 
 (defgeneric tag-num-parents (library tag-or-name)
