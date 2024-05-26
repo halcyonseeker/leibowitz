@@ -709,3 +709,40 @@ stdin, or interactively edited by the user at their text editor."
                          tag name)
                  (del-tag-predicate *library* tag name)))))
 
+;;;; Subcommand: tag add children
+
+(defsubcmd (tag add children) (cmd)
+    (:description "Add child tags to a tag."
+     :usage "[-r|--replace] [-e|--edit] [tag] [child tags...]"
+     :options (list (clingon:make-option
+                     :flag
+                     :description "Replace this tag's children rather than add to them."
+                     :short-name #\r
+                     :long-name "replace"
+                     :initial-value NIL
+                     :key :replace)
+                    (clingon:make-option
+                     :flag
+                     :description "Edit the list of child tags in $EDITOR."
+                     :short-name #\e
+                     :long-name "edit"
+                     :initial-value NIL
+                     :key :edit)))
+  (when (zerop (length (clingon:command-arguments cmd)))
+    (error "No tag specified."))
+  (let* ((replace (or (clingon:getopt cmd :replace)
+                      (clingon:getopt cmd :edit)))
+         (tag (car (clingon:command-arguments cmd)))
+         (children (%collect-args-stdin-editor
+                    cmd (mapcar #'tag-name (get-tag-predicands *library* tag)))))
+    (loop for child in children
+          do (format T "Tag ~S will now be added to files with tag ~S~%" tag child)
+             (add-tag-predicate *library* child tag))
+    (when replace
+      (loop for c in (get-tag-predicands *library* tag)
+            for name = (tag-name c)
+            unless (member name children :test #'equal)
+              do (format T "Tag ~S will no longer be applied to files with tag ~S~%"
+                         tag name)
+                 (del-tag-predicate *library* name tag)))))
+
