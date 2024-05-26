@@ -493,7 +493,7 @@ stdin, or interactively edited by the user at their text editor."
                        (tag.ls/definition)
                        (tag.mv/definition)
                        (tag.cp/definition)
-                       (tag.add/definition)
+                       (tag.edit/definition)
                        )
    ))
 
@@ -581,38 +581,41 @@ stdin, or interactively edited by the user at their text editor."
                dst)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Subcommand group: tag add
+;;; Subcommand group: tag edit
 
-(defun tag.add/definition ()
+;;; FIXME: now add the -i/--invert option to switch from adding to
+;;; removing!
+
+(defun tag.edit/definition ()
   (clingon:make-command
-   :name "add"
+   :name "edit"
    :handler #'group-command-handler
    :description "Edit tag files and parents, reading from stdin if arguments are omitted."
-   :sub-commands (list (tag.add.help/definition)
-                       (tag.add.tags/definition)
-                       (tag.add.files/definition)
-                       (tag.add.parents/definition)
-                       (tag.add.children/definition)
-                       (tag.add.label/definition)
+   :sub-commands (list (tag.edit.help/definition)
+                       (tag.edit.tags/definition)
+                       (tag.edit.files/definition)
+                       (tag.edit.parents/definition)
+                       (tag.edit.children/definition)
+                       (tag.edit.label/definition)
                        )
    ))
 
-;;;; Subcommand: tag add help
+;;;; Subcommand: tag edit help
 
-(defsubcmd (tag add help) (cmd)
-    (:description "Print help for tag add subcommands."
+(defsubcmd (tag edit help) (cmd)
+    (:description "Print help for tag edit subcommands."
      :usage "[subcommand]")
   (setf *load-config-p* NIL)
   (%print-help-for-subcommand cmd))
 
-;;; Subcommand: tag add tags
+;;; Subcommand: tag edit tags
 
-(defsubcmd (tag add tags) (cmd)
-    (:description "Add multiple tags to a single file."
+(defsubcmd (tag edit tags) (cmd)
+    (:description "Add (default) or remove multiple tags on a single file."
      :usage "[-r|--replace] [-e|--edit] [path] [tags...]"
      :options (list (clingon:make-option
                      :flag
-                     :description "Replace this file's tags rather than add to them."
+                     :description "Replace this file's tags with the specified list."
                      :short-name #\r
                      :long-name "replace"
                      :initial-value NIL
@@ -636,14 +639,14 @@ stdin, or interactively edited by the user at their text editor."
         (format T "Adding tags to file ~S: ~S~%" path tags))
     (add-datum-tags *library* path tags :replace replace)))
 
-;;;; Subcommand: tag add files
+;;;; Subcommand: tag edit files
 
-(defsubcmd (tag add files) (cmd)
-    (:description "Add a single tag to multiple files."
+(defsubcmd (tag edit files) (cmd)
+    (:description "Add (default) or remove a single tag for multiple files"
      :usage "[-r|--replace] [-e|--edit] [tag] [files...]"
      :options (list (clingon:make-option
                      :flag
-                     :description "Replace this tag's files rather than add to them."
+                     :description "Replace this tag's files with the specified list."
                      :short-name #\r
                      :long-name "replace"
                      :initial-value NIL
@@ -674,21 +677,21 @@ stdin, or interactively edited by the user at their text editor."
               do (format T "Dropping tag ~S from file ~S~%" tag path)
                  (del-datum-tags *library* path (list tag))))))
 
-;;;; Subcommand: tag add parents
+;;;; Subcommand: tag edit parents
 
-(defsubcmd (tag add parents) (cmd)
-    (:description "Add parent tags to a tag."
+(defsubcmd (tag edit parents) (cmd)
+    (:description "Edit parent tags of a tag, default is to add to them."
      :usage "[-r|--replace] [-e|--edit] [tag] [parent tags...]"
      :options (list (clingon:make-option
                      :flag
-                     :description "Replace this tag's parents rather than add to them."
+                     :description "Replace this tag's parents with the specified list."
                      :short-name #\r
                      :long-name "replace"
                      :initial-value NIL
                      :key :replace)
                     (clingon:make-option
                      :flag
-                     :description "Edit the list of parent tags in $EDITOR."
+                     :description "Edit the list of parent tags in $EDITOR, implies -r"
                      :short-name #\e
                      :long-name "edit"
                      :initial-value NIL
@@ -712,21 +715,21 @@ stdin, or interactively edited by the user at their text editor."
                          tag name)
                  (del-tag-predicate *library* tag name)))))
 
-;;;; Subcommand: tag add children
+;;;; Subcommand: tag edit children
 
-(defsubcmd (tag add children) (cmd)
-    (:description "Add child tags to a tag."
+(defsubcmd (tag edit children) (cmd)
+    (:description "Edit a tag's children, default is to add."
      :usage "[-r|--replace] [-e|--edit] [tag] [child tags...]"
      :options (list (clingon:make-option
                      :flag
-                     :description "Replace this tag's children rather than add to them."
+                     :description "Replace this tag's children with the specified list."
                      :short-name #\r
                      :long-name "replace"
                      :initial-value NIL
                      :key :replace)
                     (clingon:make-option
                      :flag
-                     :description "Edit the list of child tags in $EDITOR."
+                     :description "Edit the list of child tags in $EDITOR, implies -r."
                      :short-name #\e
                      :long-name "edit"
                      :initial-value NIL
@@ -749,10 +752,10 @@ stdin, or interactively edited by the user at their text editor."
                          tag name)
                  (del-tag-predicate *library* name tag)))))
 
-;;;; Subcommand: tag add label
+;;;; Subcommand: tag edit label
 
-(defsubcmd (tag add label) (cmd)
-    (:description "Add a label to a tag, replacing it if it already exists"
+(defsubcmd (tag edit label) (cmd)
+    (:description "Edit a tag's label, replacing it if it already exists"
      :usage "[-e|--edit] [tag] [label]"
      :options (list (clingon:make-option
                      :flag
