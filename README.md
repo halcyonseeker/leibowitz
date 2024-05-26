@@ -175,9 +175,9 @@ Roadmap to 0.1 version; minimum viable product
           listings
     - [X] Paginate
     - [X] Card view for more convenient browsing
-  - [ ] Remove use of `library-list-files-in-dir` in web; wrappers
+  - [X] Remove use of `library-list-files-in-dir` in web; wrappers
         around `list-files` should leverage its full capabilities for
-        filtering.n
+        filtering.
 
 ### CLI
 
