@@ -94,6 +94,7 @@ relevant subcommand is run, it loads the config file."
         (final-content NIL)
         (path (uiop:tmpize-pathname #P"/tmp/leibowitz_editor_session"))
         (editor (uiop:getenv "EDITOR")))
+    (format T "Invoking $EDITOR: \"~A ~A\"...~%" editor (namestring path))
     (when (or (null editor) (zerop (length editor)))
       (error "Set $EDITOR to a text editor program (eg, emacs) and try again."))
     (unless (interactive-stream-p *standard-output*)
@@ -108,7 +109,7 @@ relevant subcommand is run, it loads the config file."
            (with-open-file (s path)
              (setf final-content (collect-lines s))))
       (ignore-errors (delete-file path)))
-    (format T "returning from editor: ~S~%" final-content)
+    (format T "Returning from editor with ~A line~:P.~%" (length final-content))
     final-content))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
