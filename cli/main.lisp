@@ -290,9 +290,12 @@ stdin, or interactively edited by the user at their text editor."
 (defsubcmd info (cmd)
     (:description "Print information and statistics about the dataset."
      :usage "")
-  (format T "Base directory:  ~A~%" (namestring *base-directory*))
-  (format T "Data directory:  ~A~%" (namestring *data-directory*))
-  (format T "Cache directory: ~A~%" (namestring *cache-directory*))
+  (declare (ignore cmd))
+  (format T "Welcome to Leibowitz!~%")
+  (format T "     Config file: ~A~%" (namestring *config-file*))
+  (format T "  Base directory: ~A~%" (namestring *base-directory*))
+  (format T "  Data directory: ~A~%" (namestring *data-directory*))
+  (format T " Cache directory: ~A~%" (namestring *cache-directory*))
   (library-print-info *library*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
