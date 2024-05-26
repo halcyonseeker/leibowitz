@@ -516,14 +516,25 @@ stdin, or interactively edited by the user at their text editor."
 ;;;; Subcommand: tag ls
 
 (defsubcmd (tag ls) (cmd)
-    (:description "List all tags."
-     :usage "")
-  ;; FIXME: add support for different listing formats, etc
-  ;; This is in the README checklist for the end of class, very
-  ;; important!!!!
-  (loop for tag in (list-tags *library*)
-        do (format T "(~A data) ~A: ~S~%"
-                   (tag-count tag) (tag-name tag) (tag-label tag))))
+    (:description "List tags, optionally filtered to union of specified paths."
+     :usage "[-n|--no-label] [paths...]"
+     :options (list (clingon:make-option
+                     :flag
+                     :short-name #\n
+                     :long-name "no-label"
+                     :key :no-label
+                     :description "Don't print tag labels; useful for Unix scripting.")))
+  (loop for tag in (alx:if-let ((paths (clingon:command-arguments cmd)))
+                     ;; FIXME: filtering by files really, really
+                     ;; should be done in list-tags
+                     (sort (alx:flatten
+                            (mapcar (lambda (p) (get-datum-tags *library* p))
+                                    paths))
+                           #'> :key (lambda (elt) (tag-count elt)))
+                     (list-tags *library*))
+        do (format T "~A file~:P~15T~A~%~:[~;  ~:*~S~%~]"
+                   (tag-count tag) (tag-name tag)
+                   (if (clingon:getopt cmd :no-label) NIL (tag-label tag)))))
 
 ;;;; Subcommand: tag mv
 
