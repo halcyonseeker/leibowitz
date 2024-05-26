@@ -115,10 +115,11 @@ Roadmap to 0.1 version; minimum viable product
 
 ### Core
 
-- [ ] Fix predicate/predicand bug where tags are being automatically
+- [X] ~~Fix predicate/predicand bug where tags are being automatically
       applied where they shouldn't be.  This *might* be a usage error
       in web, which itself would indicate that my API is probably too
-      unintuitive and in need of revision.
+      unintuitive and in need of revision.~~  I haven't encountered
+      this since so I'm almost certain I miss-used the core's API.
 - [ ] Improve full text search to index different fields (path, title,
       body, tags, tag descriptions) separately so that the user may
       selectively search in them.
@@ -151,7 +152,6 @@ Roadmap to 0.1 version; minimum viable product
       to reduce both the code and the asymptotic runtime complexity of
       the current web and command-line listing functions.
 
-
 ### Web
 
 - [X] Add more error handling to the web UI!  Right now it is insanely
@@ -175,6 +175,9 @@ Roadmap to 0.1 version; minimum viable product
           listings
     - [X] Paginate
     - [X] Card view for more convenient browsing
+  - [ ] Remove use of `library-list-files-in-dir` in web; wrappers
+        around `list-files` should leverage its full capabilities for
+        filtering.n
 
 ### CLI
 
@@ -200,8 +203,8 @@ Roadmap to 0.1 version; minimum viable product
     - [X] Removing children
     - [X] Viewing tag summaries
     - [ ] Test `-i|--invert` flag for `tag edit` subcommands
-  - [ ] Search and listing:
-    - [ ] Support changing the sort order and criterion for all data
+  - [X] Search and listing:
+    - [X] Support changing the sort order and criterion for all data
           listings
 
 ### Tests
