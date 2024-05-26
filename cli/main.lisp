@@ -450,31 +450,82 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd ls (cmd)
     (:description "List indexed files."
-     :usage "[directory]")
-  ;; FIXME: this function is very slow, we should record the number of
-  ;; tags a datum has rather than fetching them all!
-  ;; FIXME: this output is bland, ugly, uninformative, and doesn't
-  ;; scale with terminal size.
-  ;; FIXME: add support for listing multiple directories; infer cwd
-  ;; when none
-  (let* ((dir (if (clingon:command-arguments cmd)
-                  (truename (car (clingon:command-arguments cmd)))
-                  (uiop:getcwd))))
-    (format T "SHOWING LISTING FOR ~A~%" dir)
-    (loop for sub in (uiop:subdirectories dir)
-          do (format T "~A~%"
-                     (uiop:native-namestring (uiop:enough-pathname sub dir))))
-    (loop for file in (library-list-files-in-dir *library* dir :include-unindexed T)
-          do (etypecase file
-               (datum (format T "(~A tags) ~A~%"
-                              (datum-num-tags *library* file)
-                              (uiop:native-namestring
-                               (uiop:enough-pathname
-                                (uiop:parse-unix-namestring (datum-id file))
-                                dir))))
-               (pathname (format T "UNINDEXED ~A~%"
-                                 (uiop:native-namestring
-                                  (uiop:enough-pathname file dir))))))))
+     :usage "[-t|--tag] [-s|--sort-by] [-m|--mime] [-u|--unindexed] [-r|--reverse] [directories]"
+     :options (list (clingon:make-option
+                     :list
+                     :description "Filter by tag, may be pass multiple times."
+                     :short-name #\t
+                     :long-name "tag"
+                     :initial-value NIL
+                     :key :tags)
+                    (clingon:make-option
+                     :enum
+                     :description "Criterion by which to sort files."
+                     :short-name #\s
+                     :long-name "sort-by"
+                     :initial-value "modified"
+                     :items '(("modified" . :modified)
+                              ("birth"    . :birth)
+                              ("accesses" . :accesses))
+                     :key :sort-by)
+                    (clingon:make-option
+                     :string
+                     :description "Filter by mime type."
+                     :short-name #\m
+                     :long-name "mime"
+                     :initial-value NIL
+                     :key :mime)
+                    (clingon:make-option
+                     :flag
+                     :description "Include unindexed files."
+                     :short-name #\u
+                     :long-name "unindexed"
+                     :key :unindexed)
+                    (clingon:make-option
+                     :flag
+                     :description "Reverse sort order of results."
+                     :short-name #\r
+                     :long-name "reverse"
+                     :key :reverse)))
+    (labels ((format-indexed (file dir)
+             (format T "~A tag~:P~15T~A~%"
+                     (datum-num-tags *library* file)
+                     (uiop:native-namestring
+                      (uiop:enough-pathname
+                       (uiop:parse-unix-namestring (datum-id file))
+                       dir))))
+           (format-unindexed (file dir)
+             (format T "[unindexed]~15T~A~%"
+                     (uiop:native-namestring (uiop:enough-pathname file dir))))
+           (format-subdir (sub dir)
+             (format T "---------->~15T~A~%" (uiop:native-namestring
+                                              (uiop:enough-pathname sub dir)))))
+    ;; FIXME: use of truenameize and directory-exists-p means we won't
+    ;; be able to list directories out of sync with the database
+    (let* ((args (clingon:command-arguments cmd))
+           (dirs (if args (mapcar #'uiop:truenamize args) (list (uiop:getcwd))))
+           (tags (clingon:getopt cmd :tags))
+           (sort (clingon:getopt cmd :sort-by))
+           (mime (clingon:getopt cmd :mime))
+           (direction (if (clingon:getopt cmd :reverse) :ascending :descending))
+           (unindexed (clingon:getopt cmd :unindexed)))
+      (loop for dir in dirs
+            when (uiop:directory-exists-p dir)
+              do (format T "Listing for ~A:~%~
+                          ~:[~;    Restricted to mime type ~:*~S~%~]~
+                          ~:[~;    Restricted to tag~P ~2:*~{~S~^, ~}~%~]"
+                         dir mime tags (length tags))
+                 (mapcar (lambda (sub) (format-subdir sub dir))
+                         (uiop:subdirectories dir))
+                 (mapcar (lambda (file) (format-indexed file dir))
+                         (list-data *library* :dir dir :type mime :tags tags
+                                              :sort-by sort :direction direction))
+                 (when unindexed
+                   (mapcar (lambda (file)
+                             (unless (get-datum *library* file)
+                               (format-unindexed file dir)))
+                           (uiop:directory-files dir)))
+                 (princ #\Newline)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand group: tag
