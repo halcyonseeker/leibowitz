@@ -84,7 +84,7 @@ relevant subcommand is run, it loads the config file."
 (defun group-command-handler (cmd)
   "Handler for commands that are not intended to be called bare."
   (clingon:print-usage cmd *error-output*)
-  (error "Error: you didn't pass a subcommand."))
+  (error "Error: you didn't pass a valid subcommand."))
 
 (defun %open-editor-collect-lines (&optional (initial-content ""))
   (let ((initial-content (etypecase initial-content
