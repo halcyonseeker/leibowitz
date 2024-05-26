@@ -3,7 +3,8 @@
   (:use #:cl)
   (:export #:url
            #:html
-           #:collect-lines))
+           #:collect-lines
+           #:read-stream-to-string))
 
 (in-package :leibowitz.util)
 
@@ -51,3 +52,9 @@ newline"
     (null NIL)
     (stream (collect in))
     (string (with-input-from-string (s in) (collect s))))))
+
+(defun read-stream-to-string (&optional (in *standard-input*))
+  (with-output-to-string (s)
+    (loop for line = (read-line in nil 'eof)
+          until (eq line 'eof)
+          do (format s "~A~%" line))))

@@ -86,7 +86,7 @@ relevant subcommand is run, it loads the config file."
   (clingon:print-usage cmd *error-output*)
   (error "Error: you didn't pass a valid subcommand."))
 
-(defun %open-editor-collect-lines (&optional (initial-content ""))
+(defun %edit-in-editor (&optional (initial-content "") (collect-lines-p T))
   (let ((initial-content (etypecase initial-content
                            (string initial-content)
                            (list (with-output-to-string (s)
@@ -107,7 +107,9 @@ relevant subcommand is run, it loads the config file."
             (format NIL "~A ~A" editor (uiop:unix-namestring path))
             :input :interactive :output :interactive :error-output T)
            (with-open-file (s path)
-             (setf final-content (collect-lines s))))
+             (setf final-content (if collect-lines-p
+                                     (collect-lines s)
+                                     (read-stream-to-string s)))))
       (ignore-errors (delete-file path)))
     (format T "Returning from editor with ~A line~:P.~%" (length final-content))
     final-content))
@@ -123,7 +125,7 @@ arguments, this function returns a list of strings to be processed.
 These strings were either retrieved from the command-line, read from
 stdin, or interactively edited by the user at their text editor."
   (if (clingon:getopt cmd :edit)
-      (%open-editor-collect-lines editor-preset)
+      (%edit-in-editor editor-preset)
       (if (= (length (clingon:command-arguments cmd)) stdin-threshold)
           (collect-lines)
           (subseq (clingon:command-arguments cmd) stdin-threshold))))
@@ -591,6 +593,7 @@ stdin, or interactively edited by the user at their text editor."
                        (tag.add.files/definition)
                        (tag.add.parents/definition)
                        (tag.add.children/definition)
+                       (tag.add.label/definition)
                        )
    ))
 
@@ -746,3 +749,29 @@ stdin, or interactively edited by the user at their text editor."
                          tag name)
                  (del-tag-predicate *library* name tag)))))
 
+;;;; Subcommand: tag add label
+
+(defsubcmd (tag add label) (cmd)
+    (:description "Add a label to a tag, replacing it if it already exists"
+     :usage "[-e|--edit] [tag] [label]"
+     :options (list (clingon:make-option
+                     :flag
+                     :description "Edit the label in $EDITOR."
+                     :short-name #\e
+                     :long-name "edit"
+                     :initial-value NIL
+                     :key :edit)))
+  (when (zerop (length (clingon:command-arguments cmd)))
+    (error "No tag specified."))
+  (let* ((name (car (clingon:command-arguments cmd)))
+         (tag  (get-tag *library* name))
+         (label (if (clingon:getopt cmd :edit)
+                    (%edit-in-editor (if tag (tag-label tag) "") NIL)
+                    (if (= (length (clingon:command-arguments cmd)) 1)
+                        (read-stream-to-string)
+                        (cadr (clingon:command-arguments cmd))))))
+    (unless tag (setf tag (make-instance 'tag :name name)))
+    (when (zerop (length label)) (setf label NIL))
+    (format T "Label: ~S~%" label)
+    (setf (tag-label tag) label)
+    (add-tag *library* tag)))
