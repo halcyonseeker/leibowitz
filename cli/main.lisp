@@ -324,12 +324,11 @@ stdin, or interactively edited by the user at their text editor."
                      :initial-value 5000
                      :key :port)))
   (let ((port (clingon:getopt cmd :port)))
-    (if *interactive-session-p*
-        (setf hunchentoot:*catch-errors-p* NIL)
-        (progn
-          (setf hunchentoot:*catch-errors-p* T)
-          (setf hunchentoot:*show-lisp-errors-p* T)
-          (setf hunchentoot:*show-lisp-backtraces-p* T)))
+    (unless *interactive-session-p*
+      ;; When running interactively, errors will open a debugger
+      ;; session, otherwise a backtrace will be printed to stderr and
+      ;; shown on the 500 page
+      (setf hunchentoot:*catch-errors-p* T))
     (format T "Running webserver on localhost:~A...~%" port)
     (setf *webserver* (make-instance 'webserver :port port :library *library*))
     (webserver-run *webserver*)

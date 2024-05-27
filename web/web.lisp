@@ -21,6 +21,9 @@ state, we subclass `hunchentoot:acceptor' in a way that lets each
 route handler access the corresponding library"))
 
 (defmethod webserver-run ((w webserver))
+  (setf hunchentoot:*catch-errors-p* NIL)
+  (setf hunchentoot:*show-lisp-errors-p* T)
+  (setf hunchentoot:*show-lisp-backtraces-p* T)
   (hunchentoot:start w))
 
 (defmethod webserver-die ((w webserver))
