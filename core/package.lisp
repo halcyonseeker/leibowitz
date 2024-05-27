@@ -2,6 +2,7 @@
 (defpackage :leibowitz.core
   (:use #:cl
         #:leibowitz.util)
+  (:local-nicknames (#:lt #:local-time))
   ;; Basic administrative API
   (:export #:library
            #:library-thumbnail-cache-dir

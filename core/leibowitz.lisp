@@ -352,17 +352,16 @@ for different file types."))
 
 (defgeneric datum-print-long-report (library datum)
   (:method ((l library) (d datum))
-    (format T "   Datum: ~A~%" (datum-id d))
-    (format T "    Type: ~A~%" (datum-kind d))
-    (format T "Modified: ~A~%" (local-time:format-rfc1123-timestring
-                                NIL (local-time:universal-to-timestamp
-                                     (datum-modified d))))
-    (format T "    Born: ~A~%" (local-time:format-rfc1123-timestring
-                                NIL (local-time:universal-to-timestamp
-                                     (datum-birth d))))
-    (format T "    Tags: ~{~S~^, ~}~%" (loop for tag in (get-datum-tags l d)
-                                                 collect (tag-name tag)))
-    )
+    (format T "Summary for file: ~S~%" (datum-id d))
+    (format T "~11T(~A tag~:P, ~A access~:*~[ess~;~:;ess~], ~S)~%"
+            (datum-num-tags l d) (datum-accesses d) (datum-kind d))
+    (format T "     Title~11T: ~S~%" (datum-title d))
+    (format T "  Modified~11T: ~A~%"
+            (lt:format-timestring NIL (lt:universal-to-timestamp (datum-modified d))))
+    (format T "   Created~11T: ~A~%"
+            (lt:format-timestring NIL (lt:universal-to-timestamp (datum-birth d))))
+    (format T "      Tags~{~11T: ~S~^~%~}~%"
+            (loop for tag in (get-datum-tags l d) collect (tag-name tag))))
   (:documentation "Print a human-friendly summary of this datum."))
 
 (defgeneric datum-html-report (library datum)
