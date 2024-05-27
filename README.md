@@ -157,6 +157,10 @@ Roadmap to 0.1 version; minimum viable product
       variable and disable it in the test harness.  Could do something
       fancy too like pass in a custom stream and print that if there
       are problems.
+- [ ] When listing and displaying data, we should check if the
+      associated file exists on disk so that the cli and web may be
+      able to easily display warnings.  This would probably best be
+      done with an extra slot on the datum class.
 
 ### Web
 
