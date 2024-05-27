@@ -151,6 +151,12 @@ Roadmap to 0.1 version; minimum viable product
       to process the output; if used carefully this could also be used
       to reduce both the code and the asymptotic runtime complexity of
       the current web and command-line listing functions.
+- [ ] Progress and status printouts should be in the core, like with
+      index, so that users can see progress of, eg, cascading up the
+      predicate tree.  Should also gate all printing behind a dynamic
+      variable and disable it in the test harness.  Could do something
+      fancy too like pass in a custom stream and print that if there
+      are problems.
 
 ### Web
 
