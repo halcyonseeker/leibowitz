@@ -13,8 +13,3 @@
 ;; specially in the sidebar...
 
 ;; (defmethod datum-html-sidebar ((l library) (d datum-application/pdf)))
-
-(defmethod datum-html-report ((l library) (d datum-application/pdf))
-  (declare (ignore l))
-  `((:section
-     (:pre ,(html (with-output-to-string (s) (describe d s)))))))
