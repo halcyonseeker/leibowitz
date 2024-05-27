@@ -368,9 +368,10 @@ for different file types."))
   (:method ((l library) (d datum))
     (declare (ignore l))
     `((:section
-       (:pre ,(html
-               (with-output-to-string (s)
-                 (describe d s)))))))
+       (:h2 "Preview not available — "
+            (:a :href ,(format NIL "/raw?id=~A" (url (datum-id d)))
+                "view raw"))
+       (:img :src ,(format NIL "/thumbnail?id=~A" (url (datum-id d)))))))
   (:documentation "Return this datum summarized as a cl-who XHTML structure.  It should
 consist of a list containing at least one section tag."))
 

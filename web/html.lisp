@@ -246,7 +246,14 @@ listing.  Key arguments are passed unmodified to that method."
                             (:button :name "delete"
                                      :value "yes"
                                      ,(format NIL "Permanently Delete ~A"
-                                              (html (datum-title datum)))))))))))))
+                                              (html (datum-title datum)))))))))
+      `(:section
+        (:details
+         (:summary (:b "Class Description"))
+         (:pre ,(html (with-output-to-string (s)
+                        ;; Tell the pretty-printer not to elide it
+                        (let ((*print-right-margin* 500))
+                          (describe datum s)))))))))))
 
 (defun make-tag-view-sidebar (lib tag)
   (check-type tag tag)
