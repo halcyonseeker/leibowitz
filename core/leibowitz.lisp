@@ -12,6 +12,12 @@
     :initform (error "thumbnail-cache-dir required.")
     :accessor library-thumbnail-cache-dir
     :documentation "A directory in which to cache file thumbnails.")
+   (static-resource-dir
+    :type :pathname
+    :initarg :static-resource-dir
+    :initform (error "resource-dir required.")
+    :accessor library-static-resource-dir
+    :documentation "A directory in which to store misc data for this library.")
    (collections
     :type list
     :initarg :collections

@@ -6,6 +6,7 @@
   ;; Basic administrative API
   (:export #:library
            #:library-thumbnail-cache-dir
+           #:library-static-resource-dir
            #:library-collections
            #:library-print-info
            #:library-data-quantity

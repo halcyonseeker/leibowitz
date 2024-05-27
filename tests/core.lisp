@@ -17,7 +17,8 @@
                                  (random (expt 36 8))))))
                 (,path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_sqlite_test"))
                 (,library (make-instance 'sqlite-library :db-path ,path :homedir ,home
-                                                         :thumbnail-cache-dir ,home))
+                                                         :thumbnail-cache-dir ,home
+                                                         :static-resource-dir ,home))
                 ,@(loop for var in tmpfiles
                         collect `(,var (uiop:tmpize-pathname
                                         (merge-pathnames ,home #P"testfile")))))
@@ -34,7 +35,8 @@
 (define-test create-sqlite-library :parent core
   (let* ((path (uiop:tmpize-pathname #p"/tmp/leibowitz_core_testing_sqlite_db"))
          (lbry (make-instance 'sqlite-library :db-path path
-                                              :thumbnail-cache-dir "")))
+                                              :thumbnail-cache-dir ""
+                                              :static-resource-dir "")))
     (unwind-protect
          (progn
            (false (sqlite-rows lbry "select * from tags"))
@@ -68,7 +70,8 @@
 ;; Collections API tests
 
 (define-test library-get-datum-collection-works-for-homedir :parent core
-  (let ((l (make-instance 'library :thumbnail-cache-dir #P"/tmp/")))
+  (let ((l (make-instance 'library :thumbnail-cache-dir #P"/tmp/"
+                          :static-resource-dir #P"/tmp/")))
     (labels ((homedir ()
                (find-if (lambda (elem) (eql (type-of elem) 'collection-homedir))
                         (library-collections l))))

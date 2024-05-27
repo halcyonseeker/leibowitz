@@ -267,6 +267,7 @@ stdin, or interactively edited by the user at their text editor."
          'sqlite-library
          :db-path (merge-pathnames "ontology.db" *data-directory*)
          :thumbnail-cache-dir (merge-pathnames "thumbnails/" *cache-directory*)
+         :static-resource-dir *data-directory*
          :homedir *base-directory*))
   (let ((form (clingon:getopt cmd :eval))
         (*package* (find-package :leibowitz)))
