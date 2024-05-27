@@ -251,7 +251,8 @@ listing.  Key arguments are passed unmodified to that method."
       `(:section
         (:details
          (:summary (:b "Class Description"))
-         (:pre ,(html (with-output-to-string (s)
+         (:pre :style "overflow: scroll"
+               ,(html (with-output-to-string (s)
                         ;; Tell the pretty-printer not to elide it
                         (let ((*print-right-margin* 500))
                           (describe datum s)))))))))))
