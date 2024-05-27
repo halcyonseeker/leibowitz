@@ -426,17 +426,7 @@ consist of a list of sections."))
               (:a :href ,(format NIL "/datum?id=~A" (url (datum-id d)))
                   :title ,(let ((nt (datum-num-tags l d)))
                             (format NIL "~A; ~A tag~P" (datum-kind d) nt nt))
-                  ,(handler-case
-                       `(:img :src ,(let ((thumbnailer:*thumbnail-cache-dir*
-                                            (library-thumbnail-cache-dir l)))
-                                      (format NIL "/thumbnail?path=~A"
-                                              (url (uiop:native-namestring
-                                                    (thumbnailer:get-thumbnail
-                                                     (datum-id d) (datum-kind d)))))))
-                     (thumbnailer:source-file-not-accessible ()
-                       `(:p "This file has been moved or deleted on disk!"))
-                     (thumbnailer:unsupported-file-type ())
-                     (thumbnailer:thumbnail-creation-failed ()))
+                  (:img :src ,(format NIL "/thumbnail?id=~A" (url (datum-id d))))
                   (:div (:small ,(html (datum-title d)))))))
       (:card
        `(:div :class "card"

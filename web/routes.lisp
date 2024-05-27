@@ -193,18 +193,17 @@
             (return-404 lib (format NIL "Datum with ID ~S not found" id))))
       (hunchentoot:redirect "/")))
 
-;; FIXME: Temporary workaround to load a thumbnail from the library's
-;; cache directory.  We really need to store static files in a set
-;; place and use hunchentoot's static file handler instead!
-(leibowitz-route (datum-thumbnail lib "/thumbnail") (path)
-  (setf (hunchentoot:content-type*) "image/jpeg")
-  (with-open-file (s path :element-type '(unsigned-byte 8))
-    (let ((buf (make-array (file-length s) :element-type '(unsigned-byte 8))))
-      (handler-case
-          (loop for byte = (read-byte s)
-                for index from 0 to (file-length s)
-                do (setf (aref buf index) byte))
-        (end-of-file () buf)))))
+(leibowitz-route (datum-thumbnail lib "/thumbnail") (id)
+  (alx:if-let ((datum (and id (get-datum lib id))))
+    (handler-case
+        (let ((thumbnailer:*thumbnail-cache-dir* (library-thumbnail-cache-dir lib)))
+          (setf (hunchentoot:content-type*) "image/jpeg")
+          (hunchentoot:handle-static-file
+           (thumbnailer:get-thumbnail (datum-id datum) (datum-kind datum))))
+      (thumbnailer:source-file-not-accessible () (return-404 lib))
+      (thumbnailer:thumbnail-creation-failed  () (return-404 lib))
+      (thumbnailer:unsupported-file-type      () (return-404 lib)))
+    (return-404 lib)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tag view machinery
