@@ -660,9 +660,6 @@ stdin, or interactively edited by the user at their text editor."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Subcommand group: tag edit
 
-;;; FIXME: now add the -i/--invert option to switch from adding to
-;;; removing!
-
 (defun tag.edit/definition ()
   (clingon:make-command
    :name "edit"
@@ -689,10 +686,10 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag edit tags) (cmd)
     (:description "Add (default) or remove multiple tags on a single file."
-     :usage "[-r|--replace] [-e|--edit] [path] [tags...]"
+     :usage "[-c|--cascade] [-i|--invert] [-r|--replace] [-e|--edit] [path] [tags...]"
      :options (list (clingon:make-option
                      :flag
-                     :description "Replace this file's tags with the specified list."
+                     :description "Replace this file's tags, meaningless with -c."
                      :short-name #\r
                      :long-name "replace"
                      :initial-value NIL
@@ -703,27 +700,44 @@ stdin, or interactively edited by the user at their text editor."
                      :short-name #\e
                      :long-name "edit"
                      :initial-value NIL
-                     :key :edit)))
+                     :key :edit)
+                    (clingon:make-option
+                     :flag
+                     :description "Invert the selection to remove rather than add."
+                     :short-name #\i
+                     :long-name "invert"
+                     :key :invert)
+                    (clingon:make-option
+                     :flag
+                     :description "Also remove parent tags from path, needs -i."
+                     :short-name #\c
+                     :long-name "cascade"
+                     :key :cascade)))
   (when (zerop (length (clingon:command-arguments cmd)))
     (error "No file specified."))
   (let* ((replace (or (clingon:getopt cmd :replace)
                       (clingon:getopt cmd :edit)))
+         (invert  (clingon:getopt cmd :invert))
+         (cascade (clingon:getopt cmd :cascade))
          (path (car (clingon:command-arguments cmd)))
          (tags (%collect-args-stdin-editor
                 cmd (mapcar #'tag-name (get-datum-tags *library* path)))))
-    (if replace
-        (format T "Replacing tags for file ~S with ~S~%" path tags)
-        (format T "Adding tags to file ~S: ~S~%" path tags))
-    (add-datum-tags *library* path tags :replace replace)))
+    (cond (invert
+           (format T "Removing tags from file ~S: ~S~%" path tags)
+           (del-datum-tags *library* path tags :cascade cascade))
+          (T (if replace
+                 (format T "Replacing tags for file ~S with ~S~%" path tags)
+                 (format T "Adding tags to file ~S: ~S~%" path tags))
+             (add-datum-tags *library* path tags :replace replace)))))
 
 ;;;; Subcommand: tag edit files
 
 (defsubcmd (tag edit files) (cmd)
     (:description "Add (default) or remove a single tag for multiple files"
-     :usage "[-r|--replace] [-e|--edit] [tag] [files...]"
+     :usage "[-c|--cascade] [-|--invert] [-r|--replace] [-e|--edit] [tag] [files...]"
      :options (list (clingon:make-option
                      :flag
-                     :description "Replace this tag's files with the specified list."
+                     :description "Replace this tag's files, meaningless with -i."
                      :short-name #\r
                      :long-name "replace"
                      :initial-value NIL
@@ -734,31 +748,49 @@ stdin, or interactively edited by the user at their text editor."
                      :short-name #\e
                      :long-name "edit"
                      :initial-value NIL
-                     :key :edit)))
+                     :key :edit)
+                    (clingon:make-option
+                     :flag
+                     :description "Invert the selection to remove rather than add."
+                     :short-name #\i
+                     :long-name "invert"
+                     :key :invert)
+                    (clingon:make-option
+                     :flag
+                     :description "Also remove parent tags from path, needs -r, -e, or -i."
+                     :short-name #\c
+                     :long-name "cascade"
+                     :key :cascade)))
   (when (zerop (length (clingon:command-arguments cmd)))
     (error "No tag specified."))
   (let* ((replace (or (clingon:getopt cmd :replace)
                       (clingon:getopt cmd :edit)))
+         (invert  (clingon:getopt cmd :invert))
+         (cascade (clingon:getopt cmd :cascade))
          (tag (car (clingon:command-arguments cmd)))
          (paths (mapcar (lambda (rel) (namestring (uiop:truenamize rel)))
                         (%collect-args-stdin-editor
                          cmd (mapcar #'datum-id
                                      (list-data *library* :tags (list tag)))))))
-    (loop for path in paths
-          do (format T "Adding tag ~S to file ~S~%" tag path)
-             (add-datum-tags *library* path (list tag)))
-    (when replace
-      (loop for d in (list-data *library* :tags (list tag))
-            for path = (datum-id d)
-            unless (member path paths :test #'equal)
-              do (format T "Dropping tag ~S from file ~S~%" tag path)
-                 (del-datum-tags *library* path (list tag))))))
+    (unless invert
+      (loop for path in paths
+            do (format T "Adding tag ~S to file ~S~%" tag path)
+               (add-datum-tags *library* path (list tag))))
+    (when (or invert replace)
+      (loop for path in (if invert
+                            paths
+                            (loop for d in (list-data *library* :tags (list tag))
+                                  for path = (datum-id d)
+                                  unless (member path paths :test #'equal)
+                                    collect path))
+            do (format T "Dropping tag ~S from file ~S~%" tag path)
+               (del-datum-tags *library* path (list tag) :cascade cascade)))))
 
 ;;;; Subcommand: tag edit parents
 
 (defsubcmd (tag edit parents) (cmd)
-    (:description "Edit parent tags of a tag, default is to add to them."
-     :usage "[-r|--replace] [-e|--edit] [tag] [parent tags...]"
+    (:description "Add (default) or remove parent tags of a tag."
+     :usage "[-|--invert] [-r|--replace] [-e|--edit] [tag] [parent tags...]"
      :options (list (clingon:make-option
                      :flag
                      :description "Replace this tag's parents with the specified list."
@@ -772,31 +804,42 @@ stdin, or interactively edited by the user at their text editor."
                      :short-name #\e
                      :long-name "edit"
                      :initial-value NIL
-                     :key :edit)))
+                     :key :edit)
+                    (clingon:make-option
+                     :flag
+                     :description "Invert the selection to remove rather than add."
+                     :short-name #\i
+                     :long-name "invert"
+                     :key :invert)))
   (when (zerop (length (clingon:command-arguments cmd)))
     (error "No tag specified."))
   (let* ((replace (or (clingon:getopt cmd :replace)
                       (clingon:getopt cmd :edit)))
+         (invert (clingon:getopt cmd :invert))
          (tag (car (clingon:command-arguments cmd)))
          (parents (%collect-args-stdin-editor
                    cmd (mapcar #'tag-name (get-tag-predicates *library* tag)))))
-    (loop for parent in parents
-          do (format T "If a file has tag ~S, it now also has ~S~%"
-                     tag parent)
-             (add-tag-predicate *library* tag parent))
-    (when replace
-      (loop for p in (get-tag-predicates *library* tag)
-            for name = (tag-name p)
-            unless (member name parents :test #'equal)
-              do (format T "Files tagged with ~S, will no longer have ~S~%"
-                         tag name)
-                 (del-tag-predicate *library* tag name)))))
+    (unless invert
+      (loop for parent in parents
+            do (format T "If a file has tag ~S, it now also has ~S~%"
+                       tag parent)
+               (add-tag-predicate *library* tag parent)))
+    (when (or replace invert)
+      (loop for parent in (if invert
+                              parents
+                              (loop for p in (get-tag-predicates *library* tag)
+                                    for name = (tag-name p)
+                                    unless (member name parents :test #'equal)
+                                      collect name))
+            do (format T "Files tagged with ~S, will no longer have ~S~%"
+                       tag parent)
+               (del-tag-predicate *library* tag parent)))))
 
 ;;;; Subcommand: tag edit children
 
 (defsubcmd (tag edit children) (cmd)
-    (:description "Edit a tag's children, default is to add."
-     :usage "[-r|--replace] [-e|--edit] [tag] [child tags...]"
+    (:description "Add (default) or remove child tags of a tag."
+     :usage "[-|--invert] [-r|--replace] [-e|--edit] [tag] [child tags...]"
      :options (list (clingon:make-option
                      :flag
                      :description "Replace this tag's children with the specified list."
@@ -810,24 +853,35 @@ stdin, or interactively edited by the user at their text editor."
                      :short-name #\e
                      :long-name "edit"
                      :initial-value NIL
-                     :key :edit)))
+                     :key :edit)
+                    (clingon:make-option
+                     :flag
+                     :description "Invert the selection to remove rather than add."
+                     :short-name #\i
+                     :long-name "invert"
+                     :key :invert)))
   (when (zerop (length (clingon:command-arguments cmd)))
     (error "No tag specified."))
   (let* ((replace (or (clingon:getopt cmd :replace)
                       (clingon:getopt cmd :edit)))
+         (invert (clingon:getopt cmd :invert))
          (tag (car (clingon:command-arguments cmd)))
          (children (%collect-args-stdin-editor
                     cmd (mapcar #'tag-name (get-tag-predicands *library* tag)))))
-    (loop for child in children
-          do (format T "Tag ~S will now be added to files with tag ~S~%" tag child)
-             (add-tag-predicate *library* child tag))
-    (when replace
-      (loop for c in (get-tag-predicands *library* tag)
-            for name = (tag-name c)
-            unless (member name children :test #'equal)
-              do (format T "Tag ~S will no longer be applied to files with tag ~S~%"
-                         tag name)
-                 (del-tag-predicate *library* name tag)))))
+    (unless invert
+      (loop for child in children
+            do (format T "Tag ~S will now be added to files with tag ~S~%" tag child)
+               (add-tag-predicate *library* child tag)))
+    (when (or replace invert)
+      (loop for child in (if invert
+                             children
+                             (loop for c in (get-tag-predicands *library* tag)
+                                   for name = (tag-name c)
+                                   unless (member name children :test #'equal)
+                                     collect name))
+            do (format T "Tag ~S will no longer be applied to files with tag ~S~%"
+                       tag child)
+               (del-tag-predicate *library* child tag)))))
 
 ;;;; Subcommand: tag edit label
 
