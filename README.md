@@ -137,15 +137,15 @@ Roadmap to 0.1 version; minimum viable product
       `[`, `]`) in file names specially; figure out how to work around
       this!  This results in two different errors when calling
       `index`:
-      - When such a file is in a directory that is being indexed we
-        get ENOENT re-thrown up from `index-worker` in `index` (the
-        error-handling currently truncates stack traces), I think this
-        is caused by pathname/namestring conversion causes extra
-        backslashes to be inserted at some point.
-      - And when indexing it directly we get a type error
-        "SB-IMPL::PATTERN is not of type VECTOR" from an `aref` call
-        in `library-path-indexable-p`, I gather this is because
-        pathname patterns are formed differently.
+  - When such a file is in a directory that is being indexed we get
+    ENOENT re-thrown up from `index-worker` in `index` (the
+    error-handling currently truncates stack traces), I think this is
+    caused by pathname/namestring conversion causes extra backslashes
+    to be inserted at some point.
+  - And when indexing it directly we get a type error
+    `SB-IMPL::PATTERN is not of type VECTOR` from an `aref` call in
+    `library-path-indexable-p`, I gather this is because pathname
+    patterns are formed differently.
 - [ ] The library methods `list-data`, `list-tags`, and `query` should
       have a `:filter` argument for specifying a function with which
       to process the output; if used carefully this could also be used
@@ -194,7 +194,7 @@ Roadmap to 0.1 version; minimum viable product
 - [X] The cli needs a way to normalize paths before passing them to
       the library; CL is absolutely clueless when it comes to
       resolving unix path notation.
-- [ ] Expose the full API functionality in the CLI interface:
+- [X] Expose the full API functionality in the CLI interface:
   - [X] Editing data entries:
     - [X] Adding tags
     - [X] Removing tags
@@ -202,7 +202,7 @@ Roadmap to 0.1 version; minimum viable product
     - [X] Manually reindexing files and directories
     - [X] Deleting
     - [X] Viewing data summaries
-  - [ ] Editing tag entries:
+  - [X] Editing tag entries:
     - [X] Adding data
     - [X] Removing data
     - [X] Renaming tags
@@ -212,7 +212,7 @@ Roadmap to 0.1 version; minimum viable product
     - [X] Adding children
     - [X] Removing children
     - [X] Viewing tag summaries
-    - [ ] Test `-i|--invert` flag for `tag edit` subcommands
+    - [X] Test `-i|--invert` flag for `tag edit` subcommands
   - [X] Search and listing:
     - [X] Support changing the sort order and criterion for all data
           listings
