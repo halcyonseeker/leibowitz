@@ -164,6 +164,9 @@ Roadmap to 0.1 version; minimum viable product
 
 ### Web
 
+<details>
+<summary><b>Basic requirements: DONE</b></summary>
+
 - [X] Add more error handling to the web UI!  Right now it is insanely
       easy to get this thing to crash.
 - [X] Expose the full API functionality in the web frontend:
@@ -189,7 +192,12 @@ Roadmap to 0.1 version; minimum viable product
         around `list-files` should leverage its full capabilities for
         filtering.
 
+</details>
+
 ### CLI
+
+<details>
+<summary><b>Basic requirements: DONE</b></summary>
 
 - [X] The cli needs a way to normalize paths before passing them to
       the library; CL is absolutely clueless when it comes to
@@ -216,6 +224,8 @@ Roadmap to 0.1 version; minimum viable product
   - [X] Search and listing:
     - [X] Support changing the sort order and criterion for all data
           listings
+
+</details>
 
 ### Tests
 
