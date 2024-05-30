@@ -2,19 +2,8 @@
 
 (in-package :leibowitz.web)
 
-;; FIXME: adapt the hackjob to let us push static file handlers onto
-;; the dispatch table per hunchentoot's documentation.
-;; FIXME: For prod we'll obviously need a proper way of finding static
-;; resources.
-(leibowitz-route (stylesheet lib "/static/style.css") ()
-  (hunchentoot:handle-static-file
-   (merge-pathnames #P"code/leibowitz/web/static/style.css" (user-homedir-pathname))))
-(leibowitz-route (script lib "/static/fluff.js") ()
-  (hunchentoot:handle-static-file
-   (merge-pathnames #P"code/leibowitz/web/static/fluff.js" (user-homedir-pathname))))
-(leibowitz-route (script-display-pdf lib "/static/display_pdf.js") ()
-  (hunchentoot:handle-static-file
-   (merge-pathnames #P"code/leibowitz/web/static/display_pdf.js" (user-homedir-pathname))))
+(static-resource stylesheet "/static/style.css")
+(static-resource script "/static/fluff.js")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Top-level pages

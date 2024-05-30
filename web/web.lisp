@@ -110,3 +110,15 @@ functions."
 
 ;;; END QUESTIONABLE HACKS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defmacro static-resource (name path)
+  (let* ((file (merge-pathnames (uiop:parse-unix-namestring
+                                 (if (eql (aref path 0) #\/)
+                                     (subseq path 1)
+                                     (error "path not absolute")))
+                                "web/"))
+         (type (gethash (pathname-type file) hunchentoot::*mime-type-hash*))
+         (data (with-open-file (s file) (read-stream-to-string s))))
+    `(leibowitz-route (,name lib ,path) ()
+       (setf (hunchentoot:content-type*) ,type)
+       ,data)))
