@@ -184,14 +184,22 @@ stdin, or interactively edited by the user at their text editor."
                    :key :root)
                   (clingon:make-option
                    :flag
+                   :hidden T
                    :description "Print zsh-completions to stdout."
                    :long-name "zsh-completions"
                    :key :zsh-completions)
                   (clingon:make-option
                    :flag
+                   :hidden T
                    :description "Print markdown usage docs to stdout."
                    :long-name "markdown-documentation"
                    :key :markdown-documentation)
+                  (clingon:make-option
+                   :flag
+                   :hidden T
+                   :description "Print mandoc documentation to stdout."
+                   :long-name "mandoc-documentation"
+                   :key :mandoc-documentation)
                   (clingon:make-option
                    :flag
                    :description "Run a slynk server for interactive debugging."
@@ -239,6 +247,9 @@ stdin, or interactively edited by the user at their text editor."
     (uiop:quit 0))
   (when (clingon:getopt cmd :markdown-documentation)
     (clingon:print-documentation :markdown (toplevel/definition) T)
+    (uiop:quit 0))
+  (when (clingon:getopt cmd :mandoc-documentation)
+    (clingon:print-documentation :mandoc (toplevel/definition) T)
     (uiop:quit 0))
   (let ((root (clingon:getopt cmd :root)))
     (when root
