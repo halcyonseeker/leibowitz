@@ -37,78 +37,45 @@ layer over the Unix file system providing the following features:
   to it or gate it behind HTTP basic authentication with a reverse
   proxy.
 
-![A screenshot of the Leibowitz web view showing the main file listing](docs/web_main_file_listing.png)
-
-Usage
------
-
-```
-NAME:
-  leibowitz - A lispy object-storage layer for unix file systems.
-
-USAGE:
-  leibowitz [global-options] [<command>] [command-options] [arguments ...]
-
-OPTIONS:
-      --help                    display usage information and exit
-      --markdown-documentation  Print markdown usage docs to stdout.
-      --version                 display version and exit
-      --zsh-completions         Print zsh-completions to stdout.
-  -c, --config <PATH>           Specify an alternate config file. [env: $LEIBOWITZ_CONFIG]
-  -n, --no-config               Disable loading config file.
-  -p, --slynk-port <INT>        Specify the port slynk will listen in. [default: 4005] [env:
-                                $LEIBOWITZ_SLYNK_PORT]
-  -r, --root <PATH>             Specify a directory in which to run in root mode. [env:
-                                $LEIBOWITZ_ROOT]
-  -s, --slynk                   Run a slynk server for interactive debugging. [env:
-                                $LEIBOWITZ_RUN_SLYNK]
-  -w, --slynk-wait              Wait for a slynk/swank client to connect before doing anything. [env:
-                                $LEIBOWITZ_SLYNK_WAIT]
-
-COMMANDS:
-  help      Another way to print help info.
-  info      Print information and statistics about the dataset.
-  index     Recursively index a file or files, reading from stdin if none are
-            specified.
-  web       Display a web UI.
-  find      Search your data.
-  show      Print information about files.
-  tag       Apply a tag to one or more files, read from stdin if none are
-            specified.
-  tags      Apply one or more tags to a datum, reading from stdin if no tags are
-            specified.
-  untag     Remove a tag from one or more files, reading from stdin if none are
-            specified.
-  untags    Remove one or more tags from a file, reading tag names from stdin if
-            none are specified.
-  mv        Move or rename a file, keeping metadata and tags intact.
-  cp        Copy a file, duplicating its tags and metadata.
-  rm        Remove a file, including all tag and metadata associations.
-  ls        List indexed files.
-  show-tag  Show information about one or more tags.
-  mv-tag    Move or rename a tag.
-  cp-tag    Copy a tag.
-  rm-tag    Remove a tag, leaving associated data intact.
-  ls-tag    List all tags.
-  edit-tag
-```
-
-IMPORTANT NOTE
---------------
-
 At present Leibowitz is very much a work in progress and is varying
 degrees of useful from a REPL, the command line, and a web UI.  **I
-WOULD STRONGLY RECOMMEND AGAINST USING IT**
+WOULD STRONGLY RECOMMEND AGAINST USING IT IN PRODUCTION**.
 
-Installation
-------------
+Installation and Usage
+----------------------
 
-Right now in order to build or use Leibowitz you need ffmpeg, mupdf
-imagemagick, sqlite, make, quicklisp, and sbcl.  On my machine I can
-build it as an executable with `make` or hack on it from a REPL with
-`(load #P"leibowitz.asd"` and `(ql:quickload :leibowitz)`.  I'd like
-Leibowitz to be easy to build, install, and use for people who don't
-know Common Lisp, but it's still a fair long ways off from that goal.
+In order to compile Leibowitz, you need to be running a Unix-like
+system with make(1), the Steel Bank Common Lisp compiler, and the
+[quicklisp library manager](https://www.quicklisp.org/) installed.
+The ASDF build system and UIOP utility library are also needed, but
+will probably already be installed along with SBCL.
+
+In order to run Leibowitz, you need to have the SQLite3 library
+installed, and have the ffmpeg, mupdf, ImageMagick, and optionally
+LibreOffice programs installed somewhere in your `$PATH`.
+
+Makefile generation requires changes to [clingon
+library](https://github.com/dnaeon/clingon) that have not yet been
+merged upstream, so you'll need to clone [my
+fork](https://github.com/halcyonseeker/clingon) into your
+quicklisp/local-projects/ directory.
+
+You should be able to install Leibowitz quite easily with `sudo make
+install`, with the default `$PREFIX` being `/usr/local/`.  Usage
+information is available with `man 1 leibowitz`, which is still
+admittedly sparse.
+
+If you're familiar with Lisp, hacking on Leibowitz should be as simple
+as running `(load #P"leibowitz.asd")` and `(ql:quickload :leibowitz)`.
+Integration tests may be run at the command line with `make test` or
+in the REPL with `(asdf:test-system :leibowitz)` (if any of them fail,
+use `(parachute:test 'leibowitz/tests::name-of-test :report
+'parachute:interactive)` to debug them directly).
+
+Screenshot
+----------
+
+![A screenshot of the Leibowitz web view showing the main file listing](docs/web_main_file_listing.png)
 
 Roadmap to 0.1 version; minimum viable product
 ----------------------------------------------
