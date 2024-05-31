@@ -292,7 +292,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd help (cmd)
     (:description "Another way to print help info."
-     :usage "[subcommand]")
+     :usage "<subcommand>")
   (setf *load-config-p* NIL)
   (%print-help-for-subcommand cmd))
 
@@ -300,8 +300,7 @@ stdin, or interactively edited by the user at their text editor."
 ;;; Subcommand: info
 
 (defsubcmd info (cmd)
-    (:description "Print information and statistics about the dataset."
-     :usage "")
+    (:description "Print information and statistics about the dataset.")
   (declare (ignore cmd))
   (format T "Welcome to Leibowitz!~%")
   (format T "     Config file: ~A~%" (namestring *config-file*))
@@ -315,7 +314,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd index (cmd)
     (:description "Recursively index a file or files, reading from stdin if none are specified."
-     :usage "[paths ...]")
+     :usage "<paths...>")
   (let ((args (clingon:command-arguments cmd)))
     (if args
         (index *library* args :log T)
@@ -326,7 +325,6 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd web (cmd)
     (:description "Display a web UI."
-     :usage "[-p|--port port]"
      :options (list (clingon:make-option
                      :integer
                      :description "Specify a port on which to run the web UI."
@@ -353,7 +351,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd find (cmd)
     (:description "Search your data."
-     :usage "[-r|--reverse] [-s|--sort-by rank|modified|birth|accesses] [query terms...]"
+     :usage "<search terms...>"
      ;; FIXME: add support for tag filtering!
      :options (list (clingon:make-option
                      :flag
@@ -385,7 +383,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd show (cmd)
     (:description "Print information about files."
-     :usage "[paths...]")
+     :usage "<paths...>")
   (loop for path in (clingon:command-arguments cmd)
         do (datum-print-long-report *library* (get-datum *library* path :error T))))
 
@@ -394,7 +392,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd mv (cmd)
     (:description "Move or rename a file, keeping metadata and tags intact."
-     :usage "[-f|--force] [src] [dst]"
+     :usage "<source> <destination>"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\f
@@ -415,7 +413,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd cp (cmd)
     (:description "Copy a file, duplicating its tags and metadata."
-     :usage "[-f|--force] [src] [dst]"
+     :usage "<source> <destination>"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\f
@@ -436,7 +434,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd rm (cmd)
     (:description "Remove a file, including all tag and metadata associations."
-     :usage "[paths...]")
+     :usage "<paths...>")
   ;; FIXME: rewrite this shitheap and move id resolution into core so
   ;; that we don't have to pass absolute paths to delete orphaned
   ;; files
@@ -464,7 +462,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd ls (cmd)
     (:description "List indexed files."
-     :usage "[-t|--tag] [-s|--sort-by] [-m|--mime] [-u|--unindexed] [-r|--reverse] [directories]"
+     :usage "<directories...>"
      :options (list (clingon:make-option
                      :list
                      :description "Filter by tag, may be pass multiple times."
@@ -567,7 +565,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag help) (cmd)
     (:description "Print help for tag subcommands."
-     :usage "[subcommand]")
+     :usage "<subcommand>")
   (setf *load-config-p* NIL)
   (%print-help-for-subcommand cmd))
 
@@ -575,7 +573,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag show) (cmd)
     (:description "Show information about one or more tags."
-     :usage "[tag names...]")
+     :usage "<tag names...>")
   (loop for name in (clingon:command-arguments cmd)
         do (tag-print-long-report *library* (get-tag *library* name :error T))))
 
@@ -583,7 +581,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag ls) (cmd)
     (:description "List tags, optionally filtered to union of specified paths."
-     :usage "[-n|--no-label] [paths...]"
+     :usage "<paths...>"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\n
@@ -606,7 +604,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag mv) (cmd)
     (:description "Move or rename a tag."
-     :usage "[-f|--force] [-m|--merge] [src] [dst]"
+     :usage "<source> <destination>"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\f
@@ -633,7 +631,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag cp) (cmd)
     (:description "Copy a tag."
-     :usage "[-f|--force] [-m|--merge] [src] [dst]"
+     :usage "<source> <destination>"
      :options (list (clingon:make-option
                      :flag
                      :short-name #\f
@@ -661,7 +659,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag rm) (cmd)
     (:description "Remove one or more tags."
-     :usage "[tags...]")
+     :usage "<tag names...>")
   (loop for tag in (if (clingon:command-arguments cmd)
                        (clingon:command-arguments cmd)
                        (collect-lines))
@@ -689,7 +687,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag edit help) (cmd)
     (:description "Print help for tag edit subcommands."
-     :usage "[subcommand]")
+     :usage "<subcommand>")
   (setf *load-config-p* NIL)
   (%print-help-for-subcommand cmd))
 
@@ -697,7 +695,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag edit tags) (cmd)
     (:description "Add (default) or remove multiple tags on a single file."
-     :usage "[-c|--cascade] [-i|--invert] [-r|--replace] [-e|--edit] [path] [tags...]"
+     :usage "<path> <tags names...>"
      :options (list (clingon:make-option
                      :flag
                      :description "Replace this file's tags, meaningless with -c."
@@ -745,7 +743,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag edit files) (cmd)
     (:description "Add (default) or remove a single tag for multiple files"
-     :usage "[-c|--cascade] [-|--invert] [-r|--replace] [-e|--edit] [tag] [files...]"
+     :usage "<tag name> <paths...>"
      :options (list (clingon:make-option
                      :flag
                      :description "Replace this tag's files, meaningless with -i."
@@ -801,7 +799,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag edit parents) (cmd)
     (:description "Add (default) or remove parent tags of a tag."
-     :usage "[-|--invert] [-r|--replace] [-e|--edit] [tag] [parent tags...]"
+     :usage "<tag names...>"
      :options (list (clingon:make-option
                      :flag
                      :description "Replace this tag's parents with the specified list."
@@ -850,7 +848,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag edit children) (cmd)
     (:description "Add (default) or remove child tags of a tag."
-     :usage "[-|--invert] [-r|--replace] [-e|--edit] [tag] [child tags...]"
+     :usage "<tag names...>"
      :options (list (clingon:make-option
                      :flag
                      :description "Replace this tag's children with the specified list."
@@ -898,7 +896,7 @@ stdin, or interactively edited by the user at their text editor."
 
 (defsubcmd (tag edit label) (cmd)
     (:description "Edit a tag's label, replacing it if it already exists"
-     :usage "[-e|--edit] [tag] [label]"
+     :usage "<tag name> <label>"
      :options (list (clingon:make-option
                      :flag
                      :description "Edit the label in $EDITOR."
