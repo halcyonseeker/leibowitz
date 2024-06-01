@@ -155,6 +155,7 @@ stdin, or interactively edited by the user at their text editor."
    :name "leibowitz"
    :description "A lispy object-storage layer for unix file systems."
    :handler #'toplevel/handler
+   :authors '("ꙮ <ymir@ulthar.xyz>")
    :sub-commands (list (help/definition)
                        (info/definition)
                        (index/definition)
@@ -235,7 +236,54 @@ stdin, or interactively edited by the user at their text editor."
                    :short-name #\n
                    :long-name "no-config"
                    :key :no-config)
-                  )))
+                  )
+   :examples '(("Leibowitz supports self-contained libraries, meaning that for some
+value of the variable LEIBOWITZ_ROOT, all metadata pertaining to the
+files under that directory are stored there.  This is useful if you'd
+like to have self-contained libraries of different kinds of data, like
+your collections of ebooks, or memes, or whatever:"
+                . "$ export LEIBOWITZ_ROOT=/path/to/library/
+$ leibowitz index /path/to/library/
+Indexing /path/to/library/file_1.ext
+ ...
+Indexing /path/to/library/file_n.ext
+$ find /path/to/library/.leibowitiz/ -type f
+/path/to/library/.leibowitz/ontology.db
+/path/to/library/.leibowitz/config.lisp
+/path/to/library/.leibowitz/cache/thumbnails/path/to/library/file_1.ext.jpg
+ ...
+/path/to/library/.leibowitz/cache/thumbnails/path/to/library/file_n.ext.jpg
+$ leibowitz info
+Welcome to Leibowitz!
+     Config file: /path/to/library/.leibowitz/config.lisp
+  Base directory: /path/to/library/
+  Data directory: /path/to/library/.leibowitz/
+ Cache directory: /path/to/library/.leibowitz/cache/
+SQLite Library on /path/to/library/.leibowitz/ontology.db with N tags and M files.")
+
+               ("If you DON'T set LEIBOWITZ_ROOT, all data will be stored in the
+conventional locations in your home directory.  For this and for the
+preceding example, the only files Leibowitz will know about are those
+you explicitly (or implicitly because of shell patterns or directory
+recursion) index."
+                . "$ unset $LEIBOWITZ_ROOT
+$ leibowitz info
+Welcome to Leibowitz!
+     Config file: /home/you/.config/leibowitz/config.lisp
+  Base directory: /home/you/
+  Data directory: /home/you/.local/share/leibowitz/
+ Cache directory: /home/you/.cache/leibowitz/
+SQLite Library on /home/you/.local/share/leibowitz/ontology.db with N tags and M files."))
+   :long-description
+   "Leibowitz is a personal library management engine.  It consists of a
+Common Lisp library exposed as a command-line utility and a web
+interface that act as an abstraction layer over the Unix file system,
+providing a number of extra features.  These include
+mutually-inclusive file tagging, full text search (using an index and
+extractors for non-textual files, so it's faster and more complete
+than grep), and easy modification in Common Lisp directly.  See the
+EXAMPLES section for advice on how to get started using Leibowitz to
+manage files."))
 
 (defun toplevel/handler (cmd)
   (when (= (length (uiop:command-line-arguments)) 0)
