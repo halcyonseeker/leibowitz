@@ -75,7 +75,16 @@ use `(parachute:test 'leibowitz/tests::name-of-test :report
 Screenshot
 ----------
 
-![A screenshot of the Leibowitz web view showing the main file listing](docs/web_main_file_listing.png)
+These examples all show a library of ebooks, mostly epub and pdf
+files.
+
+![Web view showing the main file listing](docs/pics/web_main_file_listing.png)
+
+![Web view showing a directory listing](docs/pics/web_tree_listing.png)
+
+![Web view showing a tag listing](docs/pics/web_tag_listing.png)
+
+![Web view showing an epub file's metadata](docs/pics/datum_view.png)
 
 Roadmap to 0.1 version; minimum viable product
 ----------------------------------------------
