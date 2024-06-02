@@ -80,6 +80,9 @@ Screenshot
 Roadmap to 0.1 version; minimum viable product
 ----------------------------------------------
 
+<details>
+<summary><b>Basic requirements: DONE</b></summary>
+
 ### Core
 
 - [X] ~~Fix predicate/predicand bug where tags are being automatically
@@ -87,19 +90,6 @@ Roadmap to 0.1 version; minimum viable product
       in web, which itself would indicate that my API is probably too
       unintuitive and in need of revision.~~  I haven't encountered
       this since so I'm almost certain I miss-used the core's API.
-- [ ] Improve full text search to index different fields (path, title,
-      body, tags, tag descriptions) separately so that the user may
-      selectively search in them.
-- [ ] Sometimes doing a full-text search yields an error `Code
-      CORRUPT: database disk image is malformed.` with the offending
-      stanza being `select data.* from search left join data on
-      data.id = search.id where search match ? order by rank`.
-      Connecting to the database and running `pragma integrity_check`
-      yields okay.  Some light stackoverflowing indicated this might
-      be a result damaged indexes, which would make sense considering
-      it only (so far) shows up when doing full-text search.
-- [ ] Record inodes so that the indexer can catch (some) moved files.
-- [ ] Support filtering by tag for all data listings
 - [X] Common Lisp's pathname type treats certain characters (eg, `*`,
       `[`, `]`) in file names specially; figure out how to work around
       this!  This results in two different errors when calling
@@ -113,26 +103,8 @@ Roadmap to 0.1 version; minimum viable product
     `SB-IMPL::PATTERN is not of type VECTOR` from an `aref` call in
     `library-path-indexable-p`, I gather this is because pathname
     patterns are formed differently.
-- [ ] The library methods `list-data`, `list-tags`, and `query` should
-      have a `:filter` argument for specifying a function with which
-      to process the output; if used carefully this could also be used
-      to reduce both the code and the asymptotic runtime complexity of
-      the current web and command-line listing functions.
-- [ ] Progress and status printouts should be in the core, like with
-      index, so that users can see progress of, eg, cascading up the
-      predicate tree.  Should also gate all printing behind a dynamic
-      variable and disable it in the test harness.  Could do something
-      fancy too like pass in a custom stream and print that if there
-      are problems.
-- [ ] When listing and displaying data, we should check if the
-      associated file exists on disk so that the cli and web may be
-      able to easily display warnings.  This would probably best be
-      done with an extra slot on the datum class.
 
 ### Web
-
-<details>
-<summary><b>Basic requirements: DONE</b></summary>
 
 - [X] Add more error handling to the web UI!  Right now it is insanely
       easy to get this thing to crash.
@@ -159,12 +131,7 @@ Roadmap to 0.1 version; minimum viable product
         around `list-files` should leverage its full capabilities for
         filtering.
 
-</details>
-
 ### CLI
-
-<details>
-<summary><b>Basic requirements: DONE</b></summary>
 
 - [X] The cli needs a way to normalize paths before passing them to
       the library; CL is absolutely clueless when it comes to
@@ -194,36 +161,103 @@ Roadmap to 0.1 version; minimum viable product
 
 </details>
 
-### Tests
 
-- [ ] My test harness breaks when `$LEIBOWTIZ_ROOT` is set, not a big
-      deal but may have led to me spending several hours chasing down
-      bugs that aren't there 🙃
+Known Bugs
+----------
+- Sometimes doing a full-text search yields an error `Code CORRUPT:
+  database disk image is malformed.` with the offending stanza being
+  `select data.* from search left join data on data.id = search.id
+  where search match ? order by rank`.  Connecting to the database and
+  running `pragma integrity_check` yields okay.  Some light
+  stackoverflowing indicated this might be a result damaged indexes,
+  which would make sense considering it only (so far) shows up when
+  doing full-text search.
+- Test harness breaks when `$LEIBOWTIZ_ROOT` is set, not a big deal
+  but may have led to me spending several hours chasing down bugs that
+  aren't there 🙃
 
 Future Work
 -----------
+
+### Web
+
 - Make sure the web UI is properly accessible and easy to use with a
   screenreader.  <https://www.w3.org/WAI/ARIA/apg/>
-- Unify searching and listing into a single method that restricts the
-  view of the database, then expose this in the web and cli.  EVERY
-  view into the filesystem should thus be trivially filtered using the
-  same sets of rules.
-- Implement collections for gallery-dl, man, etc.
-- Add support for file and collection specific metadata fields,
-  probably implemented as a special kind of tags.
-- Add a native GUI.
-- Add full support for saving URLs, including saving magnets and
-  archiving HTTP docs.  These files should have special options in all
-  frontends.
-- Integrate with the [Internet Archive's
-  API](https://archive.org/developers/index-apis.html) to view
-  historical snapshots of webpages the user has saved onto their
-  computer, either as a monolithic html file, a full site archive via,
-  eg, `wget -np -rkEpD example.com example.com/somewhere`, or a
-  .webloc or .url file.  Could also integrate with web archive
-  collections like gallery-dl to link to historical versions of the
-  archived document, though that's less useful I think.
-- Automatically figure out the semantic similarities of tags and data.
+- Add custom CSS and JS options.
+- For serving raw files in the web UI, use `Content-Disposition:
+  attachement; filename=""` to preserve the filename when
+  downloading...  Or perhaps fix the URL to properly encode that?
+  Really, I should stop storing absolute IDs as absolute paths and do
+  something with inodes and relative paths.
+- Extend easy-routes to match larger chunks of the url (eg
+  `/datum/@path` with `/datum/path/to/file.txt` yields `path ⇒
+  "path/to/file.txt"` like in Perl's Mojolicious library.
+  - Use this to reduce the amount of ugly, ugly URL parameters in the
+    web fronted
+- Add some concept of permissions.
+- Use https://leafletjs.com with OSM data to show maps of exif
+  metadata from images, display GPS log files (eg, from gpslogger),
+  and maybe various GIS formats.  Will be harder in native though I
+  could probably cheat by XEmbed'ing [mepo](https://sr.ht/~mil/mepo/)
+  or something.
+- Display spacial graphs of tag relationships?
+
+### Core
+
+- Add gitignore-style exclude/include patterns
+- Progress and status printouts should be in the core, like with
+  index, so that users can see progress of, eg, cascading up the
+  predicate tree.  Should also gate all printing behind a dynamic
+  variable and disable it in the test harness.  Could do something
+  fancy too like pass in a custom stream and print that if there are
+  problems.
+- Add an inotify(7) listener to the daemon, and record inodes so that
+  the indexer can catch (some) moved files.
+  - Add support for similar non-Linux APIs like BSD's kqueue(2) and
+    whatever the Android and win32 equivalents are.
+- Store paths relative to the library root so that libraries are
+  actually portable.
+- Consider making the indexer run concurrently.  I think some things
+  in the core are still too fiddly for this to be wise.
+- **Listing and searching improvements (`list-data`, `query`,
+  `list-tags`)**:
+  - When listing and displaying data, we should check if the
+    associated file exists on disk so that the cli and web may be able
+    to easily display warnings.  This would probably best be done with
+    an extra slot on the datum class.
+  - Unify `query` and `list-data` into a single method that restricts
+    the view of the database, then expose this in the web and cli.
+    EVERY view into the filesystem should thus be trivially filtered
+    using the same sets of rules.
+    - Offloading search to Xapian may make this less efficient, but I
+      think that would be a worthwhile tradeoff.
+  - These methods should have a `:filter` argument for specifying a
+    function with which to process the output; if used carefully this
+    could also be used to reduce both the code and the asymptotic
+    runtime complexity of the current web and command-line listing
+    functions.
+  - Improve full text search to index different fields (path, title,
+    body, tags, tag descriptions) separately so that the user may
+    selectively search in them.  I don't think this is supported by
+    SQLite's FTS5, Xapian looks like a good alternative though I'll
+    need to write a C shim and CFFI bindings for it.
+- **More information to store**
+  - Add support for `datum` subclass and collection specific metadata
+    fields (eg, author, exif data, etc), probably implemented as a
+    special kind of tags.
+  - For an appropriate `datum` subclass, integrate with the [Internet
+    Archive's API](https://archive.org/developers/index-apis.html) to
+    view historical snapshots of webpages the user has saved onto
+    their computer, either as a monolithic html file, a full site
+    archive via, eg, `wget -np -rkEpD example.com
+    example.com/somewhere`, or a .webloc or .url file.  Could also
+    integrate with web archive collections like gallery-dl to link to
+    historical versions of the archived document, though that's less
+    useful I think.
+  - Implement collections for gallery-dl archives, Unix man and GNU
+    info databases, kiwix zim archives (eg, mediawiki and
+    stackexchange dumps, etc.
+- **Semantic analysis of tags and data**
   - Tag similarities could potentially be computed by some combination
     of:
     - Good old Levenshtein distance to catch alternate spellings.
@@ -243,11 +277,23 @@ Future Work
     algorithms used by the likes of Shazam and Yandex's reverse image
     search to get semantic structure from non-textual data — I need to
     read up on this more.
+
+### Miscellaneous
+
+- Add a native GUI, probably with either TK or QT via the Clasp
+  compiler's C++ FFI.
+- Port to systems other than Linux and BSD and verify support for
+  architectures other than 64 bit Intel.
+- Leibowitz should be usable on really slow hardware and scale
+  reasonably well to multi-terabyte datasets.  This will probably
+  require additional backends for things like PostgreSQL, and maybe
+  Apache SOLR and/or ElasticSearch.
+- A CouchDB backend could maybe be used to implement an interesting
+  mutli-device client/server model with aggressive caching.
+- Get the client program and daemon mode working!
 - Could be interesting to supplement search with a local LLM, probably
   Facebook's [Llama2](https://ai.meta.com/llama/), fed entirely by
   your local corpus.
-- Consider making the indexer run concurrently.  I think some things
-  in the core are still too fiddly for this to be wise.
 
 Notes
 -----
@@ -260,16 +306,6 @@ Notes
   symbols into a shared library
   https://github.com/quil-lang/sbcl-librarian
 * https://archive-it.org/post/the-stack-warc-file/
-* For serving raw files in the web UI, use `Content-Disposition:
-  attachement; filename=""` to preserve the filename when
-  downloading...  Or perhaps fix the URL to properly encode that?
-  Really, I should stop storing absolute IDs as absolute paths and do
-  something with inodes and relative paths.
-* In the web interface, use https://leafletjs.com with OSM data to
-  show maps of exif metadata from images, display GPS log files (eg,
-  from gpslogger), and maybe various GIS formats.  Will be harder in
-  native though I could probably cheat by XEmbed'ing mepo or
-  something.
 * Interesting article about categorizing data:
   https://web.archive.org/web/20050601013309/http://shirky.com/writings/ontology_overrated.html
 * [Memento web protocol](http://www.mementoweb.org/about/) for
