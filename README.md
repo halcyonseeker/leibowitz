@@ -184,6 +184,8 @@ Known Bugs
 - Test harness breaks when `$LEIBOWTIZ_ROOT` is set, not a big deal
   but may have led to me spending several hours chasing down bugs that
   aren't there 🙃
+- Full set of page numbers how up at the bottom of query page when no
+  results are returned.
 
 Future Work
 -----------
