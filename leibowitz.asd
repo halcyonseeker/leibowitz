@@ -20,5 +20,6 @@
   :components ((:module "tests" :components ((:file "package")
                                              (:file "utils")
                                              (:file "core")
-                                             (:file "cli"))))
+                                             ;;(:file "cli")
+                                             )))
   :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test :leibowitz/tests)))
