@@ -1,4 +1,6 @@
 
+(require 'asdf)
+
 (loop for dir in (nconc (list #P"core/" #P"web/" #P"cli/")
                         (directory #P"lib/*/"))
       do (push dir asdf:*central-registry*))
