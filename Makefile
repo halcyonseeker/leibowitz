@@ -20,7 +20,13 @@ build/_leibowitz: build/leibowitz
 	@ echo Now run this in order to load the completions:
 	@ echo 'export fpath=(~/.local/share/zsh/site-functions $$fpath); autoload -U compinit; compinit'
 
-.PHONY: test install uninstall clean
+.PHONY: compute_dependency_list deps test install uninstall clean
+
+compute_dependencies_list:
+	./etc/scripts/list_dependencies.lisp > ./etc/dependencies.txt
+
+deps:
+	./etc/scripts/fetch_dependencies.sh
 
 test: $(LISP_SOURCES_REGEX)
 	sbcl --noinform --load leibowitz.asd --load build.lisp \
