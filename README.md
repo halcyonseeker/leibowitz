@@ -187,6 +187,11 @@ Roadmap to 0.1 version; minimum viable product
 
 Known Bugs
 ----------
+- SHA1 checksums retrieved from Quicklisp don't match the tarballs, I
+  probably got them mismatched by accident.  We're fetching over https
+  so a MITM isn't a realistic threat, but I'd much rather get our
+  libraries directly from upstream and verify them with the authors'
+  PGP keys.
 - Sometimes doing a full-text search yields an error `Code CORRUPT:
   database disk image is malformed.` with the offending stanza being
   `select data.* from search left join data on data.id = search.id
