@@ -45,28 +45,42 @@ Installation and Usage
 ----------------------
 
 In order to compile Leibowitz, you need to be running a Unix-like
-system with make(1), the Steel Bank Common Lisp compiler, and the
-[quicklisp library manager](https://www.quicklisp.org/) installed.
-The ASDF build system and UIOP utility library are also needed, but
-will probably already be installed along with SBCL.
+system with make(1) and the Steel Bank Common Lisp compiler.  The ASDF
+build system and UIOP utility library are also needed, but will
+probably already be installed along with SBCL.  In order to run
+Leibowitz, you need to have the SQLite3 library installed, and have
+the ffmpeg, mupdf, ImageMagick, and optionally LibreOffice programs
+installed somewhere in your `$PATH`.
 
-In order to run Leibowitz, you need to have the SQLite3 library
-installed, and have the ffmpeg, mupdf, ImageMagick, and optionally
-LibreOffice programs installed somewhere in your `$PATH`.
+Man page generation requires changes to the [clingon
+library](https://github.com/dnaeon/clingon) that have not yet made it
+to the release on quicklisp, so you'll need to clone it to the `lib/`
+or your `quicklisp/local-projects` directory.
 
-Makefile generation requires changes to [clingon
-library](https://github.com/dnaeon/clingon) that have not yet been
-merged upstream, so you'll need to clone [my
-fork](https://github.com/halcyonseeker/clingon) into your
-quicklisp/local-projects/ directory.
+I've put effort into making building and installing as painless as
+possible for people who don't know Lisp:
 
-You should be able to install Leibowitz quite easily with `sudo make
-install`, with the default `$PREFIX` being `/usr/local/`.  Usage
-information is available with `man 1 leibowitz`, which is still
+    make deps
+    make
+    sudo make install
+
+This will download all of Leibowitz's Lisp dependencies to the build
+directory.  If you have [quicklisp](https://www.quicklisp.org/)
+installed, you can set `WITH_QUICKLISP=1` when invoking `make` and
+forego the `make deps`.
+
+Usage information is available with `man 1 leibowitz`, which is still
 admittedly sparse.
 
 If you're familiar with Lisp, hacking on Leibowitz should be as simple
 as running `(load #P"leibowitz.asd")` and `(ql:quickload :leibowitz)`.
+If you don't want to use Quicklisp, download the dependencies with
+`make deps`, and at the REPL
+
+    (load "build.lisp")
+    (leibowitz.build:discover-systems "build/dependences/")
+    (asdf:load-system :leibowitz)
+
 Integration tests may be run at the command line with `make test` or
 in the REPL with `(asdf:test-system :leibowitz)` (if any of them fail,
 use `(parachute:test 'leibowitz/tests::name-of-test :report
