@@ -6,8 +6,8 @@ all: $(TARGETS)
 
 build/leibowitz: $(LISP_SOURCES_REGEX)
 	mkdir -p build
-	sbcl --noinform --load leibowitz.asd \
-	     --eval '(progn (asdf:make :leibowitz) (quit))'
+	sbcl --noinform --load leibowitz.asd --load build.lisp \
+	     --eval '(leibowitz.build:build)'
 
 build/leibowitz.1: build/leibowitz
 	build/leibowitz --mandoc-documentation > build/leibowitz.1
@@ -23,8 +23,8 @@ build/_leibowitz: build/leibowitz
 .PHONY: test install uninstall clean
 
 test: $(LISP_SOURCES_REGEX)
-	sbcl --noinform --load leibowitz.asd \
-	     --eval '(progn (asdf:test-system :leibowitz) (quit))'
+	sbcl --noinform --load leibowitz.asd --load build.lisp \
+	     --eval '(leibowitz.build:test)'
 
 install: $(TARGETS)
 	install -D -m 0755 build/leibowitz   $(PREFIX)/bin/leibowitz
